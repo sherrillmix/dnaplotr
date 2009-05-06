@@ -1,7 +1,44 @@
-plotSeq<-function(seqs,outFile="test.eps",segs=FALSE,distOrder=FALSE,homoLimit=0,emptyTrim=TRUE,gapTrim=0,groups=NULL,groupTrim=0,distShow=TRUE,vocal=0,legend=TRUE,endGapRemove=FALSE,orderBy=NULL,pause=FALSE,plotPng=FALSE,extraCmds=NULL,xstart=1,distOrderDecreasing=FALSE,refSeq=NULL,res=1,groupCex=3,lineStagger=FALSE,groupCexScale=FALSE,convertGap2NoGap=FALSE,seqCounts=rep(1,length(seqs)),...){
+#Function: plotSeq(c('ACTAAATTT','GGTAAGTTT'), 'test.png')
+	#Produce a red, green, blue, yellow plot of sequences
+
+#Arguments:
+	#seqs = a vector of sequences (strings)
+	#outFile = a file name (.eps and .png used to determine file type)
+	#distOrder = order sequences by Levenshtein distance from refSeq if defined otherwise most abundant sequence? (requires levenshtein.R)
+	#homoLimit = If calculating distance, ignore difference in homopolymers longer than homoLimt
+	#emptyTrim = Delete any columns with all -, *, .'s 
+	#gapTrim = Delete any columns with fewer than gapTrim non[-*.] chars
+	#groups = Group sequences by group and show lable on right side of plot
+	#groupTrim = Delete any groups with sequence counts <= groupTrim
+	#distShow = Show distances on right side of plot (can be messy when few sequences for given distances)
+	#vocal = Show message every vocal sequences when calculating levenshtein (for monitoring progress on long calculations)
+	#legend = Show A C T G legend?
+	#endGapRemove = Change -'s on ends to .'s  (e.g --AAA-CCC-- becomes ..AAA-CC..) (dots are displayed white and dashes grey)
+	#orderBy = Column used to order sequences
+	#pause = Call browser() near end for manual adjustments/debugging
+	#plotPng = Output file as png or eps (set automatically if filenames end in .eps or .png)
+	#extraCmds = Extra commands added after plotting sequences (e.g. lines arrows etc)
+	#xstart = First base should be numbered as xstart
+	#distOrderDecreasing = Sort by distance in decreasing order?
+	#refSeq = Reference sequence used for determining gap free base position and distance
+	#res = resolution for png's 1600x900 * res
+	#groupCex = cex for group labels
+	#lineStagger = offset group labels
+	#groupCexScale = scale group label cex by number of sequences?
+	#convertGap2NoGap = Use refSeq to determine nonGap base positions for x-axis? requires dna.R
+	#seqCounts = vector of counts 
+	#fixedAxis = vector of x-axis label positions (for fine-tuning axis labelling)
+	#... = arguments passed to plot()
+
+#Returns: nothing
+#Side effect: Produces plot in outFile
+
+plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=TRUE,gapTrim=0,groups=NULL,groupTrim=0,distShow=TRUE,vocal=0,legend=TRUE,endGapRemove=FALSE,orderBy=NULL,pause=FALSE,plotPng=FALSE,extraCmds=NULL,xstart=1,distOrderDecreasing=FALSE,refSeq=NULL,res=1,groupCex=3,lineStagger=FALSE,groupCexScale=FALSE,convertGap2NoGap=FALSE,seqCounts=rep(1,length(seqs)),fixedAxis=NULL,...){
 	if(any(grep('.png$',outFile)))plotPng=TRUE
 	if(length(seqs)<1|is.null(seqs))stop(simpleError("Seqs missing"))
+	if(length(seqs)!=length(seqCounts))stop(simpleError('Lengths of seqs and seqCounts not equal'))
 	seqs<-toupper(seqs)
+	if(!is.null(refSeq))refGaps<-strsplit(refSeq,'')[[1]] %in% c('*','-','.')
 
 	if(groupTrim>0){
 			groupNums<-tapply(seqCounts,groups,sum)
@@ -26,6 +63,8 @@ plotSeq<-function(seqs,outFile="test.eps",segs=FALSE,distOrder=FALSE,homoLimit=0
 			if (is.null(orderBy))thisOrder<-order(groups,gsub('[.*-]+','Z',seqs))
 			else thisOrder<-order(groups,orderBy,gsub('[.*-]','Z',seqs))
 		}
+	}else{
+		if(!is.null(orderBy))thisOrder<-order(orderBy,gsub('[.*-]+','Z',seqs))
 	}
 	if(!exists('thisOrder'))thisOrder<-1:length(seqs)
 	seqList<-strsplit(seqs,'')
@@ -35,15 +74,20 @@ plotSeq<-function(seqs,outFile="test.eps",segs=FALSE,distOrder=FALSE,homoLimit=0
 		seqList<-lapply(seqList,function(x,num){return(c(x,rep('-',maxLength-length(x))))},maxLength)
 	}
 	seqMat<-do.call(rbind,seqList)
-	if(distOrder|!is.null(groups))seqMat<-seqMat[thisOrder,]
+	if(distOrder|!is.null(groups)|!is.null(orderBy))seqMat<-seqMat[thisOrder,,drop=FALSE]
 	if(emptyTrim){
 		selector<-!apply(seqMat,2,function(x){all(x=='-'|x=='.'|x=='*')})
-		seqMat<-seqMat[,selector]
+		if(convertGap2NoGap & !is.null(refSeq)){
+			edges<-range(which(selector))
+			selector[edges[1]:edges[2]]<-selector[edges[1]:edges[2]]|!refGaps[edges[1]:edges[2]]
+			if(edges[1]>1)xstart<-xstart+sum(!selector[1:(edges[1]-1)]&!refGaps[1:(edges[1]-1)])
+		}
+		seqMat<-seqMat[,selector,drop=FALSE]
 		if(!is.null(refSeq))refSeq<-paste(strsplit(refSeq,'')[[1]][selector],collapse='')
 	}
 	if(gapTrim>0){
 		selector<-apply(seqMat,2,function(x){sum(x!='-'&x!='.')})>gapTrim
-		seqMat<-seqMat[,selector]
+		seqMat<-seqMat[,selector,drop=FALSE]
 		if(!is.null(refSeq))refSeq<-paste(strsplit(refSeq,'')[[1]][selector],collapse='')
 	}
 	if(endGapRemove){
@@ -60,16 +104,20 @@ plotSeq<-function(seqs,outFile="test.eps",segs=FALSE,distOrder=FALSE,homoLimit=0
 	#if(!is.null(groups))seqNum<-seqNum[order(groups),]
 	if(plotPng) png(outFile,width=round(1600*res),height=round(900*res),res=80*res,type='cairo',antialias='subpixel')
 	else postscript(outFile,horizontal=FALSE,width=75,height=25,paper='special')
-		par(mar=c(7,5+digits*1,1,7),las=1)
+		par(mar=c(7,5+digits*1.06,1,7),las=1)
 		plot(1,1,xlim=c(0.5,ncol(seqNum)+.5),ylim=c(0.5,sum(seqCounts)+.5),ylab="",xlab="Position",type='n',xaxs='i',yaxs='i',xaxt='n',cex.axis=3,cex.lab=3,mgp=c(6,1.2,0),...)
-		mtext('Sequence Read',2,line=3+digits,las=3,cex=3)
+		mtext('Sequence Read',2,line=3+digits*1.05,las=3,cex=3)
 		xstart<-xstart-1
 		if(convertGap2NoGap&!is.null(refSeq)){
 			source('~/scripts/R/dna.R')
 			maxNoGap<-gap2NoGap(refSeq,ncol(seqNum))
 			prettyX<-pretty(xstart+c(1,maxNoGap))
-			prettyX<-prettyX[prettyX<=maxNoGap]
+			prettyX<-prettyX[prettyX<=xstart+maxNoGap]
 			prettyX[prettyX==0]<-1
+			prettyX<-prettyX[prettyX-xstart>0]
+			if(length(prettyX<4)){prettyX<-pretty(prettyX);}
+			if(!is.null(fixedAxis))prettyX<-fixedAxis	
+			prettyX<-prettyX[prettyX<=xstart+maxNoGap]; prettyX[prettyX==0]<-1
 			#axis(1,noGap2Gap(refSeq,prettyX-xstart),noGap2Gap(refSeq,prettyX-xstart),cex.axis=3)
 			axis(1,noGap2Gap(refSeq,prettyX-xstart),prettyX,cex.axis=3)
 		}else{
@@ -116,12 +164,3 @@ plotSeq<-function(seqs,outFile="test.eps",segs=FALSE,distOrder=FALSE,homoLimit=0
 		if(pause)browser()
 	dev.off()
 }
-
-multiPlotSeq<-function(seqs,amps,outputPath='',segs=FALSE,groups=NULL){
-	for (i in unique(amps)){
-		if(!is.null(groups))thisGroups<-groups[amps==i]
-		else thisGroups<-NULL
-		plotSeq(seqs[amps==i],outFile=paste(outputPath,i,'.eps',sep=""),segs=segs,groups=thisGroups)
-	}
-}
-
