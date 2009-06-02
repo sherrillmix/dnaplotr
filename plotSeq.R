@@ -102,14 +102,16 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 	seqNum[seqMat=='-']<-'grey'
 	digits<-ceiling(log10(sum(seqCounts)+1))
 	#if(!is.null(groups))seqNum<-seqNum[order(groups),]
-	if(plotPng) png(outFile,width=round(1600*res),height=round(900*res),res=80*res,type='cairo',antialias='subpixel')
-	else postscript(outFile,horizontal=FALSE,width=75,height=25,paper='special')
+	if(!is.null(outFile)){
+		if(plotPng) png(outFile,width=round(1600*res),height=round(900*res),res=80*res,type='cairo',antialias='subpixel')
+		else postscript(outFile,horizontal=FALSE,width=75,height=25,paper='special')
+	}
 		par(mar=c(7,5+digits*1.06,1,7),las=1)
 		plot(1,1,xlim=c(0.5,ncol(seqNum)+.5),ylim=c(0.5,sum(seqCounts)+.5),ylab="",xlab="Position",type='n',xaxs='i',yaxs='i',xaxt='n',cex.axis=3,cex.lab=3,mgp=c(6,1.2,0),...)
 		mtext('Sequence Read',2,line=3+digits*1.05,las=3,cex=3)
 		xstart<-xstart-1
 		if(convertGap2NoGap&!is.null(refSeq)){
-			source('~/scripts/R/dna.R')
+			if(!exists('gap2NoGap'))source('~/scripts/R/dna.R')
 			maxNoGap<-gap2NoGap(refSeq,ncol(seqNum))
 			prettyX<-pretty(xstart+c(1,maxNoGap))
 			prettyX<-prettyX[prettyX<=xstart+maxNoGap]
@@ -159,8 +161,10 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 			ypos<- -sum(seqCounts)*.04
 			xpos<-ncol(seqNum)*.98	
 			#adj=c(1,0)
-			legend(xpos, ypos, c("A", "T", "C","G"),col=c('green','red','blue','yellow'), pt.bg= c('green','red','blue','yellow'),pch = c(22,22,22,22),ncol=4,bty='n',cex=2,xjust=1,yjust=1,xpd=NA)
+			par(xpd=NA)
+			legend(xpos, ypos, c("A", "T", "C","G"),col=c('green','red','blue','yellow'), pt.bg= c('green','red','blue','yellow'),pch = c(22,22,22,22),ncol=4,bty='n',cex=2,xjust=1,yjust=1)
+			par(xpd=TRUE)
 		}
 		if(pause)browser()
-	dev.off()
+	if(!is.null(outFile))dev.off()
 }
