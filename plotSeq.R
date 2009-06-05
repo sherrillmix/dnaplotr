@@ -34,11 +34,12 @@
 #Side effect: Produces plot in outFile
 
 plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=TRUE,gapTrim=0,groups=NULL,groupTrim=0,distShow=TRUE,vocal=0,legend=TRUE,endGapRemove=FALSE,orderBy=NULL,pause=FALSE,plotPng=FALSE,extraCmds=NULL,xstart=1,distOrderDecreasing=FALSE,refSeq=NULL,res=1,groupCex=3,lineStagger=FALSE,groupCexScale=FALSE,convertGap2NoGap=FALSE,seqCounts=rep(1,length(seqs)),fixedAxis=NULL,...){
+	gapChars<-c('-','*','.') #need to standardize throughout
 	if(any(grep('.png$',outFile)))plotPng=TRUE
 	if(length(seqs)<1|is.null(seqs))stop(simpleError("Seqs missing"))
 	if(length(seqs)!=length(seqCounts))stop(simpleError('Lengths of seqs and seqCounts not equal'))
 	seqs<-toupper(seqs)
-	if(!is.null(refSeq))refGaps<-strsplit(refSeq,'')[[1]] %in% c('*','-','.')
+	if(!is.null(refSeq))refGaps<-strsplit(refSeq,'')[[1]] %in% gapChars
 
 	if(groupTrim>0){
 			groupNums<-tapply(seqCounts,groups,sum)
@@ -76,7 +77,7 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 	seqMat<-do.call(rbind,seqList)
 	if(distOrder|!is.null(groups)|!is.null(orderBy))seqMat<-seqMat[thisOrder,,drop=FALSE]
 	if(emptyTrim){
-		selector<-!apply(seqMat,2,function(x){all(x=='-'|x=='.'|x=='*')})
+		selector<-!apply(seqMat,2,function(x){all(x %in% gapChars)})
 		if(convertGap2NoGap & !is.null(refSeq)){
 			edges<-range(which(selector))
 			selector[edges[1]:edges[2]]<-selector[edges[1]:edges[2]]|!refGaps[edges[1]:edges[2]]
@@ -86,7 +87,7 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 		if(!is.null(refSeq))refSeq<-paste(strsplit(refSeq,'')[[1]][selector],collapse='')
 	}
 	if(gapTrim>0){
-		selector<-apply(seqMat,2,function(x){sum(x!='-'&x!='.')})>gapTrim
+		selector<-apply(seqMat,2,function(x){sum(!x %in% gapChars)})>gapTrim
 		seqMat<-seqMat[,selector,drop=FALSE]
 		if(!is.null(refSeq))refSeq<-paste(strsplit(refSeq,'')[[1]][selector],collapse='')
 	}
