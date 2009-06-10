@@ -53,7 +53,7 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 			seqCount<-tapply(seqCounts,seqs,sum)
 			maxSeq<-names(seqCount)[seqCount==max(seqCount)][1]
 		}else maxSeq<-refSeq
-		dists<-levenOnetoMany(gsub('[*.-]+','',maxSeq),gsub('[-.*]','',seqs,perl=TRUE),subString=TRUE,homoLimit=homoLimit,vocal=vocal,subBoth=TRUE)
+		dists<-levenStringsToStrings(gsub('[*.-]+','',maxSeq),gsub('[-.*]','',seqs,perl=TRUE),substring1=TRUE,homoLimit=homoLimit,vocal=vocal,substring2=TRUE)
 		thisOrder<-order(dists,seqs)
 	}
 	if(!is.null(groups)){
