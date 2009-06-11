@@ -87,7 +87,7 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 		if(!is.null(refSeq))refSeq<-paste(strsplit(refSeq,'')[[1]][selector],collapse='')
 	}
 	if(gapTrim>0){
-		selector<-apply(seqMat,2,function(x){sum(!x %in% gapChars)})>gapTrim
+		selector<-apply(seqMat,2,function(x,y){sum(!rep(x,y) %in% gapChars)},seqCounts)>gapTrim
 		seqMat<-seqMat[,selector,drop=FALSE]
 		if(!is.null(refSeq))refSeq<-paste(strsplit(refSeq,'')[[1]][selector],collapse='')
 	}
@@ -107,9 +107,11 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 		if(plotPng) png(outFile,width=round(1600*res),height=round(900*res),res=80*res,type='cairo',antialias='subpixel')
 		else postscript(outFile,horizontal=FALSE,width=75,height=25,paper='special')
 	}
-		par(mar=c(7,5+digits*1.06,1,7),las=1)
+		#add some space to the right margin if annotating groups or distance
+		marRightPad<-ifelse(is.null(groups),ifelse(distShow,3,0),max(nchar(groups))*1.05)
+		par(mar=c(7,5+digits*1.06,1,4+marRightPad),las=1)
 		plot(1,1,xlim=c(0.5,ncol(seqNum)+.5),ylim=c(0.5,sum(seqCounts)+.5),ylab="",xlab="Position",type='n',xaxs='i',yaxs='i',xaxt='n',cex.axis=3,cex.lab=3,mgp=c(6,1.2,0),...)
-		mtext('Sequence Read',2,line=3+digits*1.05,las=3,cex=3)
+		mtext('Sequence Read',2,line=3+digits^1.03*1.05,las=3,cex=3)
 		xstart<-xstart-1
 		if(convertGap2NoGap&!is.null(refSeq)){
 			if(!exists('gap2NoGap'))source('~/scripts/R/dna.R')
@@ -135,8 +137,11 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 		}
 		if(distOrder&is.null(groups)&distShow){
 			dists<-dists[thisOrder]
+			cumSums<-cumsum(seqCounts[thisOrder])
+			#first bin goes to 1
+			cumSums[1]<-1
 			for(i in unique(dists)){
-				mtext(i,4,at=cumsum(seqCounts)[min(which(dists==i))],cex=2)	
+				mtext(i,4,at=cumSums[min(which(dists==i))],cex=2)	
 			}
 		}
 		if(!is.null(groups)){
