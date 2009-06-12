@@ -47,27 +47,27 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 			seqs<-seqs[groups %in% names(groupNums)]
 			groups<-groups[groups %in% names(groupNums)]
 	}
+
+	#ordering
 	if(distOrder){
 		source('~/scripts/R/levenshtein.R')
+		#pick out most common sequence
 		if(is.null(refSeq)){
 			seqCount<-tapply(seqCounts,seqs,sum)
 			maxSeq<-names(seqCount)[seqCount==max(seqCount)][1]
 		}else maxSeq<-refSeq
 		dists<-levenStringsToStrings(gsub('[*.-]+','',maxSeq),gsub('[-.*]','',seqs,perl=TRUE),substring1=TRUE,homoLimit=homoLimit,vocal=vocal,substring2=TRUE)
-		thisOrder<-order(dists,seqs)
-	}
-	if(!is.null(groups)){
-		if(distOrderDecreasing) multiplier<- -1
-		else multiplier<-1
-		if(distOrder)thisOrder<-order(groups,dists*multiplier,seqs)
-		else{
-			if (is.null(orderBy))thisOrder<-order(groups,gsub('[.*-]+','Z',seqs))
-			else thisOrder<-order(groups,orderBy,gsub('[.*-]','Z',seqs))
-		}
-	}else{
-		if(!is.null(orderBy))thisOrder<-order(orderBy,gsub('[.*-]+','Z',seqs))
-	}
-	if(!exists('thisOrder'))thisOrder<-1:length(seqs)
+		multiplier<-ifelse(distOrderDecreasing,-1,1)
+		distRank<-rank(dists*multiplier)
+	}else distRank<-rep(0,length(seqs))
+	if(!is.null(groups))groupRank<-rank(groups)
+	else groupRank<-rep(0,length(seqs))
+	if(!is.null(orderBy))orderByRank<-rank(orderBy)
+	else orderByRank<-rep(0,length(seqs))
+	seqRank<-rank(gsub('[.*-]','Z',seqs))
+	if(any(c(distRank,orderByRank,groupRank)!=0))thisOrder<-order(groupRank,orderByRank,distRank,seqRank)
+	else thisOrder<-1:length(seqs)
+
 	seqList<-strsplit(seqs,'')
 	lengths<-unlist(lapply(seqList,length))
 	if(any(lengths[1]!=lengths)){
@@ -88,8 +88,11 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 	}
 	if(gapTrim>0){
 		selector<-apply(seqMat,2,function(x,y){sum(!rep(x,y) %in% gapChars)},seqCounts)>gapTrim
+		if(!is.null(refSeq)){
+			selector<-selector|!strsplit(refSeq,'')[[1]] %in% gapChars
+			refSeq<-paste(strsplit(refSeq,'')[[1]][selector],collapse='')
+		}
 		seqMat<-seqMat[,selector,drop=FALSE]
-		if(!is.null(refSeq))refSeq<-paste(strsplit(refSeq,'')[[1]][selector],collapse='')
 	}
 	if(endGapRemove){
 		seqMat<-t(apply(seqMat,1,function(x){lims<-range(which(x!='-'));x[-(lims[1]:lims[2])]<-'.';return(x)}))
