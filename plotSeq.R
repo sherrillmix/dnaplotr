@@ -62,7 +62,7 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 	}else distRank<-rep(0,length(seqs))
 	if(!is.null(groups))groupRank<-rank(groups)
 	else groupRank<-rep(0,length(seqs))
-	if(!is.null(orderBy))orderByRank<-rank(orderBy)
+	if(!is.null(orderBy))orderByRank<-do.call(rank,orderBy)
 	else orderByRank<-rep(0,length(seqs))
 	seqRank<-rank(gsub('[.*-]','Z',seqs))
 	if(any(c(distRank,orderByRank,groupRank)!=0))thisOrder<-order(groupRank,orderByRank,distRank,seqRank)
