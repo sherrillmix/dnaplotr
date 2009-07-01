@@ -7,7 +7,7 @@
 	#distOrder = order sequences by Levenshtein distance from refSeq if defined otherwise most abundant sequence? (requires levenshtein.R)
 	#homoLimit = If calculating distance, ignore difference in homopolymers longer than homoLimt
 	#emptyTrim = Delete any columns with all -, *, .'s 
-	#gapTrim = Delete any columns with fewer than gapTrim non[-*.] chars
+	#gapTrim = Delete any columns with fewer than or equal  gapTrim non[-*.] chars
 	#groups = Group sequences by group and show lable on right side of plot
 	#groupTrim = Delete any groups with sequence counts <= groupTrim
 	#distShow = Show distances on right side of plot (can be messy when few sequences for given distances)
@@ -62,8 +62,10 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 	}else distRank<-rep(0,length(seqs))
 	if(!is.null(groups))groupRank<-rank(groups)
 	else groupRank<-rep(0,length(seqs))
-	if(!is.null(orderBy))orderByRank<-do.call(rank,orderBy)
-	else orderByRank<-rep(0,length(seqs))
+	if(!is.null(orderBy)){
+		if(!is.list(orderBy))orderBy<-list(orderBy)
+		orderByRank<-do.call(rank,orderBy)
+	} else orderByRank<-rep(0,length(seqs))
 	seqRank<-rank(gsub('[.*-]','Z',seqs))
 	if(any(c(distRank,orderByRank,groupRank)!=0))thisOrder<-order(groupRank,orderByRank,distRank,seqRank)
 	else thisOrder<-1:length(seqs)
@@ -108,7 +110,7 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 	#if(!is.null(groups))seqNum<-seqNum[order(groups),]
 	if(!is.null(outFile)){
 		if(plotPng) png(outFile,width=round(1600*res),height=round(900*res),res=80*res,type='cairo',antialias='subpixel')
-		else postscript(outFile,horizontal=FALSE,width=75,height=25,paper='special')
+		else postscript(outFile,horizontal=FALSE,width=10,height=6,paper='special')
 	}
 		#add some space to the right margin if annotating groups or distance
 		marRightPad<-ifelse(is.null(groups),ifelse(distShow,3,0),max(nchar(groups))*1.05)
