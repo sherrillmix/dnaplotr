@@ -33,7 +33,7 @@
 #Returns: nothing
 #Side effect: Produces plot in outFile
 
-plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=TRUE,gapTrim=0,groups=NULL,groupTrim=0,distShow=TRUE,vocal=0,legend=TRUE,endGapRemove=FALSE,orderBy=NULL,pause=FALSE,plotPng=FALSE,extraCmds=NULL,xstart=1,distOrderDecreasing=FALSE,refSeq=NULL,res=1,groupCex=3,lineStagger=FALSE,groupCexScale=FALSE,convertGap2NoGap=FALSE,seqCounts=rep(1,length(seqs)),fixedAxis=NULL,...){
+plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=TRUE,gapTrim=0,groups=NULL,groupTrim=0,distShow=TRUE,vocal=0,legend=TRUE,endGapRemove=FALSE,orderBy=NULL,pause=FALSE,plotPng=FALSE,extraCmds=NULL,xstart=1,distOrderDecreasing=FALSE,refSeq=NULL,res=1,groupCex=NULL,lineStagger=FALSE,groupCexScale=FALSE,convertGap2NoGap=FALSE,seqCounts=rep(1,length(seqs)),fixedAxis=NULL,...){
 	gapChars<-c('-','*','.') #need to standardize throughout
 	if(any(grep('.png$',outFile)))plotPng=TRUE
 	if(length(seqs)<1|is.null(seqs))stop(simpleError("Seqs missing"))
@@ -107,16 +107,23 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 	seqNum[seqMat=='G']<-'yellow'
 	seqNum[seqMat=='-']<-'grey'
 	digits<-ceiling(log10(sum(seqCounts)+1))
+	axisCex<-ifelse(plotPng,3,1.6)
+	groupCex<-ifelse(is.null(groupCex),axisCex,groupCex)
 	#if(!is.null(groups))seqNum<-seqNum[order(groups),]
 	if(!is.null(outFile)){
-		if(plotPng) png(outFile,width=round(1600*res),height=round(900*res),res=80*res,type='cairo',antialias='subpixel')
+		if(plotPng) png(outFile,width=round(1600*res/2),height=round(900*res/2),res=80*res/2,type='cairo',antialias='subpixel')
 		else postscript(outFile,horizontal=FALSE,width=10,height=6,paper='special')
 	}
 		#add some space to the right margin if annotating groups or distance
 		marRightPad<-ifelse(is.null(groups),ifelse(distShow,3,0),max(nchar(groups))*1.05)
-		par(mar=c(7,5+digits*1.06,1,4+marRightPad),las=1)
-		plot(1,1,xlim=c(0.5,ncol(seqNum)+.5),ylim=c(0.5,sum(seqCounts)+.5),ylab="",xlab="Position",type='n',xaxs='i',yaxs='i',xaxt='n',cex.axis=3,cex.lab=3,mgp=c(6,1.2,0),...)
-		mtext('Sequence Read',2,line=3+digits^1.03*1.05,las=3,cex=3)
+		if(plotPng){
+			mars<-c(6,5.1+digits*1.06,1,4+marRightPad)
+		} else {
+			mars<-c(4.1,2+digits*1.06,1,0+marRightPad/1.2)
+		}
+		par(mar=mars,las=1)
+		plot(1,1,xlim=c(0.5,ncol(seqNum)+.5),ylim=c(0.5,sum(seqCounts)+.5),ylab="",xlab="Position",type='n',xaxs='i',yaxs='i',xaxt='n',cex.axis=axisCex,cex.lab=axisCex,mgp=c(mars[1]-1.5,ifelse(plotPng,1,.75),0),...)
+		mtext('Sequence Read',2,line=ifelse(plotPng,2.8,0)+digits^1.03*1.05,las=3,cex=axisCex)
 		xstart<-xstart-1
 		if(convertGap2NoGap&!is.null(refSeq)){
 			if(!exists('gap2NoGap'))source('~/scripts/R/dna.R')
@@ -129,10 +136,10 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 			if(!is.null(fixedAxis))prettyX<-fixedAxis	
 			prettyX<-prettyX[prettyX<=xstart+maxNoGap]; prettyX[prettyX==0]<-1
 			#axis(1,noGap2Gap(refSeq,prettyX-xstart),noGap2Gap(refSeq,prettyX-xstart),cex.axis=3)
-			axis(1,noGap2Gap(refSeq,prettyX-xstart),prettyX,cex.axis=3)
+			axis(1,noGap2Gap(refSeq,prettyX-xstart),prettyX,cex.axis=axisCex,mgp=c(3,ifelse(plotPng,ifelse(plotPng,1.6,1),1),0))
 		}else{
 			prettyX<-pretty(xstart+c(1,ncol(seqNum)))
-			axis(1,prettyX-xstart,prettyX,cex.axis=3)
+			axis(1,prettyX-xstart,prettyX,cex.axis=axisCex,mgp=c(3,ifelse(plotPng,1.6,1),0))
 		}
 		#needs to be slight overlap to avoid stupid white line problem
 		spacer<-.1
@@ -172,9 +179,7 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 			ypos<- -sum(seqCounts)*.04
 			xpos<-ncol(seqNum)*.98	
 			#adj=c(1,0)
-			par(xpd=NA)
-			legend(xpos, ypos, c("A", "T", "C","G"),col=c('green','red','blue','yellow'), pt.bg= c('green','red','blue','yellow'),pch = c(22,22,22,22),ncol=4,bty='n',cex=2,xjust=1,yjust=1)
-			par(xpd=TRUE)
+			legend('bottomright', c("A", "T", "C","G"),col=c('green','red','blue','yellow'), pt.bg= c('green','red','blue','yellow'),pch = c(22,22,22,22),ncol=4,bty='n',cex=axisCex*.75,xjust=1,yjust=1,xpd=NA,inset=c(0,ifelse(plotPng,-.135,-.175)))
 		}
 		if(pause)browser()
 	if(!is.null(outFile))dev.off()
