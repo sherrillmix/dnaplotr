@@ -28,12 +28,14 @@
 	#convertGap2NoGap = Use refSeq to determine nonGap base positions for x-axis? requires dna.R
 	#seqCounts = vector of counts 
 	#fixedAxis = vector of x-axis label positions (for fine-tuning axis labelling)
+	#refGapWhite = Make '-' characters white where refSeq also gap
+	#noText = Suppress margin text (e.g. for embedding somewhere else)
 	#... = arguments passed to plot()
 
 #Returns: nothing
 #Side effect: Produces plot in outFile
 
-plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=TRUE,gapTrim=0,groups=NULL,groupTrim=0,distShow=TRUE,vocal=0,legend=TRUE,endGapRemove=FALSE,orderBy=NULL,pause=FALSE,plotPng=FALSE,extraCmds=NULL,xstart=1,distOrderDecreasing=FALSE,refSeq=NULL,res=1,groupCex=NULL,lineStagger=FALSE,groupCexScale=FALSE,convertGap2NoGap=FALSE,seqCounts=rep(1,length(seqs)),fixedAxis=NULL,...){
+plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=TRUE,gapTrim=0,groups=NULL,groupTrim=0,distShow=TRUE,vocal=0,legend=!noText,endGapRemove=FALSE,orderBy=NULL,pause=FALSE,plotPng=FALSE,extraCmds=NULL,xstart=1,distOrderDecreasing=FALSE,refSeq=NULL,res=1,groupCex=NULL,lineStagger=FALSE,groupCexScale=FALSE,convertGap2NoGap=FALSE,seqCounts=rep(1,length(seqs)),fixedAxis=NULL,refGapWhite=FALSE,noText=FALSE,...){
 	gapChars<-c('-','*','.') #need to standardize throughout
 	if(any(grep('.png$',outFile)))plotPng=TRUE
 	if(length(seqs)<1|is.null(seqs))stop(simpleError("Seqs missing"))
@@ -99,6 +101,9 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 	if(endGapRemove){
 		seqMat<-t(apply(seqMat,1,function(x){lims<-range(which(x!='-'));x[-(lims[1]:lims[2])]<-'.';return(x)}))
 	}
+	if(refGapWhite&!is.null(refSeq)){
+		seqMat<-t(apply(seqMat,1,function(x,y){x[x=='-'&y]<-'*';return(x)},strsplit(refSeq,'')[[1]] %in% gapChars))
+	}
 	seqNum<-seqMat
 	seqNum[,]<- 0
 	seqNum[seqMat=='A']<-'green'
@@ -122,8 +127,10 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 			mars<-c(4.1,2+digits*1.06,1,0+marRightPad/1.2)
 		}
 		par(mar=mars,las=1)
-		plot(1,1,xlim=c(0.5,ncol(seqNum)+.5),ylim=c(0.5,sum(seqCounts)+.5),ylab="",xlab="Position",type='n',xaxs='i',yaxs='i',xaxt='n',cex.axis=axisCex,cex.lab=axisCex,mgp=c(mars[1]-1.5,ifelse(plotPng,1,.75),0),...)
-		mtext('Sequence Read',2,line=ifelse(plotPng,2.8,0)+digits^1.03*1.05,las=3,cex=axisCex)
+		plot(1,1,xlim=c(0.5,ncol(seqNum)+.5),ylim=c(0.5,sum(seqCounts)+.5),ylab="",xlab=ifelse(noText,'',"Position"),type='n',xaxs='i',yaxs='i',xaxt='n',yaxt='n',cex.axis=axisCex,cex.lab=axisCex,mgp=c(mars[1]-1.5,ifelse(plotPng,1,.75),0),...)
+		prettyY<-pretty(1:sum(seqCounts))
+		axis(2,prettyY,ifelse(rep(noText,length(prettyY)),rep('',length(prettyY)),format(prettyY,scientific=FALSE)),cex.axis=axisCex,mgp=c(3,ifelse(plotPng,1,.75),0))
+		if(!noText)mtext('Sequence Read',2,line=ifelse(plotPng,2.8,0)+digits^1.03*1.05,las=3,cex=axisCex)
 		xstart<-xstart-1
 		if(convertGap2NoGap&!is.null(refSeq)){
 			if(!exists('gap2NoGap'))source('~/scripts/R/dna.R')
@@ -136,10 +143,10 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 			if(!is.null(fixedAxis))prettyX<-fixedAxis	
 			prettyX<-prettyX[prettyX<=xstart+maxNoGap]; prettyX[prettyX==0]<-1
 			#axis(1,noGap2Gap(refSeq,prettyX-xstart),noGap2Gap(refSeq,prettyX-xstart),cex.axis=3)
-			axis(1,noGap2Gap(refSeq,prettyX-xstart),prettyX,cex.axis=axisCex,mgp=c(3,ifelse(plotPng,ifelse(plotPng,1.6,1),1),0))
+			axis(1,noGap2Gap(refSeq,prettyX-xstart),ifelse(rep(noText,length(prettyX)),rep('',length(prettyX)),prettyX),cex.axis=axisCex,mgp=c(3,ifelse(plotPng,ifelse(plotPng,1.6,1),1),0))
 		}else{
 			prettyX<-pretty(xstart+c(1,ncol(seqNum)))
-			axis(1,prettyX-xstart,prettyX,cex.axis=axisCex,mgp=c(3,ifelse(plotPng,1.6,1),0))
+			axis(1,prettyX-xstart,ifelse(rep(noText,length(prettyX)),rep('',length(prettyX)),prettyX),cex.axis=axisCex,mgp=c(3,ifelse(plotPng,1.6,1),0))
 		}
 		#needs to be slight overlap to avoid stupid white line problem
 		spacer<-.1
@@ -168,7 +175,7 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 				else line=.5
 				if(groupCexScale)cexScale<-((diff(c(thisMin,thisMax))+1)/maxGroupCount)^.5
 				else cexScale<-1
-				mtext(i,4,at=mean(c(thisMin,thisMax)),cex=max(.3,cexScale*groupCex),line=line)
+				if(!noText)mtext(i,4,at=mean(c(thisMin,thisMax)),cex=max(.3,cexScale*groupCex),line=line)
 				segments(-.5,thisMin-.5,ncol(seqNum)+.5,thisMin-.5)
 				segments(-.5,thisMax+.5,ncol(seqNum)+.5,thisMax+.5)
 			}
