@@ -30,12 +30,13 @@
 	#fixedAxis = vector of x-axis label positions (for fine-tuning axis labelling)
 	#refGapWhite = Make '-' characters white where refSeq also gap
 	#noText = Suppress margin text (e.g. for embedding somewhere else)
+	#verticalLines = Nongapped refSeq (if refSeq non null) or plain coordinates to draw vertical dotted lines _after_
 	#... = arguments passed to plot()
 
 #Returns: nothing
 #Side effect: Produces plot in outFile
 
-plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=TRUE,gapTrim=0,groups=NULL,groupTrim=0,distShow=TRUE,vocal=0,legend=!noText,endGapRemove=FALSE,orderBy=NULL,pause=FALSE,plotPng=FALSE,extraCmds=NULL,xstart=1,distOrderDecreasing=FALSE,refSeq=NULL,res=1,groupCex=NULL,lineStagger=FALSE,groupCexScale=FALSE,convertGap2NoGap=FALSE,seqCounts=rep(1,length(seqs)),fixedAxis=NULL,refGapWhite=FALSE,noText=FALSE,...){
+plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=TRUE,gapTrim=0,groups=NULL,groupTrim=0,distShow=TRUE,vocal=0,legend=!noText,endGapRemove=FALSE,orderBy=NULL,pause=FALSE,plotPng=FALSE,extraCmds=NULL,xstart=1,distOrderDecreasing=FALSE,refSeq=NULL,res=1,groupCex=NULL,lineStagger=FALSE,groupCexScale=FALSE,convertGap2NoGap=FALSE,seqCounts=rep(1,length(seqs)),fixedAxis=NULL,refGapWhite=FALSE,noText=FALSE,verticalLines=NULL,...){
 	gapChars<-c('-','*','.') #need to standardize throughout
 	if(any(grep('.png$',outFile)))plotPng=TRUE
 	if(length(seqs)<1|is.null(seqs))stop(simpleError("Seqs missing"))
@@ -131,6 +132,8 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 		prettyY<-pretty(1:sum(seqCounts))
 		axis(2,prettyY,ifelse(rep(noText,length(prettyY)),rep('',length(prettyY)),format(prettyY,scientific=FALSE)),cex.axis=axisCex,mgp=c(3,ifelse(plotPng,1,.75),0))
 		if(!noText)mtext('Sequence Read',2,line=ifelse(plotPng,2.8,0)+digits^1.03*1.05,las=3,cex=axisCex)
+
+		#Converting to first base as 0 for ease of use
 		xstart<-xstart-1
 		if(convertGap2NoGap&!is.null(refSeq)){
 			if(!exists('gap2NoGap'))source('~/scripts/R/dna.R')
@@ -179,6 +182,10 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 				segments(-.5,thisMin-.5,ncol(seqNum)+.5,thisMin-.5)
 				segments(-.5,thisMax+.5,ncol(seqNum)+.5,thisMax+.5)
 			}
+		}
+		if(!is.null(verticalLines)){
+			if(!is.null(refSeq))verticalLines<-noGap2Gap(refSeq,verticalLines-xstart)+.5
+			segments(verticalLines,.5,verticalLines,nrow(seqNum)+.5,lty=2,lwd=1)
 		}
 		if(!is.null(extraCmds))eval(parse(text=extraCmds))
 		box()
