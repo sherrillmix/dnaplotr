@@ -31,12 +31,16 @@
 	#refGapWhite = Make '-' characters white where refSeq also gap
 	#noText = Suppress margin text (e.g. for embedding somewhere else)
 	#verticalLines = Nongapped refSeq (if refSeq non null) or plain coordinates to draw vertical dotted lines _after_
+	#verticalLty = Line type for vertical lines (NULL to calculate but not plot)
+	#xlab = label for x axis
+	#ylab = label for y axis
+	#noTick = suppress ticks?
 	#... = arguments passed to plot()
 
-#Returns: nothing
+#Returns: invisible logical vector indicating whether a columns was plotted
 #Side effect: Produces plot in outFile
 
-plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=TRUE,gapTrim=0,groups=NULL,groupTrim=0,distShow=TRUE,vocal=0,legend=!noText,endGapRemove=FALSE,orderBy=NULL,pause=FALSE,plotPng=FALSE,extraCmds=NULL,xstart=1,distOrderDecreasing=FALSE,refSeq=NULL,res=1,groupCex=NULL,lineStagger=FALSE,groupCexScale=FALSE,convertGap2NoGap=FALSE,seqCounts=rep(1,length(seqs)),fixedAxis=NULL,refGapWhite=FALSE,noText=FALSE,verticalLines=NULL,...){
+plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=TRUE,gapTrim=0,groups=NULL,groupTrim=0,distShow=TRUE,vocal=0,legend=!noText,endGapRemove=FALSE,orderBy=NULL,pause=FALSE,plotPng=FALSE,extraCmds=NULL,xstart=1,distOrderDecreasing=FALSE,refSeq=NULL,res=1,groupCex=NULL,lineStagger=FALSE,groupCexScale=FALSE,convertGap2NoGap=FALSE,seqCounts=rep(1,length(seqs)),fixedAxis=NULL,refGapWhite=FALSE,noText=FALSE,verticalLines=NULL,verticalLty=2,xlab='Position',ylab='Sequence Read',noTick=FALSE,...){
 	gapChars<-c('-','*','.') #need to standardize throughout
 	if(any(grep('.png$',outFile)))plotPng=TRUE
 	if(length(seqs)<1|is.null(seqs))stop(simpleError("Seqs missing"))
@@ -74,13 +78,14 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 	else thisOrder<-1:length(seqs)
 
 	seqList<-strsplit(seqs,'')
-	lengths<-unlist(lapply(seqList,length))
+	lengths<-sapply(seqList,length)
 	if(any(lengths[1]!=lengths)){
 		maxLength<-max(lengths)
 		seqList<-lapply(seqList,function(x,num){return(c(x,rep('-',maxLength-length(x))))},maxLength)
 	}
 	seqMat<-do.call(rbind,seqList)
 	if(distOrder|!is.null(groups)|!is.null(orderBy))seqMat<-seqMat[thisOrder,,drop=FALSE]
+	gapSelector<-rep(TRUE,ncol(seqMat))
 	if(emptyTrim){
 		selector<-!apply(seqMat,2,function(x){all(x %in% gapChars)})
 		if(convertGap2NoGap & !is.null(refSeq)){
@@ -90,6 +95,7 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 		}
 		seqMat<-seqMat[,selector,drop=FALSE]
 		if(!is.null(refSeq))refSeq<-paste(strsplit(refSeq,'')[[1]][selector],collapse='')
+		gapSelector<-selector
 	}
 	if(gapTrim>0){
 		selector<-apply(seqMat,2,function(x,y){sum(!rep(x,y) %in% gapChars)},seqCounts)>gapTrim
@@ -98,6 +104,7 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 			refSeq<-paste(strsplit(refSeq,'')[[1]][selector],collapse='')
 		}
 		seqMat<-seqMat[,selector,drop=FALSE]
+		gapSelector[gapSelector]<-selector
 	}
 	if(endGapRemove){
 		seqMat<-t(apply(seqMat,1,function(x){lims<-range(which(x!='-'));x[-(lims[1]:lims[2])]<-'.';return(x)}))
@@ -128,10 +135,10 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 			mars<-c(4.1,2+digits*1.06,1,0+marRightPad/1.2)
 		}
 		par(mar=mars,las=1)
-		plot(1,1,xlim=c(0.5,ncol(seqNum)+.5),ylim=c(0.5,sum(seqCounts)+.5),ylab="",xlab=ifelse(noText,'',"Position"),type='n',xaxs='i',yaxs='i',xaxt='n',yaxt='n',cex.axis=axisCex,cex.lab=axisCex,mgp=c(mars[1]-1.5,ifelse(plotPng,1,.75),0),...)
+		plot(1,1,xlim=c(0.5,ncol(seqNum)+.5),ylim=c(0.5,sum(seqCounts)+.5),ylab="",xlab=ifelse(noText,'',xlab),type='n',xaxs='i',yaxs='i',xaxt='n',yaxt='n',cex.axis=axisCex,cex.lab=axisCex,mgp=c(mars[1]-1.5,ifelse(plotPng,1,.75),0),...)
 		prettyY<-pretty(1:sum(seqCounts))
-		axis(2,prettyY,ifelse(rep(noText,length(prettyY)),rep('',length(prettyY)),format(prettyY,scientific=FALSE)),cex.axis=axisCex,mgp=c(3,ifelse(plotPng,1,.75),0))
-		if(!noText)mtext('Sequence Read',2,line=ifelse(plotPng,2.8,0)+digits^1.03*1.05,las=3,cex=axisCex)
+		if(!noTick)axis(2,prettyY,ifelse(rep(noText,length(prettyY)),rep('',length(prettyY)),format(prettyY,scientific=FALSE)),cex.axis=axisCex,mgp=c(3,ifelse(plotPng,1,.75),0))
+		if(!noText)mtext(ylab,2,line=ifelse(plotPng,2.8,0)+digits^1.03*1.05,las=3,cex=axisCex)
 
 		#Converting to first base as 0 for ease of use
 		xstart<-xstart-1
@@ -146,10 +153,10 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 			if(!is.null(fixedAxis))prettyX<-fixedAxis	
 			prettyX<-prettyX[prettyX<=xstart+maxNoGap]; prettyX[prettyX==0]<-1
 			#axis(1,noGap2Gap(refSeq,prettyX-xstart),noGap2Gap(refSeq,prettyX-xstart),cex.axis=3)
-			axis(1,noGap2Gap(refSeq,prettyX-xstart),ifelse(rep(noText,length(prettyX)),rep('',length(prettyX)),prettyX),cex.axis=axisCex,mgp=c(3,ifelse(plotPng,ifelse(plotPng,1.6,1),1),0))
+			if(!noTick)axis(1,noGap2Gap(refSeq,prettyX-xstart),ifelse(rep(noText,length(prettyX)),rep('',length(prettyX)),prettyX),cex.axis=axisCex,mgp=c(3,ifelse(plotPng,ifelse(plotPng,1.6,1),1),0))
 		}else{
 			prettyX<-pretty(xstart+c(1,ncol(seqNum)))
-			axis(1,prettyX-xstart,ifelse(rep(noText,length(prettyX)),rep('',length(prettyX)),prettyX),cex.axis=axisCex,mgp=c(3,ifelse(plotPng,1.6,1),0))
+			if(!noTick)axis(1,prettyX-xstart,ifelse(rep(noText,length(prettyX)),rep('',length(prettyX)),prettyX),cex.axis=axisCex,mgp=c(3,ifelse(plotPng,1.6,1),0))
 		}
 		#needs to be slight overlap to avoid stupid white line problem
 		spacer<-.1
@@ -185,7 +192,7 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 		}
 		if(!is.null(verticalLines)){
 			if(!is.null(refSeq))verticalLines<-noGap2Gap(refSeq,verticalLines-xstart)+.5
-			segments(verticalLines,.5,verticalLines,nrow(seqNum)+.5,lty=2,lwd=1)
+			if(!is.null(verticalLty))segments(verticalLines,.5,verticalLines,sum(seqCounts)+.5,lty=verticalLty,lwd=1)
 		}
 		if(!is.null(extraCmds))eval(parse(text=extraCmds))
 		box()
@@ -197,4 +204,5 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 		}
 		if(pause)browser()
 	if(!is.null(outFile))dev.off()
+	invisible(gapSelector)
 }
