@@ -36,12 +36,13 @@
 	#ylab = label for y axis
 	#noTick = suppress ticks?
 	#cache = do not create plot if file already exists
+	#seqCountDisplay = display left sequence count axis?
 	#... = arguments passed to plot()
 
 #Returns: invisible logical vector indicating whether a columns was plotted
 #Side effect: Produces plot in outFile
 
-plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=TRUE,gapTrim=0,groups=NULL,groupTrim=0,distShow=TRUE,vocal=0,legend=!noText,endGapRemove=FALSE,orderBy=NULL,pause=FALSE,plotPng=FALSE,extraCmds=NULL,xstart=1,distOrderDecreasing=FALSE,refSeq=NULL,res=1,groupCex=NULL,lineStagger=FALSE,groupCexScale=FALSE,convertGap2NoGap=FALSE,seqCounts=rep(1,length(seqs)),fixedAxis=NULL,refGapWhite=FALSE,noText=FALSE,verticalLines=NULL,verticalLty=2,xlab='Position',ylab='Sequence Read',noTick=FALSE,cache=FALSE,...){
+plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=TRUE,gapTrim=0,groups=NULL,groupTrim=0,distShow=TRUE,vocal=0,legend=!noText,endGapRemove=FALSE,orderBy=NULL,pause=FALSE,plotPng=FALSE,extraCmds=NULL,xstart=1,distOrderDecreasing=FALSE,refSeq=NULL,res=1,groupCex=NULL,lineStagger=FALSE,groupCexScale=FALSE,convertGap2NoGap=FALSE,seqCounts=rep(1,length(seqs)),fixedAxis=NULL,refGapWhite=FALSE,noText=FALSE,verticalLines=NULL,verticalLty=2,xlab='Position',ylab='Sequence Read',noTick=FALSE,cache=FALSE,seqCountDisplay=TRUE,...){
 	if(cache&&file.exists(outFile))return('CACHED')
 	gapChars<-c('-','*','.') #need to standardize throughout
 	if(any(grep('.png$',outFile)))plotPng=TRUE
@@ -69,7 +70,7 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 		multiplier<-ifelse(distOrderDecreasing,-1,1)
 		distRank<-rank(dists*multiplier)
 	}else distRank<-rep(0,length(seqs))
-	if(!is.null(groups))groupRank<-rank(groups)
+	if(!is.null(groups))groupRank<-rank(sub('^\\^','0',sub('^\\$','Z',groups)))
 	else groupRank<-rep(0,length(seqs))
 	if(!is.null(orderBy)){
 		if(!is.list(orderBy))orderBy<-list(orderBy)
@@ -136,10 +137,11 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 		} else {
 			mars<-c(4.1,2+digits*1.06,1,0+marRightPad/1.2)
 		}
+		if(!seqCountDisplay)mars[2]<-.2
 		par(mar=mars,las=1)
 		plot(1,1,xlim=c(0.5,ncol(seqNum)+.5),ylim=c(0.5,sum(seqCounts)+.5),ylab="",xlab=ifelse(noText,'',xlab),type='n',xaxs='i',yaxs='i',xaxt='n',yaxt='n',cex.axis=axisCex,cex.lab=axisCex,mgp=c(mars[1]-1.5,ifelse(plotPng,1,.75),0),...)
 		prettyY<-pretty(1:sum(seqCounts))
-		if(!noTick)axis(2,prettyY,ifelse(rep(noText,length(prettyY)),rep('',length(prettyY)),format(prettyY,scientific=FALSE)),cex.axis=axisCex,mgp=c(3,ifelse(plotPng,1,.75),0))
+		if(!noTick&seqCountDisplay)axis(2,prettyY,ifelse(rep(noText,length(prettyY)),rep('',length(prettyY)),format(prettyY,scientific=FALSE)),cex.axis=axisCex,mgp=c(3,ifelse(plotPng,1,.75),0))
 		if(!noText)mtext(ylab,2,line=ifelse(plotPng,2.8,0)+digits^1.03*1.05,las=3,cex=axisCex)
 
 		#Converting to first base as 0 for ease of use
@@ -179,7 +181,8 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 			groupOrder<-rep(groups[thisOrder],seqCounts[thisOrder])
 			counter<-0
 			maxGroupCount<-max(table(groupOrder))
-			for(i in sort(unique(groups))){
+			uniqueGroups<-unique(groups)
+			for(i in uniqueGroups){
 				counter<-counter+1
 				thisMin<-min(which(groupOrder==i))
 				thisMax<-max(which(groupOrder==i))
@@ -187,7 +190,7 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 				else line=.5
 				if(groupCexScale)cexScale<-((diff(c(thisMin,thisMax))+1)/maxGroupCount)^.5
 				else cexScale<-1
-				if(!noText)mtext(i,4,at=mean(c(thisMin,thisMax)),cex=max(.3,cexScale*groupCex),line=line)
+				if(!noText)mtext(sub('^[$^]','',i),4,at=mean(c(thisMin,thisMax)),cex=max(.3,cexScale*groupCex),line=line)
 				segments(-.5,thisMin-.5,ncol(seqNum)+.5,thisMin-.5)
 				segments(-.5,thisMax+.5,ncol(seqNum)+.5,thisMax+.5)
 			}
@@ -202,7 +205,10 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 			ypos<- -sum(seqCounts)*.04
 			xpos<-ncol(seqNum)*.98	
 			#adj=c(1,0)
-			legend('bottomright', c("A", "T", "C","G"),col=c('green','red','blue','yellow'), pt.bg= c('green','red','blue','yellow'),pch = c(22,22,22,22),ncol=4,bty='n',cex=axisCex*.75,xjust=1,yjust=1,xpd=NA,inset=c(0,ifelse(plotPng,-.135,-.175)))
+			bottomMarHeight<-(par('din')[2]*diff(par('fig')[3:4])-par('pin')[2])/sum(par('mar')[c(1,3)])*par('mar')[1]/par('pin')[2]
+			rightMarWidth<-(par('din')[1]*diff(par('fig')[1:2])-par('pin')[1])/sum(par('mar')[c(2,4)])*par('mar')[4]/par('pin')[1]
+			insetPos<-c(-rightMarWidth,-bottomMarHeight)
+			legend('bottomright', c("A", "T", "C","G"),col=c('green','red','blue','yellow'), pt.bg= c('green','red','blue','yellow'),pch = c(22,22,22,22),ncol=4,bty='n',cex=axisCex*.75,xjust=1,yjust=1,xpd=NA,inset=insetPos)
 		}
 		if(pause)browser()
 	if(!is.null(outFile))dev.off()
