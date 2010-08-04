@@ -10,6 +10,7 @@
 	#gapTrim = Delete any columns with fewer than or equal  gapTrim non[-*.] chars
 	#groups = Group sequences by group and show lable on right side of plot
 	#groupTrim = Delete any groups with sequence counts <= groupTrim
+	#groupOrdering = preferred order for groups
 	#distShow = Show distances on right side of plot (can be messy when few sequences for given distances)
 	#vocal = Show message every vocal sequences when calculating levenshtein (for monitoring progress on long calculations)
 	#legend = Show A C T G legend?
@@ -42,7 +43,7 @@
 #Returns: invisible logical vector indicating whether a columns was plotted
 #Side effect: Produces plot in outFile
 
-plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=TRUE,gapTrim=0,groups=NULL,groupTrim=0,distShow=TRUE,vocal=0,legend=!noText,endGapRemove=FALSE,orderBy=NULL,pause=FALSE,plotPng=FALSE,extraCmds=NULL,xstart=1,distOrderDecreasing=FALSE,refSeq=NULL,res=1,groupCex=NULL,lineStagger=FALSE,groupCexScale=FALSE,convertGap2NoGap=FALSE,seqCounts=rep(1,length(seqs)),fixedAxis=NULL,refGapWhite=FALSE,noText=FALSE,verticalLines=NULL,verticalLty=2,xlab='Position',ylab='Sequence Read',noTick=FALSE,cache=FALSE,seqCountDisplay=TRUE,...){
+plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=TRUE,gapTrim=0,groups=NULL,groupTrim=0,groupOrdering=c(),distShow=TRUE,vocal=2,legend=!noText,endGapRemove=FALSE,orderBy=NULL,pause=FALSE,plotPng=FALSE,extraCmds=NULL,xstart=1,distOrderDecreasing=FALSE,refSeq=NULL,res=1,groupCex=NULL,lineStagger=FALSE,groupCexScale=FALSE,convertGap2NoGap=FALSE,seqCounts=rep(1,length(seqs)),fixedAxis=NULL,refGapWhite=FALSE,noText=FALSE,verticalLines=NULL,verticalLty=2,xlab='Position',ylab='Sequence Read',noTick=FALSE,cache=FALSE,seqCountDisplay=TRUE,...){
 	if(cache&&file.exists(outFile))return('CACHED')
 	gapChars<-c('-','*','.') #need to standardize throughout
 	if(any(grep('.png$',outFile)))plotPng=TRUE
@@ -70,8 +71,12 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 		multiplier<-ifelse(distOrderDecreasing,-1,1)
 		distRank<-rank(dists*multiplier)
 	}else distRank<-rep(0,length(seqs))
-	if(!is.null(groups))groupRank<-rank(sub('^\\^','0',sub('^\\$','Z',groups)))
-	else groupRank<-rep(0,length(seqs))
+	if(!is.null(groups)){
+		if(length(groupOrdering)==0)groupRank<-rank(sub('^\\^','0',sub('^\\$','Z',groups)))
+		else groupRank<-orderIn(groups,groupOrdering,orderFunc=rank)
+	}else{
+		groupRank<-rep(0,length(seqs))
+	}
 	if(!is.null(orderBy)){
 		if(!is.list(orderBy))orderBy<-list(orderBy)
 		orderByRank<-do.call(rank,orderBy)
