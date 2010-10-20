@@ -3,7 +3,7 @@
 
 #Arguments:
 	#seqs = a vector of sequences (strings)
-	#outFile = a file name (.eps and .png used to determine file type)
+	#outFile = a file name (.eps and .png used to determine file type, NULL for no file generation and dev.off)
 	#distOrder = order sequences by Levenshtein distance from refSeq if defined otherwise most abundant sequence? (requires levenshtein.R)
 	#homoLimit = If calculating distance, ignore difference in homopolymers longer than homoLimt
 	#emptyTrim = Delete any columns with all -, *, .'s 
