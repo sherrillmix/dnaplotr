@@ -202,7 +202,7 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 		}
 		if(!is.null(verticalLines)){
 			if(!is.null(refSeq))verticalLines<-noGap2Gap(refSeq,verticalLines-xstart)+.5
-			if(!is.null(verticalLty))segments(verticalLines,.5,verticalLines,sum(seqCounts)+.5,lty=verticalLty,lwd=1)
+			if(!is.null(verticalLty))segments(verticalLines,.5,verticalLines,sum(seqCounts)+.7,lty=verticalLty,lwd=1)
 		}
 		if(!is.null(extraCmds))eval(parse(text=extraCmds))
 		box()
