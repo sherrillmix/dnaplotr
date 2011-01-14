@@ -72,7 +72,9 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 		distRank<-rank(dists*multiplier)
 	}else distRank<-rep(0,length(seqs))
 	if(!is.null(groups)){
-		if(length(groupOrdering)==0)groupRank<-rank(sub('^\\^','0',sub('^\\$','Z',groups)))
+		if (any(grep('^[^$]',groups)))dummy<-paste(ifelse(substring(groups,1,1)=='^','0','1'),ifelse(substring(groups,1,1)=='$','1','0'),sub('^\\^','0',sub('^\\$','Z',groups)),sep='')
+		else dummy<-groups
+		if(length(groupOrdering)==0)groupRank<-rank(dummy)
 		else groupRank<-orderIn(groups,groupOrdering,orderFunc=rank)
 	}else{
 		groupRank<-rep(0,length(seqs))
@@ -202,7 +204,12 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 		}
 		if(!is.null(verticalLines)){
 			if(!is.null(refSeq))verticalLines<-noGap2Gap(refSeq,verticalLines-xstart)+.5
-			if(!is.null(verticalLty))segments(verticalLines,.5,verticalLines,sum(seqCounts)+.7,lty=verticalLty,lwd=1)
+			if(!is.null(verticalLty)){
+				#abline(v=verticalLines+.1,lty=verticalLty,lwd=1,col='white')
+				#abline(v=verticalLines-.1,lty=verticalLty,lwd=1,col='white')
+				abline(v=verticalLines,lty=verticalLty,lwd=1,xpd=TRUE)
+				#segments(verticalLines,.5,verticalLines,sum(seqCounts)+.7,lty=verticalLty,lwd=1)
+			}
 		}
 		if(!is.null(extraCmds))eval(parse(text=extraCmds))
 		box()
@@ -218,4 +225,17 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 		if(pause)browser()
 	if(!is.null(outFile))dev.off()
 	invisible(gapSelector)
+}
+
+plotSeqMuscle<-function(seqs,...,extra.args=''){
+	library(bio3d)
+	if(!exists('seqSplit'))source('~/scripts/R/dna.R')
+	aligned<-apply(seqaln(seqSplit(seqs,fill='-'),protein=FALSE,extra.args=extra.args)$ali,1,paste,collapse='')
+	plotSeq(aligned,...)
+}
+
+plotSeqPair<-function(seqs,...,type='global'){
+	library(Biostrings)
+	aligned<-pairwiseAlignment(seqs[1],seqs[2],type=type)
+	plotSeq(c(as.character(aligned@subject),as.character(aligned@pattern)),...)
 }
