@@ -138,7 +138,7 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 		else postscript(outFile,horizontal=FALSE,width=10,height=6,paper='special')
 	}
 		#add some space to the right margin if annotating groups or distance
-		marRightPad<-ifelse(is.null(groups),ifelse(distShow,3,0),max(nchar(groups))*1.05)
+		marRightPad<-ifelse(is.null(groups),ifelse(distShow,3,0),max(nchar(groups))*1.05*groupCex/3)
 		if(plotPng){
 			mars<-c(6,5.1+digits*1.06,1,4+marRightPad)
 		} else {
@@ -207,7 +207,7 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 			if(!is.null(verticalLty)){
 				#abline(v=verticalLines+.1,lty=verticalLty,lwd=1,col='white')
 				#abline(v=verticalLines-.1,lty=verticalLty,lwd=1,col='white')
-				abline(v=verticalLines,lty=verticalLty,lwd=1,xpd=TRUE)
+				abline(v=verticalLines,lty=verticalLty,lwd=max(2,2*ncol(seqNum)/1000),xpd=TRUE)
 				#segments(verticalLines,.5,verticalLines,sum(seqCounts)+.7,lty=verticalLty,lwd=1)
 			}
 		}
