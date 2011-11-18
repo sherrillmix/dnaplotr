@@ -1,6 +1,17 @@
+
+#find ranges with at least one coverage in numerical index data
+#index: numeric indices
+#returns: dataframe with start and end of ranges
+index2range<-function(index){
+	index<-sort(unique(index))
+	diffs<-c(diff(index),1)
+	ends<-c(which(diffs>1),length(index))
+	starts<-c(1,ends[-length(ends)]+1)
+	return(data.frame('start'=index[starts],'end'=index[ends]))
+}
+
 #Function: plotSeq(c('ACTAAATTT','GGTAAGTTT'), 'test.png')
 	#Produce a red, green, blue, yellow plot of sequences
-
 #Arguments:
 	#seqs = a vector of sequences (strings)
 	#outFile = a file name (.eps and .png used to determine file type, NULL for no file generation and dev.off)
@@ -172,8 +183,23 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 		#needs to be slight overlap to avoid stupid white line problem
 		spacer<-.1
 		for(i in 1:ncol(seqNum)){
+			#1 rectangle per read
 			#rect(1:ncol(seqNum)-.5,i-.5,1:ncol(seqNum)+.5,i+.5+spacer,col=seqNum[i,],border=NA)
-			rect(i-.5,c(0,cumsum(seqCounts[thisOrder])[-length(seqCounts)])+.5,i+.5,cumsum(seqCounts[thisOrder])+.5+spacer,col=seqNum[,i],border=NA)
+			bottoms<-c(0,cumsum(seqCounts[thisOrder])[-length(seqCounts)])
+			tops<-cumsum(seqCounts[thisOrder])
+			cols<-seqNum[,i]
+			#1 rectangle per repped read 
+			#rect(i-.5,bottoms+.5,i+.5,tops+.5+spacer,col=cols,border=NA)
+			uniqCols<-unique(cols)
+			colRanges<-do.call(rbind,lapply(unique(cols),function(x){
+				out<-index2range(which(cols==x))
+				out$bottom<-bottoms[out$start]
+				out$top<-tops[out$end]
+				out$col<-x
+				return(out)
+			}))
+			#1 rectangle per string of identical bases
+			rect(i-.5,colRanges$bottom+.5,i+.5,colRanges$top+.5+spacer,col=colRanges$col,border=NA)
 		}
 		if(distOrder&is.null(groups)&distShow){
 			dists<-dists[thisOrder]
