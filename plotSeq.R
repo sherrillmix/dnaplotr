@@ -15,7 +15,7 @@ index2range<-function(index){
 #Arguments:
 	#seqs = a vector of sequences (strings)
 	#outFile = a file name (.eps and .png used to determine file type, NULL for no file generation and dev.off)
-	#distOrder = order sequences by Levenshtein distance from refSeq if defined otherwise most abundant sequence? (requires levenshtein.R)
+	#distOrder = order sequences by Levenshtein distance from refSeq if defined otherwise most abundant sequence? (requires leven library)
 	#homoLimit = If calculating distance, ignore difference in homopolymers longer than homoLimt
 	#emptyTrim = Delete any columns with all -, *, .'s 
 	#gapTrim = Delete any columns with fewer than or equal  gapTrim non[-*.] chars
@@ -73,13 +73,13 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 
 	#ordering
 	if(distOrder){
-		source('~/scripts/R/levenshtein.R')
+		library(leven)
 		#pick out most common sequence
 		if(is.null(refSeq)){
 			seqCount<-tapply(seqCounts,seqs,sum)
 			maxSeq<-names(seqCount)[seqCount==max(seqCount)][1]
 		}else maxSeq<-refSeq
-		dists<-levenStringsToStrings(gsub('[*.-]+','',maxSeq),gsub('[-.*]','',seqs,perl=TRUE),substring1=TRUE,homoLimit=homoLimit,vocal=vocal,substring2=TRUE)
+		dists<-leven(gsub('[*.-]+','',maxSeq),gsub('[-.*]','',seqs,perl=TRUE),substring1=TRUE,homoLimit=homoLimit,vocal=vocal,substring2=TRUE)
 		multiplier<-ifelse(distOrderDecreasing,-1,1)
 		distRank<-rank(dists*multiplier)
 	}else distRank<-rep(0,length(seqs))
@@ -183,7 +183,7 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 			if(!noTick)axis(1,prettyX-xstart,ifelse(rep(noText,length(prettyX)),rep('',length(prettyX)),prettyX),cex.axis=axisCex,mgp=c(3,ifelse(plotPng,1.6,1),0))
 		}
 		#needs to be slight overlap to avoid stupid white line problem
-		spacer<-.1
+		spacer<-.001
 		for(i in 1:ncol(seqNum)){
 			#1 rectangle per read
 			#rect(1:ncol(seqNum)-.5,i-.5,1:ncol(seqNum)+.5,i+.5+spacer,col=seqNum[i,],border=NA)
