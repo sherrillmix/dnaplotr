@@ -46,7 +46,7 @@ index2range<-function(index){
 	#verticalLty = Line type for vertical lines (NULL to calculate but not plot)
 	#xlab = label for x axis
 	#ylab = label for y axis
-	#noTick = suppress ticks?
+	#noTick = suppress ticks? can be length 1 for both or 2 for x then y
 	#cache = do not create plot if file already exists
 	#seqCountDisplay = display left sequence count axis?
 	#maxAxis = maximum lab to display on y axis (e.g. not to scale stuff on top of this)
@@ -56,6 +56,7 @@ index2range<-function(index){
 #Side effect: Produces plot in outFile
 
 plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=TRUE,gapTrim=0,groups=NULL,groupTrim=0,groupOrdering=c(),distShow=TRUE,vocal=2,legend=!noText,endGapRemove=FALSE,orderBy=NULL,pause=FALSE,plotPng=FALSE,extraCmds=NULL,xstart=1,distOrderDecreasing=FALSE,refSeq=NULL,res=1,groupCex=NULL,lineStagger=FALSE,groupCexScale=FALSE,convertGap2NoGap=FALSE,seqCounts=rep(1,length(seqs)),fixedAxis=NULL,refGapWhite=FALSE,noText=FALSE,verticalLines=NULL,verticalLty=2,xlab='Position',ylab='Sequence Read',noTick=FALSE,cache=FALSE,seqCountDisplay=TRUE,maxAxis=Inf,...){
+	if(length(noTick)==1)noTick<-rep(noTick,2)
 	if(cache&&file.exists(outFile))return('CACHED')
 	gapChars<-c('-','*','.') #need to standardize throughout
 	if(any(grep('.png$',outFile)))plotPng=TRUE
@@ -151,7 +152,7 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 		else postscript(outFile,horizontal=FALSE,width=10,height=6,paper='special')
 	}
 		#add some space to the right margin if annotating groups or distance
-		marRightPad<-ifelse(is.null(groups),ifelse(distShow,3,0),max(nchar(groups))*1.05*groupCex/3)
+		marRightPad<-ifelse(is.null(groups),ifelse(distShow,3,0),max(nchar(groups))*ifelse(!is.null(outFile),1.05,2)*groupCex/3)
 		if(plotPng){
 			mars<-c(6,5.1+digits*1.06,1,4+marRightPad)
 		} else {
@@ -161,7 +162,8 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 		par(mar=mars,las=1)
 		plot(1,1,xlim=c(0.5,ncol(seqNum)+.5),ylim=c(0.5,sum(seqCounts)+.5),ylab="",xlab=ifelse(noText,'',xlab),type='n',xaxs='i',yaxs='i',xaxt='n',yaxt='n',cex.axis=axisCex,cex.lab=axisCex,mgp=c(mars[1]-1.5,ifelse(plotPng,1,.75),0),...)
 		prettyY<-pretty(1:min(maxAxis,sum(seqCounts)))
-		if(!noTick&seqCountDisplay)axis(2,prettyY,ifelse(rep(noText,length(prettyY)),rep('',length(prettyY)),format(prettyY,scientific=FALSE,big.mark=',')),cex.axis=axisCex,mgp=c(3,ifelse(plotPng,1,.75),0))
+		prettyY<-prettyY[prettyY<=maxAxis&round(prettyY)==prettyY]
+		if(!noTick[2]&seqCountDisplay)axis(2,prettyY,ifelse(rep(noText,length(prettyY)),rep('',length(prettyY)),format(prettyY,scientific=FALSE,big.mark=',')),cex.axis=axisCex,mgp=c(3,ifelse(plotPng,1,.75),0))
 		if(!noText)mtext(ylab,2,line=ifelse(plotPng,2.8,0)+digits^1.03*1.05,las=3,cex=axisCex)
 
 		#Converting to first base as 0 for ease of use
@@ -177,10 +179,10 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 			if(!is.null(fixedAxis))prettyX<-fixedAxis	
 			prettyX<-prettyX[prettyX<=xstart+maxNoGap]; prettyX[prettyX==0]<-1
 			#axis(1,noGap2Gap(refSeq,prettyX-xstart),noGap2Gap(refSeq,prettyX-xstart),cex.axis=3)
-			if(!noTick)axis(1,noGap2Gap(refSeq,prettyX-xstart),ifelse(rep(noText,length(prettyX)),rep('',length(prettyX)),prettyX),cex.axis=axisCex,mgp=c(3,ifelse(plotPng,ifelse(plotPng,1.6,1),1),0))
+			if(!noTick[1])axis(1,noGap2Gap(refSeq,prettyX-xstart),ifelse(rep(noText,length(prettyX)),rep('',length(prettyX)),prettyX),cex.axis=axisCex,mgp=c(3,ifelse(plotPng,ifelse(plotPng,1.6,1),1),0))
 		}else{
 			prettyX<-pretty(xstart+c(1,ncol(seqNum)))
-			if(!noTick)axis(1,prettyX-xstart,ifelse(rep(noText,length(prettyX)),rep('',length(prettyX)),prettyX),cex.axis=axisCex,mgp=c(3,ifelse(plotPng,1.6,1),0))
+			if(!noTick[1])axis(1,prettyX-xstart,ifelse(rep(noText,length(prettyX)),rep('',length(prettyX)),prettyX),cex.axis=axisCex,mgp=c(3,ifelse(plotPng,1.6,1),0))
 		}
 		#needs to be slight overlap to avoid stupid white line problem
 		spacer<-.001
