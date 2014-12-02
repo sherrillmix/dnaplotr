@@ -152,7 +152,7 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 		else postscript(outFile,horizontal=FALSE,width=10,height=6,paper='special')
 	}
 		#add some space to the right margin if annotating groups or distance
-		marRightPad<-ifelse(is.null(groups),ifelse(distShow,3,0),max(nchar(groups))*ifelse(!is.null(outFile),1.05,2)*groupCex/3)
+		marRightPad<-ifelse(is.null(groups),ifelse(distShow,3,0),max(c(nchar(groups),0))*ifelse(!is.null(outFile),1.05,2)*groupCex/3)
 		if(plotPng){
 			mars<-c(6,5.1+digits*1.06,1,4+marRightPad)
 		} else {
