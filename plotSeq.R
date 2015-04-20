@@ -50,12 +50,13 @@ index2range<-function(index){
 	#cache = do not create plot if file already exists
 	#seqCountDisplay = display left sequence count axis?
 	#maxAxis = maximum lab to display on y axis (e.g. not to scale stuff on top of this)
+	#mars = plot margins passed to mar, if NULL set by default
 	#... = arguments passed to plot()
 
 #Returns: invisible logical vector indicating whether a columns was plotted
 #Side effect: Produces plot in outFile
 
-plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=TRUE,gapTrim=0,groups=NULL,groupTrim=0,groupOrdering=c(),distShow=TRUE,vocal=2,legend=!noText,endGapRemove=FALSE,orderBy=NULL,pause=FALSE,plotPng=FALSE,extraCmds=NULL,xstart=1,distOrderDecreasing=FALSE,refSeq=NULL,res=1,groupCex=NULL,lineStagger=FALSE,groupCexScale=FALSE,convertGap2NoGap=FALSE,seqCounts=rep(1,length(seqs)),fixedAxis=NULL,refGapWhite=FALSE,noText=FALSE,verticalLines=NULL,verticalLty=2,xlab='Position',ylab='Sequence Read',noTick=FALSE,cache=FALSE,seqCountDisplay=TRUE,maxAxis=Inf,...){
+plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=TRUE,gapTrim=0,groups=NULL,groupTrim=0,groupOrdering=c(),distShow=TRUE,vocal=2,legend=!noText,endGapRemove=FALSE,orderBy=NULL,pause=FALSE,plotPng=FALSE,extraCmds=NULL,xstart=1,distOrderDecreasing=FALSE,refSeq=NULL,res=1,groupCex=NULL,lineStagger=FALSE,groupCexScale=FALSE,convertGap2NoGap=FALSE,seqCounts=rep(1,length(seqs)),fixedAxis=NULL,refGapWhite=FALSE,noText=FALSE,verticalLines=NULL,verticalLty=2,xlab='Position',ylab='Sequence Read',noTick=FALSE,cache=FALSE,seqCountDisplay=TRUE,maxAxis=Inf,mars=NULL,noBox=FALSE,noLineGroups=NULL,col=c('A'='green','T'='red','C'='blue','G'='yellow','-'='grey'),groupAxis=4,...){
 	if(length(noTick)==1)noTick<-rep(noTick,2)
 	if(cache&&file.exists(outFile))return('CACHED')
 	gapChars<-c('-','*','.') #need to standardize throughout
@@ -85,7 +86,7 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 		distRank<-rank(dists*multiplier)
 	}else distRank<-rep(0,length(seqs))
 	if(!is.null(groups)){
-		if (any(grep('^[^$]',groups)))dummy<-paste(ifelse(substring(groups,1,1)=='^','0','1'),ifelse(substring(groups,1,1)=='$','1','0'),sub('^\\^','0',sub('^\\$','Z',groups)),sep='')
+		if (any(grep('^[^$]',groups)))dummy<-paste(ifelse(substring(groups,1,1)=='^','0','1'),ifelse(substring(groups,1,1)=='$','1','0'),chartr('^','0',chartr('$','Z',groups)),sep='') #assuming all ^ and $ are at start and should be translated
 		else dummy<-groups
 		if(length(groupOrdering)==0)groupRank<-rank(dummy)
 		else groupRank<-orderIn(groups,groupOrdering,orderFunc=rank)
@@ -137,11 +138,11 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 	}
 	seqNum<-seqMat
 	seqNum[,]<- 0
-	seqNum[seqMat=='A']<-'green'
-	seqNum[seqMat=='T']<-'red'
-	seqNum[seqMat=='C']<-'blue'
-	seqNum[seqMat=='G']<-'yellow'
-	seqNum[seqMat=='-']<-'grey'
+	seqNum[seqMat=='A']<-col['A']
+	seqNum[seqMat=='T']<-col['T']
+	seqNum[seqMat=='C']<-col['C']
+	seqNum[seqMat=='G']<-col['G']
+	seqNum[seqMat=='-']<-col['-']
 	digits<-ceiling(log10(sum(seqCounts)+1))
 	digits<-digits+(ceiling(digits/3)-1) #account for , in 1,000
 	axisCex<-ifelse(plotPng,3,1.6)
@@ -152,11 +153,13 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 		else postscript(outFile,horizontal=FALSE,width=10,height=6,paper='special')
 	}
 		#add some space to the right margin if annotating groups or distance
-		marRightPad<-ifelse(is.null(groups),ifelse(distShow,3,0),max(c(nchar(groups),0))*ifelse(!is.null(outFile),1.05,2)*groupCex/3)
-		if(plotPng){
-			mars<-c(6,5.1+digits*1.06,1,4+marRightPad)
-		} else {
-			mars<-c(4.1,2+digits*1.06,1,0+marRightPad/1.2)
+		if(is.null(mars)){
+			marRightPad<-ifelse(is.null(groups),ifelse(distShow,3,0),max(nchar(groups))*ifelse(!is.null(outFile),1.05,2)*groupCex/3)
+			if(plotPng){
+				mars<-c(6,5.1+digits*1.06,1,4+marRightPad)
+			} else {
+				mars<-c(4.1,2+digits*1.06,1,0+marRightPad/1.2)
+			}
 		}
 		if(!seqCountDisplay)mars[2]<-.2
 		par(mar=mars,las=1)
@@ -227,9 +230,11 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 				else line=.5
 				if(groupCexScale)cexScale<-((diff(c(thisMin,thisMax))+1)/maxGroupCount)^.5
 				else cexScale<-1
-				if(!noText)mtext(sub('^[$^]','',i),4,at=mean(c(thisMin,thisMax)),cex=max(.3,cexScale*groupCex),line=line)
-				segments(-.5,thisMin-.5,ncol(seqNum)+.5,thisMin-.5)
-				segments(-.5,thisMax+.5,ncol(seqNum)+.5,thisMax+.5)
+				if(!noText)mtext(sub('^[$^]+','',i),groupAxis,at=mean(c(thisMin,thisMax)),cex=max(.3,cexScale*groupCex),line=line)
+				if(!i %in% noLineGroups){
+					segments(-.5,thisMin-.5,ncol(seqNum)+.5,thisMin-.5)
+					segments(-.5,thisMax+.5,ncol(seqNum)+.5,thisMax+.5)
+				}
 			}
 		}
 		if(!is.null(verticalLines)){
@@ -242,15 +247,16 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 			}
 		}
 		if(!is.null(extraCmds))eval(parse(text=extraCmds))
-		box()
+		if(!noBox)box()
 		if(legend){
-			ypos<- -sum(seqCounts)*.04
-			xpos<-ncol(seqNum)*.98	
+			#ypos<- -sum(seqCounts)*.04
+			#xpos<-ncol(seqNum)*.98	
 			#adj=c(1,0)
-			bottomMarHeight<-(par('din')[2]*diff(par('fig')[3:4])-par('pin')[2])/sum(par('mar')[c(1,3)])*par('mar')[1]/par('pin')[2]
-			rightMarWidth<-(par('din')[1]*diff(par('fig')[1:2])-par('pin')[1])/sum(par('mar')[c(2,4)])*par('mar')[4]/par('pin')[1]
-			insetPos<-c(-rightMarWidth,-bottomMarHeight)
-			legend('bottomright', c("A", "T", "C","G"),col=c('green','red','blue','yellow'), pt.bg= c('green','red','blue','yellow'),pch = c(22,22,22,22),ncol=4,bty='n',cex=axisCex*.75,xjust=1,yjust=1,xpd=NA,inset=insetPos)
+			insetPos<-c(grconvertX(1.005,'nfc','user'),grconvertY(-.015,'nfc','user')) #-.01 could cause trouble here
+			#bottomMarHeight<-(par('din')[2]*diff(par('fig')[3:4])-par('pin')[2])/sum(par('mar')[c(1,3)])*par('mar')[1]/par('pin')[2]
+			#rightMarWidth<-(par('din')[1]*diff(par('fig')[1:2])-par('pin')[1])/sum(par('mar')[c(2,4)])*par('mar')[4]/par('pin')[1]
+			#insetPos<-c(-rightMarWidth,-bottomMarHeight)
+			legend(insetPos[1],insetPos[2], c("A", "T", "C","G"),col=col[c("A", "T", "C","G")], pt.bg=col[c("A", "T", "C","G")],pch = c(22,22,22,22),ncol=4,bty='n',cex=par('cex.axis'),xjust=1,yjust=0,xpd=NA)
 		}
 		if(pause)browser()
 	if(!is.null(outFile))dev.off()
@@ -269,3 +275,16 @@ plotSeqPair<-function(seqs,...,type='global'){
 	aligned<-pairwiseAlignment(seqs[1],seqs[2],type=type)
 	plotSeq(c(as.character(aligned@subject),as.character(aligned@pattern)),...)
 }
+
+
+
+
+##WORKING HERE
+seqs2array<-function(){
+
+}
+
+plotSequences<-function(seqs){
+
+}
+
