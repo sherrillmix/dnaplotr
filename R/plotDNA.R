@@ -75,9 +75,10 @@ index2range<-function(index){
 #'
 #' @param seqs A character vector containing DNA sequences
 #' @param seqCounts A integer vector with the number of counts for each sequence. This can be used to improve run time and file size if some sequences are duplicated multiple times (default: 1 for each entry in seqs)
-#' @param groups A character vector the same length as seqs giving the group identity of each sequence
 #' @param cols A named vector with names corresponding to the DNA bases and values showing the appropriate color (default: A: green, T: red, C: blue, G: yellow, -: grey)
 #' @param gapChars A character vector with a single one character entry for each character that represents a gap
+#' @param xlab A string specifying the x-axis label (default: Position)
+#' @param ylab A string specifying the y-axis label (default: Sequence read)
 #'
 #' @return An invisible
 #'
@@ -92,25 +93,13 @@ index2range<-function(index){
 # orderBy?
 # groups
 
-plotDNA<-function(seqs,groups=NULL,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red','C'='blue','G'='yellow','-'='grey','default'='white'),gapChars=c('-','.','-'),groupOrdering=c(),legend=!noText,pause=FALSE,extraCmds=NULL,xstart=1,distOrderDecreasing=FALSE,refSeq=NULL,groupCex=NULL,lineStagger=FALSE,groupCexScale=FALSE,convertGap2NoGap=FALSE,fixedAxis=NULL,refGapWhite=FALSE,noText=FALSE,xlab='Position',ylab='Sequence Read',noTick=FALSE,seqCountDisplay=TRUE,maxAxis=Inf,...){
+plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red','C'='blue','G'='yellow','-'='grey','default'='white'),gapChars=c('-','.','-'),xlab='Position',ylab='Sequence Read',
+	groupOrdering=c(),legend=!noText,pause=FALSE,extraCmds=NULL,xstart=1,refSeq=NULL,lineStagger=FALSE,groupCexScale=FALSE,convertGap2NoGap=FALSE,fixedAxis=NULL,refGapWhite=FALSE,noText=FALSE,noTick=FALSE,seqCountDisplay=TRUE,maxAxis=Inf,...){
 	if(length(noTick)==1)noTick<-rep(noTick,2)
 	if(length(seqs)<1|is.null(seqs))stop(simpleError("Seqs missing"))
 	if(length(seqs)!=length(seqCounts))stop(simpleError('Lengths of seqs and seqCounts not equal'))
 	seqs<-toupper(seqs)
 	if(!is.null(refSeq))refGaps<-strsplit(refSeq,'')[[1]] %in% gapChars
-
-	#ordering
-	if(!is.null(groups)){
-		if(length(groups)!=length(seqs))stop(simpleError('Groups and seqs not the same length'))
-		if (any(grep('^[^$]',groups)))dummy<-paste(ifelse(substring(groups,1,1)=='^','0','1'),ifelse(substring(groups,1,1)=='$','1','0'),sub('^\\^','0',sub('^\\$','Z',groups)),sep='')
-		else dummy<-groups
-		if(length(groupOrdering)==0)groupRank<-rank(dummy)
-		else groupRank<-orderIn(groups,groupOrdering,orderFunc=rank)
-		seqRank<-rank(gsub('[.*-]','Z',seqs))
-		thisOrder<-order(groupRank,seqRank)
-	}else{
-		thisOrder<-1:length(seqs)
-	}
 
 	seqList<-strsplit(seqs,'')
 	lengths<-sapply(seqList,length)
@@ -131,7 +120,7 @@ plotDNA<-function(seqs,groups=NULL,seqCounts=rep(1,length(seqs)),cols=c('A'='gre
 	digits<-ceiling(log10(sum(seqCounts)+1))
 	digits<-digits+(ceiling(digits/3)-1) #account for , in 1,000
 	axisCex<-1.6
-	groupCex<-ifelse(is.null(groupCex),axisCex,groupCex)
+	groupCex<-axisCex
 	#if(!is.null(groups))seqNum<-seqNum[order(groups),]
 		#add some space to the right margin if annotating groups or distance
 		marRightPad<-ifelse(is.null(groups),0,max(c(nchar(groups),0))*2*groupCex/3)
@@ -167,8 +156,8 @@ plotDNA<-function(seqs,groups=NULL,seqCounts=rep(1,length(seqs)),cols=c('A'='gre
 		for(i in 1:ncol(seqNum)){
 			#1 rectangle per read
 			#rect(1:ncol(seqNum)-.5,i-.5,1:ncol(seqNum)+.5,i+.5+spacer,col=seqNum[i,],border=NA)
-			bottoms<-c(0,cumsum(seqCounts[thisOrder])[-length(seqCounts)])
-			tops<-cumsum(seqCounts[thisOrder])
+			bottoms<-c(0,cumsum(seqCounts)[-length(seqCounts)])
+			tops<-cumsum(seqCounts)
 			cols<-seqNum[,i]
 			#1 rectangle per repped read 
 			#rect(i-.5,bottoms+.5,i+.5,tops+.5+spacer,col=cols,border=NA)
@@ -184,7 +173,7 @@ plotDNA<-function(seqs,groups=NULL,seqCounts=rep(1,length(seqs)),cols=c('A'='gre
 			rect(i-.5,colRanges$bottom+.5,i+.5,colRanges$top+.5+spacer,col=colRanges$col,border=NA)
 		}
 		if(!is.null(groups)){
-			groupOrder<-rep(groups[thisOrder],seqCounts[thisOrder])
+			groupOrder<-rep(groups,seqCounts)
 			counter<-0
 			maxGroupCount<-max(table(groupOrder))
 			uniqueGroups<-unique(groups)
