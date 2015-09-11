@@ -1,11 +1,11 @@
-Package: plotDNA
+Package: DNAPlotR
 Type: Package
-Title: plotDNA: Plot a collection of aligned sequences
+Title: DNAPlotR: Plot a collection of DNA sequences
 Version: 0.1
 Date: 2015-09-11
 Author: Scott Sherrill-Mix
 Maintainer: Scott Sherrill-Mix <sherrillmix@upenn.edu>
-Description: A function to take a vector of aligned sequence string and visualize them in a nice plot.
+Description: A function to take a character vector of DNA sequences and visualize them in a nice plot.
 License: GPL-2
 LazyData: TRUE
 Suggests: testthat

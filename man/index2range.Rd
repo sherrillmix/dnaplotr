@@ -20,6 +20,6 @@ A data frame with columns:
 Take a vector of indices and returns ranges of contiguous regions.
 }
 \examples{
-plotDNA:::index2range(c(1:10,11,14,16,17:20))
+DNAPlotR:::index2range(c(1:10,11,14,16,17:20))
 }
 

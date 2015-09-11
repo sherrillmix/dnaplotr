@@ -1,3 +1,3 @@
 library(testthat)
-library(plotDNA)
-test_check("plotDNA")
+library(DNAPlotR)
+test_check("DNAPlotR")
