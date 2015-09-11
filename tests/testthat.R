@@ -1,3 +1,3 @@
 library(testthat)
-library(ampCounter)
-test_check("ampCounter")
+library(plotDNA)
+test_check("plotDNA")
