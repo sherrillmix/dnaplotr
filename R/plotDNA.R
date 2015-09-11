@@ -30,7 +30,7 @@ NULL
 #'
 #' 
 #' @examples
-#' index2range(c(1:10,11,14,16,17:20))
+#' plotDNA:::index2range(c(1:10,11,14,16,17:20))
 index2range<-function(index){
 	index<-sort(unique(index))
 	diffs<-c(diff(index),Inf)
@@ -84,9 +84,10 @@ index2range<-function(index){
 #'        \item{end:}{End of a contiguous region}
 #'      }
 #'
+#' @export
 #' 
 #' @examples
-#' index2range(c(1:10,11,15,16,17:20))
+#' plotDNA:::index2range(c(1:10,11,15,16,17:20))
 
 plotDNA<-function(seqs,emptyTrim=TRUE,gapTrim=0,groups=NULL,groupOrdering=c(),legend=!noText,endGapRemove=FALSE,orderBy=NULL,pause=FALSE,extraCmds=NULL,xstart=1,distOrderDecreasing=FALSE,refSeq=NULL,groupCex=NULL,lineStagger=FALSE,groupCexScale=FALSE,convertGap2NoGap=FALSE,seqCounts=rep(1,length(seqs)),fixedAxis=NULL,refGapWhite=FALSE,noText=FALSE,xlab='Position',ylab='Sequence Read',noTick=FALSE,seqCountDisplay=TRUE,maxAxis=Inf,...){
 	if(length(noTick)==1)noTick<-rep(noTick,2)

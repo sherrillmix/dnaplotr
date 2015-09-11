@@ -39,7 +39,7 @@ The main function is:
 \examples{
 seqs<-c('ACTGGA','ACTGCA','ACTGGC')
 plotDNA(seqs)
-index2range(c(1:10,11,15,16,17:20))
+plotDNA:::index2range(c(1:10,11,15,16,17:20))
 }
 \author{
 Scott Sherrill-Mix, \email{shescott@upenn.edu}
