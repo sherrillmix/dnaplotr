@@ -1,39 +1,59 @@
+#' Functions to plot out a collection of DNA sequences
+#'
+#' Produce a visual representation of a vector of DNA sequences
+#'
+#' The main function is:
+#'      \describe{
+#'        \item{\code{\link{plotDNA}}:}{to produce a plot from a vector of DNA sequences}
+#'      }
+##'
+#' @docType package
+#' @name plotDNA
+#' @author Scott Sherrill-Mix, \email{shescott@@upenn.edu}
+#' @examples
+#' seqs<-c('ACTGGA','ACTGCA','ACTGGC')
+#' plotDNA(seqs)
+NULL
 
-#find ranges with at least one coverage in numerical index data
-#index: numeric indices
-#returns: dataframe with start and end of ranges
+
+#' Find contiguous ranges within a vector of indices
+#' 
+#' Takes a vector of indices and returns ranges of contiguous regions
+#'
+#' @param index Indices to be condensed e.g. from \code{\link{which}} or \code{\link{grep}}
+#'
+#' @return A data frame with columns: 
+#'      \describe{
+#'        \item{start:}{Start of a contiguous region}
+#'        \item{end:}{End of a contiguous region}
+#'      }
+#'
+#' 
+#' @examples
+#' index2range(c(1:10,11,15,16,17:20))
 index2range<-function(index){
 	index<-sort(unique(index))
-	diffs<-c(diff(index),1)
-	ends<-c(which(diffs>1),length(index))
+	diffs<-c(diff(index),Inf)
+	ends<-c(which(diffs>1))
 	starts<-c(1,ends[-length(ends)]+1)
 	return(data.frame('start'=index[starts],'end'=index[ends]))
 }
 
-#Function: plotSeq(c('ACTAAATTT','GGTAAGTTT'), 'test.png')
-	#Produce a red, green, blue, yellow plot of sequences
+#Function: plotSeq(c('ACTAAATTT','GGTAAGTTT'), 'test.png') #Produce a red, green, blue, yellow plot of sequences
 #Arguments:
 	#seqs = a vector of sequences (strings)
-	#outFile = a file name (.eps and .png used to determine file type, NULL for no file generation and dev.off)
-	#distOrder = order sequences by Levenshtein distance from refSeq if defined otherwise most abundant sequence? (requires leven library)
-	#homoLimit = If calculating distance, ignore difference in homopolymers longer than homoLimt
 	#emptyTrim = Delete any columns with all -, *, .'s 
 	#gapTrim = Delete any columns with fewer than or equal  gapTrim non[-*.] chars
 	#groups = Group sequences by group and show lable on right side of plot
-	#groupTrim = Delete any groups with sequence counts <= groupTrim
 	#groupOrdering = preferred order for groups
-	#distShow = Show distances on right side of plot (can be messy when few sequences for given distances)
-	#vocal = Show message every vocal sequences when calculating levenshtein (for monitoring progress on long calculations)
 	#legend = Show A C T G legend?
 	#endGapRemove = Change -'s on ends to .'s  (e.g --AAA-CCC-- becomes ..AAA-CC..) (dots are displayed white and dashes grey)
 	#orderBy = Column used to order sequences
 	#pause = Call browser() near end for manual adjustments/debugging
-	#plotPng = Output file as png or eps (set automatically if filenames end in .eps or .png)
 	#extraCmds = Extra commands added after plotting sequences (e.g. lines arrows etc)
 	#xstart = First base should be numbered as xstart
 	#distOrderDecreasing = Sort by distance in decreasing order?
 	#refSeq = Reference sequence used for determining gap free base position and distance
-	#res = resolution for png's 1600x900 * res
 	#groupCex = cex for group labels
 	#lineStagger = offset group labels
 	#groupCexScale = scale group label cex by number of sequences?
@@ -42,12 +62,9 @@ index2range<-function(index){
 	#fixedAxis = vector of x-axis label positions (for fine-tuning axis labelling)
 	#refGapWhite = Make '-' characters white where refSeq also gap
 	#noText = Suppress margin text (e.g. for embedding somewhere else)
-	#verticalLines = Nongapped refSeq (if refSeq non null) or plain coordinates to draw vertical dotted lines _after_
-	#verticalLty = Line type for vertical lines (NULL to calculate but not plot)
 	#xlab = label for x axis
 	#ylab = label for y axis
 	#noTick = suppress ticks? can be length 1 for both or 2 for x then y
-	#cache = do not create plot if file already exists
 	#seqCountDisplay = display left sequence count axis?
 	#maxAxis = maximum lab to display on y axis (e.g. not to scale stuff on top of this)
 	#... = arguments passed to plot()
@@ -55,35 +72,15 @@ index2range<-function(index){
 #Returns: invisible logical vector indicating whether a columns was plotted
 #Side effect: Produces plot in outFile
 
-plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=TRUE,gapTrim=0,groups=NULL,groupTrim=0,groupOrdering=c(),distShow=TRUE,vocal=2,legend=!noText,endGapRemove=FALSE,orderBy=NULL,pause=FALSE,plotPng=FALSE,extraCmds=NULL,xstart=1,distOrderDecreasing=FALSE,refSeq=NULL,res=1,groupCex=NULL,lineStagger=FALSE,groupCexScale=FALSE,convertGap2NoGap=FALSE,seqCounts=rep(1,length(seqs)),fixedAxis=NULL,refGapWhite=FALSE,noText=FALSE,verticalLines=NULL,verticalLty=2,xlab='Position',ylab='Sequence Read',noTick=FALSE,cache=FALSE,seqCountDisplay=TRUE,maxAxis=Inf,...){
+plotSeq<-function(seqs,emptyTrim=TRUE,gapTrim=0,groups=NULL,groupOrdering=c(),legend=!noText,endGapRemove=FALSE,orderBy=NULL,pause=FALSE,extraCmds=NULL,xstart=1,distOrderDecreasing=FALSE,refSeq=NULL,groupCex=NULL,lineStagger=FALSE,groupCexScale=FALSE,convertGap2NoGap=FALSE,seqCounts=rep(1,length(seqs)),fixedAxis=NULL,refGapWhite=FALSE,noText=FALSE,xlab='Position',ylab='Sequence Read',noTick=FALSE,seqCountDisplay=TRUE,maxAxis=Inf,...){
 	if(length(noTick)==1)noTick<-rep(noTick,2)
-	if(cache&&file.exists(outFile))return('CACHED')
 	gapChars<-c('-','*','.') #need to standardize throughout
-	if(any(grep('.png$',outFile)))plotPng=TRUE
 	if(length(seqs)<1|is.null(seqs))stop(simpleError("Seqs missing"))
 	if(length(seqs)!=length(seqCounts))stop(simpleError('Lengths of seqs and seqCounts not equal'))
 	seqs<-toupper(seqs)
 	if(!is.null(refSeq))refGaps<-strsplit(refSeq,'')[[1]] %in% gapChars
 
-	if(groupTrim>0){
-			groupNums<-tapply(seqCounts,groups,sum)
-			groupNums<-groupNums[groupNums>groupTrim]
-			seqs<-seqs[groups %in% names(groupNums)]
-			groups<-groups[groups %in% names(groupNums)]
-	}
-
 	#ordering
-	if(distOrder){
-		library(leven)
-		#pick out most common sequence
-		if(is.null(refSeq)){
-			seqCount<-tapply(seqCounts,seqs,sum)
-			maxSeq<-names(seqCount)[seqCount==max(seqCount)][1]
-		}else maxSeq<-refSeq
-		dists<-leven(gsub('[*.-]+','',maxSeq),gsub('[-.*]','',seqs,perl=TRUE),substring1=TRUE,homoLimit=homoLimit,vocal=vocal,substring2=TRUE)
-		multiplier<-ifelse(distOrderDecreasing,-1,1)
-		distRank<-rank(dists*multiplier)
-	}else distRank<-rep(0,length(seqs))
 	if(!is.null(groups)){
 		if (any(grep('^[^$]',groups)))dummy<-paste(ifelse(substring(groups,1,1)=='^','0','1'),ifelse(substring(groups,1,1)=='$','1','0'),sub('^\\^','0',sub('^\\$','Z',groups)),sep='')
 		else dummy<-groups
@@ -97,7 +94,7 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 		orderByRank<-do.call(rank,orderBy)
 	} else orderByRank<-rep(0,length(seqs))
 	seqRank<-rank(gsub('[.*-]','Z',seqs))
-	if(any(c(distRank,orderByRank,groupRank)!=0))thisOrder<-order(groupRank,orderByRank,distRank,seqRank)
+	if(any(c(orderByRank,groupRank)!=0))thisOrder<-order(groupRank,orderByRank,seqRank)
 	else thisOrder<-1:length(seqs)
 
 	seqList<-strsplit(seqs,'')
@@ -107,7 +104,6 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 		seqList<-lapply(seqList,function(x,num){return(c(x,rep('-',maxLength-length(x))))},maxLength)
 	}
 	seqMat<-do.call(rbind,seqList)
-	if(distOrder|!is.null(groups)|!is.null(orderBy))seqMat<-seqMat[thisOrder,,drop=FALSE]
 	gapSelector<-rep(TRUE,ncol(seqMat))
 	if(emptyTrim){
 		selector<-!apply(seqMat,2,function(x){all(x %in% gapChars)})
@@ -144,27 +140,19 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 	seqNum[seqMat=='-']<-'grey'
 	digits<-ceiling(log10(sum(seqCounts)+1))
 	digits<-digits+(ceiling(digits/3)-1) #account for , in 1,000
-	axisCex<-ifelse(plotPng,3,1.6)
+	axisCex<-1.6
 	groupCex<-ifelse(is.null(groupCex),axisCex,groupCex)
 	#if(!is.null(groups))seqNum<-seqNum[order(groups),]
-	if(!is.null(outFile)){
-		if(plotPng) png(outFile,width=round(1600*res/2),height=round(900*res/2),res=80*res/2,type='cairo',antialias='subpixel')
-		else postscript(outFile,horizontal=FALSE,width=10,height=6,paper='special')
-	}
 		#add some space to the right margin if annotating groups or distance
-		marRightPad<-ifelse(is.null(groups),ifelse(distShow,3,0),max(c(nchar(groups),0))*ifelse(!is.null(outFile),1.05,2)*groupCex/3)
-		if(plotPng){
-			mars<-c(6,5.1+digits*1.06,1,4+marRightPad)
-		} else {
-			mars<-c(4.1,2+digits*1.06,1,0+marRightPad/1.2)
-		}
+		marRightPad<-ifelse(is.null(groups),0,max(c(nchar(groups),0))*2*groupCex/3)
+		mars<-c(4.1,2+digits*1.06,1,0+marRightPad/1.2)
 		if(!seqCountDisplay)mars[2]<-.2
 		par(mar=mars,las=1)
-		plot(1,1,xlim=c(0.5,ncol(seqNum)+.5),ylim=c(0.5,sum(seqCounts)+.5),ylab="",xlab=ifelse(noText,'',xlab),type='n',xaxs='i',yaxs='i',xaxt='n',yaxt='n',cex.axis=axisCex,cex.lab=axisCex,mgp=c(mars[1]-1.5,ifelse(plotPng,1,.75),0),...)
+		plot(1,1,xlim=c(0.5,ncol(seqNum)+.5),ylim=c(0.5,sum(seqCounts)+.5),ylab="",xlab=ifelse(noText,'',xlab),type='n',xaxs='i',yaxs='i',xaxt='n',yaxt='n',cex.axis=axisCex,cex.lab=axisCex,mgp=c(mars[1]-1.5,.75,0),...)
 		prettyY<-pretty(1:min(maxAxis,sum(seqCounts)))
 		prettyY<-prettyY[prettyY<=maxAxis&round(prettyY)==prettyY]
-		if(!noTick[2]&seqCountDisplay)axis(2,prettyY,ifelse(rep(noText,length(prettyY)),rep('',length(prettyY)),format(prettyY,scientific=FALSE,big.mark=',')),cex.axis=axisCex,mgp=c(3,ifelse(plotPng,1,.75),0))
-		if(!noText)mtext(ylab,2,line=ifelse(plotPng,2.8,0)+digits^1.03*1.05,las=3,cex=axisCex)
+		if(!noTick[2]&seqCountDisplay)axis(2,prettyY,ifelse(rep(noText,length(prettyY)),rep('',length(prettyY)),format(prettyY,scientific=FALSE,big.mark=',')),cex.axis=axisCex,mgp=c(3,.75,0))
+		if(!noText)mtext(ylab,2,line=digits^1.03*1.05,las=3,cex=axisCex)
 
 		#Converting to first base as 0 for ease of use
 		xstart<-xstart-1
@@ -179,10 +167,10 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 			if(!is.null(fixedAxis))prettyX<-fixedAxis	
 			prettyX<-prettyX[prettyX<=xstart+maxNoGap]; prettyX[prettyX==0]<-1
 			#axis(1,noGap2Gap(refSeq,prettyX-xstart),noGap2Gap(refSeq,prettyX-xstart),cex.axis=3)
-			if(!noTick[1])axis(1,noGap2Gap(refSeq,prettyX-xstart),ifelse(rep(noText,length(prettyX)),rep('',length(prettyX)),prettyX),cex.axis=axisCex,mgp=c(3,ifelse(plotPng,ifelse(plotPng,1.6,1),1),0))
+			if(!noTick[1])axis(1,noGap2Gap(refSeq,prettyX-xstart),ifelse(rep(noText,length(prettyX)),rep('',length(prettyX)),prettyX),cex.axis=axisCex,mgp=c(3,1,0))
 		}else{
 			prettyX<-pretty(xstart+c(1,ncol(seqNum)))
-			if(!noTick[1])axis(1,prettyX-xstart,ifelse(rep(noText,length(prettyX)),rep('',length(prettyX)),prettyX),cex.axis=axisCex,mgp=c(3,ifelse(plotPng,1.6,1),0))
+			if(!noTick[1])axis(1,prettyX-xstart,ifelse(rep(noText,length(prettyX)),rep('',length(prettyX)),prettyX),cex.axis=axisCex,mgp=c(3,1,0))
 		}
 		#needs to be slight overlap to avoid stupid white line problem
 		spacer<-.001
@@ -205,15 +193,6 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 			#1 rectangle per string of identical bases
 			rect(i-.5,colRanges$bottom+.5,i+.5,colRanges$top+.5+spacer,col=colRanges$col,border=NA)
 		}
-		if(distOrder&is.null(groups)&distShow){
-			dists<-dists[thisOrder]
-			cumSums<-cumsum(seqCounts[thisOrder])
-			#first bin goes to 1
-			cumSums[1]<-1
-			for(i in unique(dists)){
-				mtext(i,4,at=cumSums[min(which(dists==i))],cex=2)	
-			}
-		}
 		if(!is.null(groups)){
 			groupOrder<-rep(groups[thisOrder],seqCounts[thisOrder])
 			counter<-0
@@ -232,15 +211,6 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 				segments(-.5,thisMax+.5,ncol(seqNum)+.5,thisMax+.5)
 			}
 		}
-		if(!is.null(verticalLines)){
-			if(!is.null(refSeq))verticalLines<-noGap2Gap(refSeq,verticalLines-xstart)+.5
-			if(!is.null(verticalLty)){
-				#abline(v=verticalLines+.1,lty=verticalLty,lwd=1,col='white')
-				#abline(v=verticalLines-.1,lty=verticalLty,lwd=1,col='white')
-				abline(v=verticalLines,lty=verticalLty,lwd=max(2,2*ncol(seqNum)/1000),xpd=TRUE)
-				#segments(verticalLines,.5,verticalLines,sum(seqCounts)+.7,lty=verticalLty,lwd=1)
-			}
-		}
 		if(!is.null(extraCmds))eval(parse(text=extraCmds))
 		box()
 		if(legend){
@@ -253,7 +223,6 @@ plotSeq<-function(seqs,outFile="test.eps",distOrder=FALSE,homoLimit=0,emptyTrim=
 			legend('bottomright', c("A", "T", "C","G"),col=c('green','red','blue','yellow'), pt.bg= c('green','red','blue','yellow'),pch = c(22,22,22,22),ncol=4,bty='n',cex=axisCex*.75,xjust=1,yjust=1,xpd=NA,inset=insetPos)
 		}
 		if(pause)browser()
-	if(!is.null(outFile))dev.off()
 	invisible(gapSelector)
 }
 
