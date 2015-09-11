@@ -42,13 +42,10 @@ index2range<-function(index){
 #Function: plotSeq(c('ACTAAATTT','GGTAAGTTT'), 'test.png') #Produce a red, green, blue, yellow plot of sequences
 #Arguments:
 	#seqs = a vector of sequences (strings)
-	#emptyTrim = Delete any columns with all -, *, .'s 
 	#gapTrim = Delete any columns with fewer than or equal  gapTrim non[-*.] chars
 	#groups = Group sequences by group and show lable on right side of plot
 	#groupOrdering = preferred order for groups
 	#legend = Show A C T G legend?
-	#endGapRemove = Change -'s on ends to .'s  (e.g --AAA-CCC-- becomes ..AAA-CC..) (dots are displayed white and dashes grey)
-	#orderBy = Column used to order sequences
 	#pause = Call browser() near end for manual adjustments/debugging
 	#extraCmds = Extra commands added after plotting sequences (e.g. lines arrows etc)
 	#xstart = First base should be numbered as xstart
@@ -77,21 +74,26 @@ index2range<-function(index){
 #' Take a vector of strings representing DNA sequences and plot them to the current device. A, C, T and G are colored, - are colored gray and all other characters are white.
 #'
 #' @param seqs A character vector containing DNA sequences
+#' @param seqCounts A integer vector with the number of counts for each sequence. This can be used to improve run time and file size if some sequences are duplicated multiple times (default: 1 for each entry in seqs)
+#' @param groups A character vector the same length as seqs giving the group identity of each sequence
+#' @param cols A named vector with names corresponding to the DNA bases and values showing the appropriate color (default: A: green, T: red, C: blue, G: yellow, -: grey)
+#' @param gapChars A character vector with a single one character entry for each character that represents a gap
 #'
-#' @return A data frame with columns: 
-#'      \describe{
-#'        \item{start:}{Start of a contiguous region}
-#'        \item{end:}{End of a contiguous region}
-#'      }
+#' @return An invisible
 #'
 #' @export
 #' 
 #' @examples
 #' plotDNA(c('ACACA','ACACA','ACACT'))
 
-plotDNA<-function(seqs,emptyTrim=TRUE,gapTrim=0,groups=NULL,groupOrdering=c(),legend=!noText,endGapRemove=FALSE,orderBy=NULL,pause=FALSE,extraCmds=NULL,xstart=1,distOrderDecreasing=FALSE,refSeq=NULL,groupCex=NULL,lineStagger=FALSE,groupCexScale=FALSE,convertGap2NoGap=FALSE,seqCounts=rep(1,length(seqs)),fixedAxis=NULL,refGapWhite=FALSE,noText=FALSE,xlab='Position',ylab='Sequence Read',noTick=FALSE,seqCountDisplay=TRUE,maxAxis=Inf,...){
+#things to add back:
+# gapTrim
+# endGapTrim
+# orderBy?
+# groups
+
+plotDNA<-function(seqs,groups=NULL,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red','C'='blue','G'='yellow','-'='grey','default'='white'),gapChars=c('-','.','-'),groupOrdering=c(),legend=!noText,pause=FALSE,extraCmds=NULL,xstart=1,distOrderDecreasing=FALSE,refSeq=NULL,groupCex=NULL,lineStagger=FALSE,groupCexScale=FALSE,convertGap2NoGap=FALSE,fixedAxis=NULL,refGapWhite=FALSE,noText=FALSE,xlab='Position',ylab='Sequence Read',noTick=FALSE,seqCountDisplay=TRUE,maxAxis=Inf,...){
 	if(length(noTick)==1)noTick<-rep(noTick,2)
-	gapChars<-c('-','*','.') #need to standardize throughout
 	if(length(seqs)<1|is.null(seqs))stop(simpleError("Seqs missing"))
 	if(length(seqs)!=length(seqCounts))stop(simpleError('Lengths of seqs and seqCounts not equal'))
 	seqs<-toupper(seqs)
@@ -99,20 +101,16 @@ plotDNA<-function(seqs,emptyTrim=TRUE,gapTrim=0,groups=NULL,groupOrdering=c(),le
 
 	#ordering
 	if(!is.null(groups)){
+		if(length(groups)!=length(seqs))stop(simpleError('Groups and seqs not the same length'))
 		if (any(grep('^[^$]',groups)))dummy<-paste(ifelse(substring(groups,1,1)=='^','0','1'),ifelse(substring(groups,1,1)=='$','1','0'),sub('^\\^','0',sub('^\\$','Z',groups)),sep='')
 		else dummy<-groups
 		if(length(groupOrdering)==0)groupRank<-rank(dummy)
 		else groupRank<-orderIn(groups,groupOrdering,orderFunc=rank)
+		seqRank<-rank(gsub('[.*-]','Z',seqs))
+		thisOrder<-order(groupRank,seqRank)
 	}else{
-		groupRank<-rep(0,length(seqs))
+		thisOrder<-1:length(seqs)
 	}
-	if(!is.null(orderBy)){
-		if(!is.list(orderBy))orderBy<-list(orderBy)
-		orderByRank<-do.call(rank,orderBy)
-	} else orderByRank<-rep(0,length(seqs))
-	seqRank<-rank(gsub('[.*-]','Z',seqs))
-	if(any(c(orderByRank,groupRank)!=0))thisOrder<-order(groupRank,orderByRank,seqRank)
-	else thisOrder<-1:length(seqs)
 
 	seqList<-strsplit(seqs,'')
 	lengths<-sapply(seqList,length)
@@ -122,39 +120,14 @@ plotDNA<-function(seqs,emptyTrim=TRUE,gapTrim=0,groups=NULL,groupOrdering=c(),le
 	}
 	seqMat<-do.call(rbind,seqList)
 	gapSelector<-rep(TRUE,ncol(seqMat))
-	if(emptyTrim){
-		selector<-!apply(seqMat,2,function(x){all(x %in% gapChars)})
-		if(convertGap2NoGap & !is.null(refSeq)){
-			edges<-range(which(selector))
-			selector[edges[1]:edges[2]]<-selector[edges[1]:edges[2]]|!refGaps[edges[1]:edges[2]]
-			if(edges[1]>1)xstart<-xstart+sum(!selector[1:(edges[1]-1)]&!refGaps[1:(edges[1]-1)])
-		}
-		seqMat<-seqMat[,selector,drop=FALSE]
-		if(!is.null(refSeq))refSeq<-paste(strsplit(refSeq,'')[[1]][selector],collapse='')
-		gapSelector<-selector
-	}
-	if(gapTrim>0){
-		selector<-apply(seqMat,2,function(x,y){sum(!rep(x,y) %in% gapChars)},seqCounts)>gapTrim
-		if(!is.null(refSeq)){
-			selector<-selector|!strsplit(refSeq,'')[[1]] %in% gapChars
-			refSeq<-paste(strsplit(refSeq,'')[[1]][selector],collapse='')
-		}
-		seqMat<-seqMat[,selector,drop=FALSE]
-		gapSelector[gapSelector]<-selector
-	}
-	if(endGapRemove){
-		seqMat<-t(apply(seqMat,1,function(x){lims<-range(which(x!='-'));x[-(lims[1]:lims[2])]<-'.';return(x)}))
-	}
 	if(refGapWhite&!is.null(refSeq)){
 		seqMat<-t(apply(seqMat,1,function(x,y){x[x=='-'&y]<-'*';return(x)},strsplit(refSeq,'')[[1]] %in% gapChars))
 	}
 	seqNum<-seqMat
-	seqNum[,]<- 0
-	seqNum[seqMat=='A']<-'green'
-	seqNum[seqMat=='T']<-'red'
-	seqNum[seqMat=='C']<-'blue'
-	seqNum[seqMat=='G']<-'yellow'
-	seqNum[seqMat=='-']<-'grey'
+	if(!'default' %in% names(cols))cols['default']<-'white'
+	seqNum[,]<-cols['default']
+	for(ii in names(cols))seqNum[seqMat==ii]<-cols[ii]
+
 	digits<-ceiling(log10(sum(seqCounts)+1))
 	digits<-digits+(ceiling(digits/3)-1) #account for , in 1,000
 	axisCex<-1.6
