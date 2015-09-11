@@ -72,7 +72,7 @@ index2range<-function(index){
 #Returns: invisible logical vector indicating whether a columns was plotted
 #Side effect: Produces plot in outFile
 
-plotSeq<-function(seqs,emptyTrim=TRUE,gapTrim=0,groups=NULL,groupOrdering=c(),legend=!noText,endGapRemove=FALSE,orderBy=NULL,pause=FALSE,extraCmds=NULL,xstart=1,distOrderDecreasing=FALSE,refSeq=NULL,groupCex=NULL,lineStagger=FALSE,groupCexScale=FALSE,convertGap2NoGap=FALSE,seqCounts=rep(1,length(seqs)),fixedAxis=NULL,refGapWhite=FALSE,noText=FALSE,xlab='Position',ylab='Sequence Read',noTick=FALSE,seqCountDisplay=TRUE,maxAxis=Inf,...){
+plotDNA<-function(seqs,emptyTrim=TRUE,gapTrim=0,groups=NULL,groupOrdering=c(),legend=!noText,endGapRemove=FALSE,orderBy=NULL,pause=FALSE,extraCmds=NULL,xstart=1,distOrderDecreasing=FALSE,refSeq=NULL,groupCex=NULL,lineStagger=FALSE,groupCexScale=FALSE,convertGap2NoGap=FALSE,seqCounts=rep(1,length(seqs)),fixedAxis=NULL,refGapWhite=FALSE,noText=FALSE,xlab='Position',ylab='Sequence Read',noTick=FALSE,seqCountDisplay=TRUE,maxAxis=Inf,...){
 	if(length(noTick)==1)noTick<-rep(noTick,2)
 	gapChars<-c('-','*','.') #need to standardize throughout
 	if(length(seqs)<1|is.null(seqs))stop(simpleError("Seqs missing"))
@@ -226,15 +226,3 @@ plotSeq<-function(seqs,emptyTrim=TRUE,gapTrim=0,groups=NULL,groupOrdering=c(),le
 	invisible(gapSelector)
 }
 
-plotSeqMuscle<-function(seqs,...,extra.args=''){
-	library(bio3d)
-	if(!exists('seqSplit'))source('~/scripts/R/dna.R')
-	aligned<-apply(seqaln(seqSplit(seqs,fill='-'),protein=FALSE,extra.args=extra.args)$ali,1,paste,collapse='')
-	plotSeq(aligned,...)
-}
-
-plotSeqPair<-function(seqs,...,type='global'){
-	library(Biostrings)
-	aligned<-pairwiseAlignment(seqs[1],seqs[2],type=type)
-	plotSeq(c(as.character(aligned@subject),as.character(aligned@pattern)),...)
-}

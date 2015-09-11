@@ -8,7 +8,7 @@ Maintainer: Scott Sherrill-Mix <sherrillmix@upenn.edu>
 Description: A function to take a vector of aligned sequence string and visualize them in a nice plot.
 License: GPL-2
 LazyData: TRUE
-Suggests: testthat, bio3d
+Suggests: testthat
 Depends: R (>= 3.1.0)
 
 
