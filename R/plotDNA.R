@@ -18,7 +18,7 @@ NULL
 
 #' Find contiguous ranges within a vector of indices
 #' 
-#' Takes a vector of indices and returns ranges of contiguous regions
+#' Take a vector of indices and returns ranges of contiguous regions.
 #'
 #' @param index Indices to be condensed e.g. from \code{\link{which}} or \code{\link{grep}}
 #'
@@ -30,7 +30,7 @@ NULL
 #'
 #' 
 #' @examples
-#' index2range(c(1:10,11,15,16,17:20))
+#' index2range(c(1:10,11,14,16,17:20))
 index2range<-function(index){
 	index<-sort(unique(index))
 	diffs<-c(diff(index),Inf)
@@ -71,6 +71,22 @@ index2range<-function(index){
 
 #Returns: invisible logical vector indicating whether a columns was plotted
 #Side effect: Produces plot in outFile
+
+#' Plot a bunch of DNA sequences
+#' 
+#' Take a vector of strings representing DNA sequences and plot them to the current device. A, C, T and G are colored, - are colored gray and all other characters are white.
+#'
+#' @param seqs A character vector containing DNA sequences
+#'
+#' @return A data frame with columns: 
+#'      \describe{
+#'        \item{start:}{Start of a contiguous region}
+#'        \item{end:}{End of a contiguous region}
+#'      }
+#'
+#' 
+#' @examples
+#' index2range(c(1:10,11,15,16,17:20))
 
 plotDNA<-function(seqs,emptyTrim=TRUE,gapTrim=0,groups=NULL,groupOrdering=c(),legend=!noText,endGapRemove=FALSE,orderBy=NULL,pause=FALSE,extraCmds=NULL,xstart=1,distOrderDecreasing=FALSE,refSeq=NULL,groupCex=NULL,lineStagger=FALSE,groupCexScale=FALSE,convertGap2NoGap=FALSE,seqCounts=rep(1,length(seqs)),fixedAxis=NULL,refGapWhite=FALSE,noText=FALSE,xlab='Position',ylab='Sequence Read',noTick=FALSE,seqCountDisplay=TRUE,maxAxis=Inf,...){
 	if(length(noTick)==1)noTick<-rep(noTick,2)
