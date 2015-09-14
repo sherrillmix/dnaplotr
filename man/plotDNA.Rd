@@ -4,26 +4,27 @@
 \alias{plotDNA}
 \title{Plot a bunch of DNA sequences}
 \usage{
-plotDNA(seqs, groups = NULL, seqCounts = rep(1, length(seqs)), cols = c(A
-  = "green", T = "red", C = "blue", G = "yellow", `-` = "grey", default =
-  "white"), gapChars = c("-", ".", "-"), gapTrim = 0, groupOrdering = c(),
-  legend = !noText, orderBy = NULL, pause = FALSE, extraCmds = NULL,
-  xstart = 1, distOrderDecreasing = FALSE, refSeq = NULL,
-  groupCex = NULL, lineStagger = FALSE, groupCexScale = FALSE,
-  convertGap2NoGap = FALSE, fixedAxis = NULL, refGapWhite = FALSE,
-  noText = FALSE, xlab = "Position", ylab = "Sequence Read",
-  noTick = FALSE, seqCountDisplay = TRUE, maxAxis = Inf, ...)
+plotDNA(seqs, seqCounts = rep(1, length(seqs)), cols = c(A = "green", T =
+  "red", C = "blue", G = "yellow", `-` = "grey", default = "white"),
+  gapChars = c("-", ".", "-"), xlab = "Position", ylab = "Sequence Read",
+  groupOrdering = c(), legend = !noText, pause = FALSE,
+  extraCmds = NULL, xstart = 1, refSeq = NULL, lineStagger = FALSE,
+  groupCexScale = FALSE, convertGap2NoGap = FALSE, fixedAxis = NULL,
+  refGapWhite = FALSE, noText = FALSE, noTick = FALSE,
+  seqCountDisplay = TRUE, maxAxis = Inf, ...)
 }
 \arguments{
 \item{seqs}{A character vector containing DNA sequences}
-
-\item{groups}{A character vector the same length as seqs giving the group identity of each sequence}
 
 \item{seqCounts}{A integer vector with the number of counts for each sequence. This can be used to improve run time and file size if some sequences are duplicated multiple times (default: 1 for each entry in seqs)}
 
 \item{cols}{A named vector with names corresponding to the DNA bases and values showing the appropriate color (default: A: green, T: red, C: blue, G: yellow, -: grey)}
 
 \item{gapChars}{A character vector with a single one character entry for each character that represents a gap}
+
+\item{xlab}{A string specifying the x-axis label (default: Position)}
+
+\item{ylab}{A string specifying the y-axis label (default: Sequence read)}
 }
 \value{
 An invisible

@@ -45,9 +45,6 @@ index2range<-function(index){
 	#gapTrim = Delete any columns with fewer than or equal  gapTrim non[-*.] chars
 	#groups = Group sequences by group and show lable on right side of plot
 	#groupOrdering = preferred order for groups
-	#legend = Show A C T G legend?
-	#pause = Call browser() near end for manual adjustments/debugging
-	#extraCmds = Extra commands added after plotting sequences (e.g. lines arrows etc)
 	#xstart = First base should be numbered as xstart
 	#distOrderDecreasing = Sort by distance in decreasing order?
 	#refSeq = Reference sequence used for determining gap free base position and distance
@@ -56,14 +53,10 @@ index2range<-function(index){
 	#groupCexScale = scale group label cex by number of sequences?
 	#convertGap2NoGap = Use refSeq to determine nonGap base positions for x-axis? requires dna.R
 	#seqCounts = vector of counts 
-	#fixedAxis = vector of x-axis label positions (for fine-tuning axis labelling)
-	#refGapWhite = Make '-' characters white where refSeq also gap
 	#noText = Suppress margin text (e.g. for embedding somewhere else)
 	#xlab = label for x axis
 	#ylab = label for y axis
-	#noTick = suppress ticks? can be length 1 for both or 2 for x then y
 	#seqCountDisplay = display left sequence count axis?
-	#maxAxis = maximum lab to display on y axis (e.g. not to scale stuff on top of this)
 	#... = arguments passed to plot()
 
 #Returns: invisible logical vector indicating whether a columns was plotted
@@ -76,9 +69,10 @@ index2range<-function(index){
 #' @param seqs A character vector containing DNA sequences
 #' @param seqCounts A integer vector with the number of counts for each sequence. This can be used to improve run time and file size if some sequences are duplicated multiple times (default: 1 for each entry in seqs)
 #' @param cols A named vector with names corresponding to the DNA bases and values showing the appropriate color (default: A: green, T: red, C: blue, G: yellow, -: grey)
-#' @param gapChars A character vector with a single one character entry for each character that represents a gap
 #' @param xlab A string specifying the x-axis label (default: Position)
 #' @param ylab A string specifying the y-axis label (default: Sequence read)
+#' @param display A logical vector with element names in 'legend', 'xAxis', 'yAxis', 'groups' where a FALSE suppresses outputting that plot element (default: TRUE for all or any missing elements)
+#' @param xStart First base in plot should be labelled as this (default: 1)
 #'
 #' @return An invisible
 #'
@@ -92,14 +86,17 @@ index2range<-function(index){
 # endGapTrim
 # orderBy?
 # groups
+# refSeq matched - into white
+# refseq display
 
-plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red','C'='blue','G'='yellow','-'='grey','default'='white'),gapChars=c('-','.','-'),xlab='Position',ylab='Sequence Read',
-	groupOrdering=c(),legend=!noText,pause=FALSE,extraCmds=NULL,xstart=1,refSeq=NULL,lineStagger=FALSE,groupCexScale=FALSE,convertGap2NoGap=FALSE,fixedAxis=NULL,refGapWhite=FALSE,noText=FALSE,noTick=FALSE,seqCountDisplay=TRUE,maxAxis=Inf,...){
-	if(length(noTick)==1)noTick<-rep(noTick,2)
+plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red','C'='blue','G'='yellow','-'='grey','default'='white'),xlab='Position',ylab='Sequence Read',display=c(),xStart=1,
+	refSeq=NULL,lineStagger=FALSE,groupCexScale=FALSE,convertGap2NoGap=FALSE,...){
 	if(length(seqs)<1|is.null(seqs))stop(simpleError("Seqs missing"))
 	if(length(seqs)!=length(seqCounts))stop(simpleError('Lengths of seqs and seqCounts not equal'))
 	seqs<-toupper(seqs)
-	if(!is.null(refSeq))refGaps<-strsplit(refSeq,'')[[1]] %in% gapChars
+	displayOptions<-c('legend','xAxis','yAxis','groups')
+	missingOptions<-!displayOptions %in% names(display)
+	if(any(missingOptions))display[displayOptions[missingOptions]]<-FALSE
 
 	seqList<-strsplit(seqs,'')
 	lengths<-sapply(seqList,length)
@@ -109,9 +106,6 @@ plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red
 	}
 	seqMat<-do.call(rbind,seqList)
 	gapSelector<-rep(TRUE,ncol(seqMat))
-	if(refGapWhite&!is.null(refSeq)){
-		seqMat<-t(apply(seqMat,1,function(x,y){x[x=='-'&y]<-'*';return(x)},strsplit(refSeq,'')[[1]] %in% gapChars))
-	}
 	seqNum<-seqMat
 	if(!'default' %in% names(cols))cols['default']<-'white'
 	seqNum[,]<-cols['default']
@@ -125,31 +119,29 @@ plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red
 		#add some space to the right margin if annotating groups or distance
 		marRightPad<-ifelse(is.null(groups),0,max(c(nchar(groups),0))*2*groupCex/3)
 		mars<-c(4.1,2+digits*1.06,1,0+marRightPad/1.2)
-		if(!seqCountDisplay)mars[2]<-.2
 		par(mar=mars,las=1)
-		plot(1,1,xlim=c(0.5,ncol(seqNum)+.5),ylim=c(0.5,sum(seqCounts)+.5),ylab="",xlab=ifelse(noText,'',xlab),type='n',xaxs='i',yaxs='i',xaxt='n',yaxt='n',cex.axis=axisCex,cex.lab=axisCex,mgp=c(mars[1]-1.5,.75,0),...)
-		prettyY<-pretty(1:min(maxAxis,sum(seqCounts)))
-		prettyY<-prettyY[prettyY<=maxAxis&round(prettyY)==prettyY]
-		if(!noTick[2]&seqCountDisplay)axis(2,prettyY,ifelse(rep(noText,length(prettyY)),rep('',length(prettyY)),format(prettyY,scientific=FALSE,big.mark=',')),cex.axis=axisCex,mgp=c(3,.75,0))
-		if(!noText)mtext(ylab,2,line=digits^1.03*1.05,las=3,cex=axisCex)
+		plot(1,1,xlim=c(0.5,ncol(seqNum)+.5),ylim=c(0.5,sum(seqCounts)+.5),ylab="",xlab=xlab,type='n',xaxs='i',yaxs='i',xaxt='n',yaxt='n',cex.axis=axisCex,cex.lab=axisCex,mgp=c(mars[1]-1.5,.75,0),...)
+		prettyY<-pretty(1:min(sum(seqCounts)))
+		prettyY<-prettyY[round(prettyY)==prettyY]
+		if(display['yAxis'])axis(2,prettyY,format(prettyY,scientific=FALSE,big.mark=','),cex.axis=axisCex,mgp=c(3,.75,0))
+		mtext(ylab,2,line=digits^1.03*1.05,las=3,cex=axisCex)
 
 		#Converting to first base as 0 for ease of use
-		xstart<-xstart-1
+		xStart<-xStart-1
 		if(convertGap2NoGap&!is.null(refSeq)){
 			if(!exists('gap2NoGap'))source('~/scripts/R/dna.R')
 			maxNoGap<-gap2NoGap(refSeq,ncol(seqNum))
-			prettyX<-pretty(xstart+c(1,maxNoGap))
-			prettyX<-prettyX[prettyX<=xstart+maxNoGap]
+			prettyX<-pretty(xStart+c(1,maxNoGap))
+			prettyX<-prettyX[prettyX<=xStart+maxNoGap]
 			prettyX[prettyX==0]<-1
-			prettyX<-prettyX[prettyX-xstart>0]
+			prettyX<-prettyX[prettyX-xStart>0]
 			if(length(prettyX<4)){prettyX<-pretty(prettyX);}
-			if(!is.null(fixedAxis))prettyX<-fixedAxis	
-			prettyX<-prettyX[prettyX<=xstart+maxNoGap]; prettyX[prettyX==0]<-1
-			#axis(1,noGap2Gap(refSeq,prettyX-xstart),noGap2Gap(refSeq,prettyX-xstart),cex.axis=3)
-			if(!noTick[1])axis(1,noGap2Gap(refSeq,prettyX-xstart),ifelse(rep(noText,length(prettyX)),rep('',length(prettyX)),prettyX),cex.axis=axisCex,mgp=c(3,1,0))
+			prettyX<-prettyX[prettyX<=xStart+maxNoGap]; prettyX[prettyX==0]<-1
+			#axis(1,noGap2Gap(refSeq,prettyX-xStart),noGap2Gap(refSeq,prettyX-xStart),cex.axis=3)
+			if(display['xAxis'])axis(1,noGap2Gap(refSeq,prettyX-xStart),prettyX,cex.axis=axisCex,mgp=c(3,1,0))
 		}else{
-			prettyX<-pretty(xstart+c(1,ncol(seqNum)))
-			if(!noTick[1])axis(1,prettyX-xstart,ifelse(rep(noText,length(prettyX)),rep('',length(prettyX)),prettyX),cex.axis=axisCex,mgp=c(3,1,0))
+			prettyX<-pretty(xStart+c(1,ncol(seqNum)))
+			if(display['xAxis'])axis(1,prettyX-xStart,prettyX,cex.axis=axisCex,mgp=c(3,1,0))
 		}
 		#needs to be slight overlap to avoid stupid white line problem
 		spacer<-.001
@@ -185,14 +177,13 @@ plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red
 				else line=.5
 				if(groupCexScale)cexScale<-((diff(c(thisMin,thisMax))+1)/maxGroupCount)^.5
 				else cexScale<-1
-				if(!noText)mtext(sub('^[$^]','',i),4,at=mean(c(thisMin,thisMax)),cex=max(.3,cexScale*groupCex),line=line)
+				if(display['groups'])mtext(sub('^[$^]','',i),4,at=mean(c(thisMin,thisMax)),cex=max(.3,cexScale*groupCex),line=line)
 				segments(-.5,thisMin-.5,ncol(seqNum)+.5,thisMin-.5)
 				segments(-.5,thisMax+.5,ncol(seqNum)+.5,thisMax+.5)
 			}
 		}
-		if(!is.null(extraCmds))eval(parse(text=extraCmds))
 		box()
-		if(legend){
+		if(display['legend']){
 			ypos<- -sum(seqCounts)*.04
 			xpos<-ncol(seqNum)*.98	
 			#adj=c(1,0)
@@ -201,7 +192,6 @@ plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red
 			insetPos<-c(-rightMarWidth,-bottomMarHeight)
 			legend('bottomright', c("A", "T", "C","G"),col=c('green','red','blue','yellow'), pt.bg= c('green','red','blue','yellow'),pch = c(22,22,22,22),ncol=4,bty='n',cex=axisCex*.75,xjust=1,yjust=1,xpd=NA,inset=insetPos)
 		}
-		if(pause)browser()
 	invisible(gapSelector)
 }
 
