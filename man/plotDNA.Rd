@@ -38,5 +38,12 @@ Take a vector of strings representing DNA sequences and plot them to the current
 }
 \examples{
 plotDNA(c('ACACA','ACACA','ACACT'))
+refSeq<-'AC---A'
+seqs<-c('ACTGGA','ACTGCA','ACTGGC','GCTGGG','GGGG',refSeq)
+par(mar=c(4,5,.5,6),cex.axis=2,cex.lab=2)
+groupOrder<-c('Group2','Group1','Group3','Reference')
+groups<-factor(c('Group1','Group2','Group3','Group1','Group3','Reference'),levels=groupOrder)
+seqCounts<-c(30,10,10,15,5,5)
+plotDNA(seqs,seqCounts=seqCounts,groups=groups,xStart=10,groupCexScale=TRUE,refSeq=refSeq)
 }
 

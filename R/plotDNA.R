@@ -28,9 +28,10 @@ NULL
 #'        \item{end:}{End of a contiguous region}
 #'      }
 #'
+#' @export
 #' 
 #' @examples
-#' DNAPlotR:::indexToRange(c(1:10,11,14,16,17:20))
+#' indexToRange(c(1:10,11,14,16,17:20))
 indexToRange<-function(index){
 	index<-sort(unique(index))
 	diffs<-c(diff(index),Inf)
@@ -84,6 +85,13 @@ indexToRange<-function(index){
 #' 
 #' @examples
 #' plotDNA(c('ACACA','ACACA','ACACT'))
+#' refSeq<-'AC---A'
+#' seqs<-c('ACTGGA','ACTGCA','ACTGGC','GCTGGG','GGGG',refSeq)
+#' par(mar=c(4,5,.5,6),cex.axis=2,cex.lab=2)
+#' groupOrder<-c('Group2','Group1','Group3','Reference')
+#' groups<-factor(c('Group1','Group2','Group3','Group1','Group3','Reference'),levels=groupOrder)
+#' seqCounts<-c(30,10,10,15,5,5)
+#' plotDNA(seqs,seqCounts=seqCounts,groups=groups,xStart=10,groupCexScale=TRUE,refSeq=refSeq)
 
 #things to add back:
 # gapTrim
@@ -94,8 +102,7 @@ indexToRange<-function(index){
 # refseq display
 # distOrder
 
-plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red','C'='blue','G'='yellow','-'='grey','default'='white'),xlab='Position',ylab='Sequence Read',display=c('groups'=!is.null(groups)),xStart=1,groups=NULL,groupCexScale=FALSE,
-	refSeq=NULL,...){
+plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red','C'='blue','G'='yellow','-'='grey','default'='white'),xlab='Position',ylab='Sequence Read',display=c('groups'=!is.null(groups)),xStart=1,groups=NULL,groupCexScale=FALSE, refSeq=NULL,...){
 	if(length(seqs)<1|is.null(seqs))stop(simpleError("Seqs missing"))
 	if(length(seqs)!=length(seqCounts))stop(simpleError('Lengths of seqs and seqCounts not equal'))
 	if(!is.null(groups)&&length(seqs)!=length(groups))stop(simpleError('Lengths of seqs and groups not equal'))
@@ -135,14 +142,13 @@ plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red
 		prettyX<-pretty(xStart+c(1,maxNoGap))
 		prettyX<-prettyX[prettyX<=xStart+maxNoGap]
 		prettyX[prettyX==0]<-1
-		prettyX<-prettyX[prettyX-xStart>0]
-		if(length(prettyX<4)){prettyX<-pretty(prettyX);}
-		prettyX<-prettyX[prettyX<=xStart+maxNoGap]; prettyX[prettyX==0]<-1 #axis(1,noGapToGap(refSeq,prettyX-xStart),noGapToGap(refSeq,prettyX-xStart),cex.axis=3)
-		if(display['xAxis'])axis(1,noGapToGap(refSeq,prettyX-xStart),prettyX,mgp=c(3,1,0))
+		prettyX<-unique(prettyX[prettyX>xStart])
+		prettyXPos<-noGapToGap(refSeq,prettyX-xStart)
 	}else{
 		prettyX<-pretty(xStart+c(1,ncol(seqNum)))
-		if(display['xAxis'])axis(1,prettyX-xStart,prettyX,mgp=c(3,1,0))
+		prettyXPos<-prettyX-xStart
 	}
+	if(display['xAxis'])axis(1,prettyXPos,prettyX,mgp=c(3,1,0))
 	#needs to be slight overlap to avoid stupid white line problem
 	spacer<-.001
 	for(ii in 1:ncol(seqNum)){
@@ -187,13 +193,6 @@ plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red
 	}
 	return(NULL)
 }
-#seqs<-c('ACTGGA','ACTGCA','ACTGGC','GCTGGG','GGGG')
-#par(mar=c(4,5,.5,5),cex.axis=2,cex.lab=2)
-#plotDNA(seqs,seqCounts=c(30,rep(10,2),15,5),groups=factor(c('Aaaa','Bbbb','Cccc','Aaaa','Cccc'),levels=c('ZZZ','Bbbb','Aaaa','Cccc')),xStart=10,groupCexScale=TRUE)
-
-#convenience function for binding a bunch of sequences together
-#...: various sequences to split into a matrix
-#fill: fill sequence to pad ends of sequences
 
 #' Convenience function for binding a bunch of sequences together
 #' 
@@ -205,9 +204,12 @@ plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red
 #' @return A matrix with a single character in each cell with rows corresponding to the number of strings and columns corresponding to the position in the string
 #'
 #' @export
+#'
+#' @examples
+#' seqSplit('AAAT','AA','ATT',fill='-')
 seqSplit<-function(...,fill=NULL){
 	seqs<-c(...)
-	if(any(is.na(seqs)))stop(simpleError('NA sequences found in seqSplit'))
+	if(any(is.na(seqs)))stop(simpleError('NA sequence found in seqSplit'))
 	seqN<-nchar(seqs)
 	maxN<-max(seqN)
 	dummy<-paste(rep(fill,maxN-min(seqN)+100),collapse='')
@@ -227,6 +229,9 @@ seqSplit<-function(...,fill=NULL){
 #' @return A vector of coordinates in the gap free reference sequence
 #'
 #' @export
+#'
+#' @examples
+#' gapToNoGap('AA--AA-A',c(1:8))
 gapToNoGap<-function(refSeq,coords,gapChars=c('*','.','-')){
 	gapSeqSplit<-strsplit(refSeq,'')[[1]]
 	nonDash<-!gapSeqSplit %in% gapChars
@@ -241,7 +246,13 @@ gapToNoGap<-function(refSeq,coords,gapChars=c('*','.','-')){
 #' @param refSeq the sequence containing gaps
 #' @param coords coordinates on the ungapped refSeq to be converted into equivalent gapped coordinates
 #' @param gapChars characters interpreted as gaps
+#'
 #' @return A vector of coordinates in the gapped reference sequence
+#'
+#' @export
+#'
+#' @examples
+#' noGapToGap('AA--AA-A',c(1:5))
 noGapToGap<-function(refSeq,coords,gapChars=c('*','.','-')){
 	gapSeqSplit<-strsplit(refSeq,'')[[1]]
 	nonDash<-which(!gapSeqSplit %in% gapChars)
@@ -249,3 +260,30 @@ noGapToGap<-function(refSeq,coords,gapChars=c('*','.','-')){
 	return(nonDash[c(0,coords)])
 }
 
+#' Convenience function to replace gaps at the start and end of a sequence with a different character
+#'
+#' Replace gaps at the start and/or end of a sequence with another character (e.g. ---A-A--A--- to ...A-A--A...). This can be used to indicate the difference between indels within known sequences and unknown sequence surrounding a sequence.
+#'
+#' @param seqs a character vector of sequences
+#' @param leftEnd logical indicating whether gaps should be replaced at the start of the sequence
+#' @param rightEnd logical indicating whether gaps should be replaced at the end of the sequence
+#' @param gapChars a vector of single characters that count as gaps
+#' @param replaceChar character to replace start/end gaps with
+#'
+#' @return A character vector of sequences with start and/or end gaps replaced with replaceChar
+#'
+#' @export
+#'
+#' @examples
+#' replaceOuterGaps(c('--A-A--','AAA--AAA','--A-A','A-A--'))
+replaceOuterGaps<-function(seqs,leftEnd=TRUE,rightEnd=TRUE,gapChars=c('*','-'),replaceChar='.'){
+	if(any(is.na(seqs)))stop(simpleError('NA sequence found in replaceOuterGaps'))
+	gapRegex<-sprintf('[%s]',paste(gapChars,collapse=''))
+	startGapLength<-attr(regexpr(sprintf('^%s+',gapRegex),seqs),'match.length')
+	endGapLength<-attr(regexpr(sprintf('%s+$',gapRegex),seqs),'match.length')
+	nChars<-nchar(seqs)
+	dummy<-paste(rep(replaceChar,max(c(startGapLength,endGapLength))+100),collapse='')
+	if(leftEnd)substring(seqs,1,startGapLength)<-substring(dummy,1,startGapLength)
+	if(rightEnd)substring(seqs,nChars-endGapLength+1)<-substring(dummy,1,endGapLength)
+	return(seqs)
+}

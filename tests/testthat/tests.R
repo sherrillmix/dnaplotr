@@ -46,9 +46,19 @@ test_that("Check if seqSplit works",{
 	expect_that(dim(seqSplit('AAA','AAZ','A',fill='-')), equals(c(3,3)))
 	expect_that(dim(seqSplit(c('AAA','AAZ'),'A',fill='-')), equals(c(3,3)))
 	expect_that(dim(seqSplit(c('AAA','AAZ'),c('A','TT'),fill='-')), equals(c(4,3)))
-	expect_that(seqSplit(c('AAA','AAZ'),NA,fill='-'), throws_error('NA sequences found'))
+	expect_that(seqSplit(c('AAA','AAZ'),NA,fill='-'), throws_error('NA sequence found'))
 	expect_that(seqSplit(c('AAA','AAZ',''),fill='*')[3,], equals(c('*','*','*')))
 	expect_that(seqSplit('AA','AAZA','',fill='-')[3,], equals(rep('-',4)))
 	expect_that(dim(seqSplit(sapply(0:1000,function(x)paste(sample(letters,x,TRUE),collapse='')),fill='~')), equals(c(1001,1000)))
+})
+
+test_that("Check if replaceOuterGaps works",{
+	expect_that(replaceOuterGaps(c('AAA','AAZZZ')), equals(c('AAA','AAZZZ')))
+	expect_that(replaceOuterGaps(c('AA--A','AAZ-------ZZ')), equals(c('AA--A','AAZ-------ZZ')))
+	expect_that(replaceOuterGaps(c('---AA--A','AAZ-------ZZ----','--A-')), equals(c('...AA--A','AAZ-------ZZ....','..A.')))
+	expect_that(replaceOuterGaps(c('---AA--A','AAZ-------ZZ----','--A-'),leftEnd=FALSE), equals(c('---AA--A','AAZ-------ZZ....','--A.')))
+	expect_that(replaceOuterGaps(c('---AA--A','AAZ-------ZZ----','--A-'),rightEnd=FALSE), equals(c('...AA--A','AAZ-------ZZ----','..A-')))
+	expect_that(replaceOuterGaps(c('---AA--A','AAZ-------ZZ----','--A-'),rightEnd=FALSE,leftEnd=FALSE), equals(c('---AA--A','AAZ-------ZZ----','--A-')))
+	expect_that(replaceOuterGaps(c(NA,'---AA--A','AAZ-------ZZ----','--A-')), throws_error('NA sequence found'))
 })
 
