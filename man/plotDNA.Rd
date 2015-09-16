@@ -6,12 +6,9 @@
 \usage{
 plotDNA(seqs, seqCounts = rep(1, length(seqs)), cols = c(A = "green", T =
   "red", C = "blue", G = "yellow", `-` = "grey", default = "white"),
-  gapChars = c("-", ".", "-"), xlab = "Position", ylab = "Sequence Read",
-  groupOrdering = c(), legend = !noText, pause = FALSE,
-  extraCmds = NULL, xstart = 1, refSeq = NULL, lineStagger = FALSE,
-  groupCexScale = FALSE, convertGap2NoGap = FALSE, fixedAxis = NULL,
-  refGapWhite = FALSE, noText = FALSE, noTick = FALSE,
-  seqCountDisplay = TRUE, maxAxis = Inf, ...)
+  xlab = "Position", ylab = "Sequence Read", display = c(groups =
+  !is.null(groups)), xStart = 1, groups = NULL, groupCexScale = FALSE,
+  refSeq = NULL, ...)
 }
 \arguments{
 \item{seqs}{A character vector containing DNA sequences}
@@ -20,14 +17,21 @@ plotDNA(seqs, seqCounts = rep(1, length(seqs)), cols = c(A = "green", T =
 
 \item{cols}{A named vector with names corresponding to the DNA bases and values showing the appropriate color (default: A: green, T: red, C: blue, G: yellow, -: grey)}
 
-\item{gapChars}{A character vector with a single one character entry for each character that represents a gap}
-
 \item{xlab}{A string specifying the x-axis label (default: Position)}
 
 \item{ylab}{A string specifying the y-axis label (default: Sequence read)}
-}
-\value{
-An invisible
+
+\item{display}{A logical vector with element names in 'legend', 'xAxis', 'yAxis', 'groups' where a FALSE suppresses outputting that plot element (default: TRUE for all or any missing elements)}
+
+\item{xStart}{First base in plot should be labelled as this (default: 1)}
+
+\item{groups}{Group sequences by group and show label on right side of plot. Note that any prior ordering of sequences will be corrupted}
+
+\item{groupCexScale}{A logical wheter to scale group label size by the number of sequences. Useful to highlight more abundant groups and help squeeze in labels on smaller groups.}
+
+\item{refSeq}{Reference sequence used for numbering the x-axis without counting gaps present in this sequence}
+
+\item{...}{Additional arguments to plot}
 }
 \description{
 Take a vector of strings representing DNA sequences and plot them to the current device. A, C, T and G are colored, - are colored gray and all other characters are white.
