@@ -89,15 +89,16 @@ index2range<-function(index){
 # refSeq matched - into white
 # refseq display
 
-plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red','C'='blue','G'='yellow','-'='grey','default'='white'),xlab='Position',ylab='Sequence Read',display=c(),xStart=1,
+plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red','C'='blue','G'='yellow','-'='grey','default'='white'),xlab='Position',ylab='Sequence Read',display=c('groups'=!is.null(groups)),xStart=1,groups=NULL,
 	refSeq=NULL,lineStagger=FALSE,groupCexScale=FALSE,convertGap2NoGap=FALSE,...){
 	if(length(seqs)<1|is.null(seqs))stop(simpleError("Seqs missing"))
 	if(length(seqs)!=length(seqCounts))stop(simpleError('Lengths of seqs and seqCounts not equal'))
 	seqs<-toupper(seqs)
 	displayOptions<-c('legend','xAxis','yAxis','groups')
 	missingOptions<-!displayOptions %in% names(display)
-	if(any(missingOptions))display[displayOptions[missingOptions]]<-FALSE
+	if(any(missingOptions))display[displayOptions[missingOptions]]<-TRUE
 
+	#fill any trailing gaps
 	seqList<-strsplit(seqs,'')
 	lengths<-sapply(seqList,length)
 	if(any(lengths[1]!=lengths)){
@@ -111,87 +112,80 @@ plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red
 	seqNum[,]<-cols['default']
 	for(ii in names(cols))seqNum[seqMat==ii]<-cols[ii]
 
-	digits<-ceiling(log10(sum(seqCounts)+1))
-	digits<-digits+(ceiling(digits/3)-1) #account for , in 1,000
-	axisCex<-1.6
-	groupCex<-axisCex
-	#if(!is.null(groups))seqNum<-seqNum[order(groups),]
-		#add some space to the right margin if annotating groups or distance
-		marRightPad<-ifelse(is.null(groups),0,max(c(nchar(groups),0))*2*groupCex/3)
-		mars<-c(4.1,2+digits*1.06,1,0+marRightPad/1.2)
-		par(mar=mars,las=1)
-		plot(1,1,xlim=c(0.5,ncol(seqNum)+.5),ylim=c(0.5,sum(seqCounts)+.5),ylab="",xlab=xlab,type='n',xaxs='i',yaxs='i',xaxt='n',yaxt='n',cex.axis=axisCex,cex.lab=axisCex,mgp=c(mars[1]-1.5,.75,0),...)
-		prettyY<-pretty(1:min(sum(seqCounts)))
-		prettyY<-prettyY[round(prettyY)==prettyY]
-		if(display['yAxis'])axis(2,prettyY,format(prettyY,scientific=FALSE,big.mark=','),cex.axis=axisCex,mgp=c(3,.75,0))
-		mtext(ylab,2,line=digits^1.03*1.05,las=3,cex=axisCex)
+	plot(1,1,xlim=c(0.5,ncol(seqNum)+.5),ylim=c(0.5,sum(seqCounts)+.5),ylab="",xlab=xlab,type='n',xaxs='i',yaxs='i',xaxt='n',yaxt='n',mgp=c(2.6,.75,0),...)
+	
+	#y axis
+	prettyY<-pretty(1:min(sum(seqCounts)))
+	prettyY<-prettyY[round(prettyY)==prettyY]
+	if(display['yAxis'])axis(2,prettyY,format(prettyY,scientific=FALSE,big.mark=','),mgp=c(3,.75,0))
+	title(ylab=ylab,line=3.5,las=3)
 
-		#Converting to first base as 0 for ease of use
-		xStart<-xStart-1
-		if(convertGap2NoGap&!is.null(refSeq)){
-			if(!exists('gap2NoGap'))source('~/scripts/R/dna.R')
-			maxNoGap<-gap2NoGap(refSeq,ncol(seqNum))
-			prettyX<-pretty(xStart+c(1,maxNoGap))
-			prettyX<-prettyX[prettyX<=xStart+maxNoGap]
-			prettyX[prettyX==0]<-1
-			prettyX<-prettyX[prettyX-xStart>0]
-			if(length(prettyX<4)){prettyX<-pretty(prettyX);}
-			prettyX<-prettyX[prettyX<=xStart+maxNoGap]; prettyX[prettyX==0]<-1
-			#axis(1,noGap2Gap(refSeq,prettyX-xStart),noGap2Gap(refSeq,prettyX-xStart),cex.axis=3)
-			if(display['xAxis'])axis(1,noGap2Gap(refSeq,prettyX-xStart),prettyX,cex.axis=axisCex,mgp=c(3,1,0))
-		}else{
-			prettyX<-pretty(xStart+c(1,ncol(seqNum)))
-			if(display['xAxis'])axis(1,prettyX-xStart,prettyX,cex.axis=axisCex,mgp=c(3,1,0))
+	#Converting to first base as 0 for ease of use
+	xStart<-xStart-1
+	if(convertGap2NoGap&!is.null(refSeq)){
+		if(!exists('gap2NoGap'))source('~/scripts/R/dna.R')
+		maxNoGap<-gap2NoGap(refSeq,ncol(seqNum))
+		prettyX<-pretty(xStart+c(1,maxNoGap))
+		prettyX<-prettyX[prettyX<=xStart+maxNoGap]
+		prettyX[prettyX==0]<-1
+		prettyX<-prettyX[prettyX-xStart>0]
+		if(length(prettyX<4)){prettyX<-pretty(prettyX);}
+		prettyX<-prettyX[prettyX<=xStart+maxNoGap]; prettyX[prettyX==0]<-1
+		#axis(1,noGap2Gap(refSeq,prettyX-xStart),noGap2Gap(refSeq,prettyX-xStart),cex.axis=3)
+		if(display['xAxis'])axis(1,noGap2Gap(refSeq,prettyX-xStart),prettyX,mgp=c(3,1,0))
+	}else{
+		prettyX<-pretty(xStart+c(1,ncol(seqNum)))
+		if(display['xAxis'])axis(1,prettyX-xStart,prettyX,mgp=c(3,1,0))
+	}
+	#needs to be slight overlap to avoid stupid white line problem
+	spacer<-.001
+	for(i in 1:ncol(seqNum)){
+		#1 rectangle per read
+		#rect(1:ncol(seqNum)-.5,i-.5,1:ncol(seqNum)+.5,i+.5+spacer,col=seqNum[i,],border=NA)
+		bottoms<-c(0,cumsum(seqCounts)[-length(seqCounts)])
+		tops<-cumsum(seqCounts)
+		thisCols<-seqNum[,i]
+		#1 rectangle per repped read 
+		#rect(i-.5,bottoms+.5,i+.5,tops+.5+spacer,col=cols,border=NA)
+		uniqCols<-unique(thisCols)
+		colRanges<-do.call(rbind,lapply(unique(thisCols),function(x){
+			out<-index2range(which(thisCols==x))
+			out$bottom<-bottoms[out$start]
+			out$top<-tops[out$end]
+			out$col<-x
+			return(out)
+		}))
+		#1 rectangle per string of identical bases
+		rect(i-.5,colRanges$bottom+.5,i+.5,colRanges$top+.5+spacer,col=colRanges$col,border=NA)
+	}
+	if(!is.null(groups)){
+		groupOrder<-rep(groups,seqCounts)
+		counter<-0
+		maxGroupCount<-max(table(groupOrder))
+		uniqueGroups<-unique(groups)
+		for(ii in uniqueGroups){
+			counter<-counter+1
+			thisMin<-min(which(groupOrder==ii))
+			thisMax<-max(which(groupOrder==ii))
+			if(lineStagger)line=(counter-1)*.3
+			else line=.5
+			if(groupCexScale)cexScale<-((diff(c(thisMin,thisMax))+1)/maxGroupCount)^.5
+			else cexScale<-1
+			if(display['groups'])mtext(sub('^[$^]','',ii),4,at=mean(c(thisMin,thisMax)),cex=max(.3,cexScale*par('cex.axis')),line=line)
+			segments(-.5,thisMin-.5,ncol(seqNum)+.5,thisMin-.5)
+			segments(-.5,thisMax+.5,ncol(seqNum)+.5,thisMax+.5)
 		}
-		#needs to be slight overlap to avoid stupid white line problem
-		spacer<-.001
-		for(i in 1:ncol(seqNum)){
-			#1 rectangle per read
-			#rect(1:ncol(seqNum)-.5,i-.5,1:ncol(seqNum)+.5,i+.5+spacer,col=seqNum[i,],border=NA)
-			bottoms<-c(0,cumsum(seqCounts)[-length(seqCounts)])
-			tops<-cumsum(seqCounts)
-			cols<-seqNum[,i]
-			#1 rectangle per repped read 
-			#rect(i-.5,bottoms+.5,i+.5,tops+.5+spacer,col=cols,border=NA)
-			uniqCols<-unique(cols)
-			colRanges<-do.call(rbind,lapply(unique(cols),function(x){
-				out<-index2range(which(cols==x))
-				out$bottom<-bottoms[out$start]
-				out$top<-tops[out$end]
-				out$col<-x
-				return(out)
-			}))
-			#1 rectangle per string of identical bases
-			rect(i-.5,colRanges$bottom+.5,i+.5,colRanges$top+.5+spacer,col=colRanges$col,border=NA)
-		}
-		if(!is.null(groups)){
-			groupOrder<-rep(groups,seqCounts)
-			counter<-0
-			maxGroupCount<-max(table(groupOrder))
-			uniqueGroups<-unique(groups)
-			for(i in uniqueGroups){
-				counter<-counter+1
-				thisMin<-min(which(groupOrder==i))
-				thisMax<-max(which(groupOrder==i))
-				if(lineStagger)line=(counter-1)*.3
-				else line=.5
-				if(groupCexScale)cexScale<-((diff(c(thisMin,thisMax))+1)/maxGroupCount)^.5
-				else cexScale<-1
-				if(display['groups'])mtext(sub('^[$^]','',i),4,at=mean(c(thisMin,thisMax)),cex=max(.3,cexScale*groupCex),line=line)
-				segments(-.5,thisMin-.5,ncol(seqNum)+.5,thisMin-.5)
-				segments(-.5,thisMax+.5,ncol(seqNum)+.5,thisMax+.5)
-			}
-		}
-		box()
-		if(display['legend']){
-			ypos<- -sum(seqCounts)*.04
-			xpos<-ncol(seqNum)*.98	
-			#adj=c(1,0)
-			bottomMarHeight<-(par('din')[2]*diff(par('fig')[3:4])-par('pin')[2])/sum(par('mar')[c(1,3)])*par('mar')[1]/par('pin')[2]
-			rightMarWidth<-(par('din')[1]*diff(par('fig')[1:2])-par('pin')[1])/sum(par('mar')[c(2,4)])*par('mar')[4]/par('pin')[1]
-			insetPos<-c(-rightMarWidth,-bottomMarHeight)
-			legend('bottomright', c("A", "T", "C","G"),col=c('green','red','blue','yellow'), pt.bg= c('green','red','blue','yellow'),pch = c(22,22,22,22),ncol=4,bty='n',cex=axisCex*.75,xjust=1,yjust=1,xpd=NA,inset=insetPos)
-		}
+	}
+	box()
+	if(display['legend']){
+		insetPos<-c(grconvertX(1,'nfc','user'),grconvertY(0,'nfc','user')) #-.01 could cause trouble here
+		print(insetPos)
+		legendCols<-cols[!names(cols) %in% c('default','-')]
+		legend(insetPos[1],insetPos[2], names(legendCols),col=legendCols, pt.bg=legendCols,pch = 22,ncol=4,bty='n',xjust=1,yjust=0,xpd=NA,cex=par('cex.axis'),y.intersp=0)
+	}
 	invisible(gapSelector)
 }
+par(mar=c(4,5,.5,5),cex.axis=2,cex.lab=2)
+plotDNA(seqs,seqCounts=rep(10,3),groups=c('A','B','C'),xStart=10)
+
 
