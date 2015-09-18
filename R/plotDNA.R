@@ -115,12 +115,12 @@ plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red
 	seqNum[,]<-cols['default']
 	for(ii in names(cols))seqNum[seqMat==ii]<-cols[ii]
 
-	plot(1,1,xlim=c(0.5,ncol(seqNum)+.5),ylim=c(0.5,sum(seqCounts)+.5),ylab="",xlab=xlab,type='n',xaxs='i',yaxs='i',xaxt='n',yaxt='n',mgp=c(2.6,.75,0),...)
+	plot(1,1,xlim=c(0.5,ncol(seqNum)+.5),ylim=c(0.5,sum(seqCounts)+.5),ylab="",xlab=xlab,type='n',xaxs='i',yaxs='i',xaxt='n',yaxt='n',...)
 	
 	#y axis
 	prettyY<-pretty(1:min(sum(seqCounts)))
 	prettyY<-prettyY[round(prettyY)==prettyY]
-	if(display['yAxis'])axis(2,prettyY,format(prettyY,scientific=FALSE,big.mark=','),mgp=c(3,.75,0),las=1)
+	if(display['yAxis'])axis(2,prettyY,format(prettyY,scientific=FALSE,big.mark=','),mgp=c(3,.6,0),las=1)
 	title(ylab=ylab,line=3.25,las=3)
 
 	#Converting to first base as 0 for ease of use
