@@ -7,8 +7,9 @@ devtools::install_github('sherrillmix/DNAPlotR')
 The main function is:
 * <code>plotDNA(seqs)</code> to take a character vector of strings representing DNA sequences and plot them to the current device. By default, A, C, T and G are colored, - are colored gray and all other characters are white. For example:
 
-		  seqs<-c('ACACA','ACACA','ACACT','ACA-A')
+        seqs<-c('ACACA','ACACA','ACACT','ACA-A')
         plotDNA(seqs)
+
 
 And helper functions are:
 * <code>replaceOuterGaps(seqs)</code> to mark gaps at the ends of sequences differently than internal indels.  For example:
