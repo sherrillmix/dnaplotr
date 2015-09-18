@@ -25,7 +25,7 @@ plotDNA(seqs, seqCounts = rep(1, length(seqs)), cols = c(A = "green", T =
 
 \item{xStart}{First base in plot should be labelled as this (default: 1)}
 
-\item{groups}{Group sequences by group and show label on right side of plot. Note that any prior ordering of sequences will be corrupted}
+\item{groups}{Group sequences by group and show label on right side of plot. Note that any prior ordering of sequences will be disrupted. Use a factor and reorder the levels to set a particular order of groups.}
 
 \item{groupCexScale}{A logical wheter to scale group label size by the number of sequences. Useful to highlight more abundant groups and help squeeze in labels on smaller groups.}
 
@@ -34,7 +34,9 @@ plotDNA(seqs, seqCounts = rep(1, length(seqs)), cols = c(A = "green", T =
 \item{...}{Additional arguments to plot}
 }
 \description{
-Take a vector of strings representing DNA sequences and plot them to the current device. A, C, T and G are colored, - are colored gray and all other characters are white.
+Take a vector of strings representing DNA sequences and plot them to the
+current device. A, C, T and G are colored, - are colored gray and all other
+characters are white.
 }
 \examples{
 plotDNA(c('ACACA','ACACA','ACACT'))

@@ -22,7 +22,10 @@ replaceOuterGaps(seqs, leftEnd = TRUE, rightEnd = TRUE, gapChars = c("*",
 A character vector of sequences with start and/or end gaps replaced with replaceChar
 }
 \description{
-Replace gaps at the start and/or end of a sequence with another character (e.g. ---A-A--A--- to ...A-A--A...). This can be used to indicate the difference between indels within known sequences and unknown sequence surrounding a sequence.
+Replace gaps at the start and/or end of a sequence with another character
+(e.g. ---A-A--A--- to ...A-A--A...). This can be used to indicate the
+difference between indels within known sequences and unknown sequence
+surrounding a sequence.
 }
 \examples{
 replaceOuterGaps(c('--A-A--','AAA--AAA','--A-A','A-A--'))

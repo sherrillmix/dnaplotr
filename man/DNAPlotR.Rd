@@ -13,6 +13,11 @@ The main function is:
      \describe{
        \item{\code{\link{plotDNA}}:}{to produce a plot from a vector of DNA sequences}
      }
+
+And main helper functions are:
+     \describe{
+       \item{\code{\link{replaceOuterGaps}}:}{to mark gaps at the ends of sequences differently than internal indels}
+     }
 }
 \examples{
 seqs<-c('ACTGGA','ACTGCA','ACTGGC')

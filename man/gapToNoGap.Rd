@@ -17,7 +17,11 @@ gapToNoGap(refSeq, coords, gapChars = c("*", ".", "-"))
 A vector of coordinates in the gap free reference sequence
 }
 \description{
-Take a reference sequence with gaps and coordinates in that gapped reference sequence and translate the coordinates to the corresponding positions in the gap free sequence. Note that positions landing on a gap are converted to the first 5' nongap position e.g. the fifth position of 'G-----G' is converted to 1 and the second position of '--G--GG' is converted to 0
+Take a reference sequence with gaps and coordinates in that gapped reference
+sequence and translate the coordinates to the corresponding positions in the
+gap free sequence. Note that positions landing on a gap are converted to the
+first 5' nongap position e.g. the fifth position of 'G-----G' is converted
+to 1 and the second position of '--G--GG' is converted to 0
 }
 \examples{
 gapToNoGap('AA--AA-A',c(1:8))

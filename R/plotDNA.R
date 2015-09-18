@@ -6,7 +6,13 @@
 #'      \describe{
 #'        \item{\code{\link{plotDNA}}:}{to produce a plot from a vector of DNA sequences}
 #'      }
-##'
+#'
+#' And main helper functions are:
+#'      \describe{
+#'        \item{\code{\link{replaceOuterGaps}}:}{to mark gaps at the ends of sequences differently than internal indels}
+#'      }
+#'
+#'
 #' @docType package
 #' @name DNAPlotR
 #' @author Scott Sherrill-Mix, \email{shescott@@upenn.edu}
@@ -40,32 +46,11 @@ indexToRange<-function(index){
 	return(data.frame('start'=index[starts],'end'=index[ends]))
 }
 
-#Function: plotSeq(c('ACTAAATTT','GGTAAGTTT'), 'test.png') #Produce a red, green, blue, yellow plot of sequences
-#Arguments:
-	#seqs = a vector of sequences (strings)
-	#gapTrim = Delete any columns with fewer than or equal  gapTrim non[-*.] chars
-	#groups = Group sequences by group and show lable on right side of plot
-	#groupOrdering = preferred order for groups
-	#xstart = First base should be numbered as xstart
-	#distOrderDecreasing = Sort by distance in decreasing order?
-	#refSeq = Reference sequence used for determining gap free base position and distance
-	#groupCex = cex for group labels
-	#lineStagger = offset group labels
-	#groupCexScale = scale group label cex by number of sequences?
-	#convertGap2NoGap = Use refSeq to determine nonGap base positions for x-axis? requires dna.R
-	#seqCounts = vector of counts 
-	#noText = Suppress margin text (e.g. for embedding somewhere else)
-	#xlab = label for x axis
-	#ylab = label for y axis
-	#seqCountDisplay = display left sequence count axis?
-	#... = arguments passed to plot()
-
-#Returns: invisible logical vector indicating whether a columns was plotted
-#Side effect: Produces plot in outFile
-
 #' Plot a bunch of DNA sequences
 #' 
-#' Take a vector of strings representing DNA sequences and plot them to the current device. A, C, T and G are colored, - are colored gray and all other characters are white.
+#' Take a vector of strings representing DNA sequences and plot them to the
+#' current device. A, C, T and G are colored, - are colored gray and all other
+#' characters are white.
 #'
 #' @param seqs A character vector containing DNA sequences
 #' @param seqCounts A integer vector with the number of counts for each sequence. This can be used to improve run time and file size if some sequences are duplicated multiple times (default: 1 for each entry in seqs)
@@ -74,7 +59,7 @@ indexToRange<-function(index){
 #' @param ylab A string specifying the y-axis label (default: Sequence read)
 #' @param display A logical vector with element names in 'legend', 'xAxis', 'yAxis', 'groups' where a FALSE suppresses outputting that plot element (default: TRUE for all or any missing elements)
 #' @param xStart First base in plot should be labelled as this (default: 1)
-#' @param groups Group sequences by group and show label on right side of plot. Note that any prior ordering of sequences will be corrupted
+#' @param groups Group sequences by group and show label on right side of plot. Note that any prior ordering of sequences will be disrupted. Use a factor and reorder the levels to set a particular order of groups.
 #' @param groupCexScale A logical wheter to scale group label size by the number of sequences. Useful to highlight more abundant groups and help squeeze in labels on smaller groups.
 #' @param refSeq Reference sequence used for numbering the x-axis without counting gaps present in this sequence
 #' @param ... Additional arguments to plot
@@ -95,9 +80,7 @@ indexToRange<-function(index){
 
 #things to add back:
 # gapTrim
-# endGapTrim
 # orderBy?
-# groups
 # refSeq matched - into white
 # refseq display
 # distOrder
@@ -118,7 +101,6 @@ plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red
 		seqCounts<-seqCounts[groupOrder]
 		groups<-groups[groupOrder]
 	}
-
 
 	#fill any trailing gaps
 	seqMat<-seqSplit(seqs,fill='-')
@@ -196,7 +178,10 @@ plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red
 
 #' Convenience function for binding a bunch of sequences together
 #' 
-#' Take a vector of strings and return a matrix with each row corresponding to a string and each column a position in those strings. If fill is set then strings are padded to an equal length. Otherwise errors out if strings are unequal length.
+#' Take a vector of strings and return a matrix with each row corresponding to
+#' a string and each column a position in those strings. If fill is set then
+#' strings are padded to an equal length. Otherwise errors out if strings are
+#' unequal length.
 #'
 #' @param ... Character vectors to turn into a matrix
 #' @param fill A character to fill the ends of short strings with. If NULL then all strings must be the same length.
@@ -220,7 +205,11 @@ seqSplit<-function(...,fill=NULL){
 
 #' Convenience function to convert gapped coordinates to what the coordinates would be without gaps
 #'
-#' Take a reference sequence with gaps and coordinates in that gapped reference sequence and translate the coordinates to the corresponding positions in the gap free sequence. Note that positions landing on a gap are converted to the first 5' nongap position e.g. the fifth position of 'G-----G' is converted to 1 and the second position of '--G--GG' is converted to 0
+#' Take a reference sequence with gaps and coordinates in that gapped reference
+#' sequence and translate the coordinates to the corresponding positions in the
+#' gap free sequence. Note that positions landing on a gap are converted to the
+#' first 5' nongap position e.g. the fifth position of 'G-----G' is converted
+#' to 1 and the second position of '--G--GG' is converted to 0
 #'
 #' @param refSeq the sequence containing gaps
 #' @param coords coordinates on the gapped refSeq to be converted into equivalent nongap coordinates
@@ -242,7 +231,10 @@ gapToNoGap<-function(refSeq,coords,gapChars=c('*','.','-')){
 
 #' Convenience function to convert ungapped coordinates in a reference function to what the coordinates would be in the gapped reference sequence
 #'
-#' Take a reference sequence with gaps and coordinates in the ungapped reference sequence and translate the coordinates to the corresponding positions in the gapped sequence
+#' Take a reference sequence with gaps and coordinates in the ungapped
+#' reference sequence and translate the coordinates to the corresponding
+#' positions in the gapped sequence
+#'
 #' @param refSeq the sequence containing gaps
 #' @param coords coordinates on the ungapped refSeq to be converted into equivalent gapped coordinates
 #' @param gapChars characters interpreted as gaps
@@ -262,7 +254,10 @@ noGapToGap<-function(refSeq,coords,gapChars=c('*','.','-')){
 
 #' Convenience function to replace gaps at the start and end of a sequence with a different character
 #'
-#' Replace gaps at the start and/or end of a sequence with another character (e.g. ---A-A--A--- to ...A-A--A...). This can be used to indicate the difference between indels within known sequences and unknown sequence surrounding a sequence.
+#' Replace gaps at the start and/or end of a sequence with another character
+#' (e.g. ---A-A--A--- to ...A-A--A...). This can be used to indicate the
+#' difference between indels within known sequences and unknown sequence
+#' surrounding a sequence.
 #'
 #' @param seqs a character vector of sequences
 #' @param leftEnd logical indicating whether gaps should be replaced at the start of the sequence

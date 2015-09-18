@@ -15,7 +15,10 @@ seqSplit(..., fill = NULL)
 A matrix with a single character in each cell with rows corresponding to the number of strings and columns corresponding to the position in the string
 }
 \description{
-Take a vector of strings and return a matrix with each row corresponding to a string and each column a position in those strings. If fill is set then strings are padded to an equal length. Otherwise errors out if strings are unequal length.
+Take a vector of strings and return a matrix with each row corresponding to
+a string and each column a position in those strings. If fill is set then
+strings are padded to an equal length. Otherwise errors out if strings are
+unequal length.
 }
 \examples{
 seqSplit('AAAT','AA','ATT',fill='-')
