@@ -1,5 +1,5 @@
 # DNAPlotR
-An R functions to plot a visual representation of a vector of DNA sequences. To install directly from github, use the [<code>devtools</code>](https://github.com/hadley/devtools) library and run:
+An R function to plot a visual representation of a vector of DNA sequences. To install directly from github, use the [<code>devtools</code>](https://github.com/hadley/devtools) library and run:
 ```
 devtools::install_github('sherrillmix/DNAPlotR')
 ```
