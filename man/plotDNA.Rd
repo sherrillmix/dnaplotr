@@ -47,5 +47,11 @@ groupOrder<-c('Group2','Group1','Group3','Reference')
 groups<-factor(c('Group1','Group2','Group3','Group1','Group3','Reference'),levels=groupOrder)
 seqCounts<-c(30,10,10,15,5,5)
 plotDNA(seqs,seqCounts=seqCounts,groups=groups,xStart=10,groupCexScale=TRUE,refSeq=refSeq)
+fakeSeqs<-createFakeDNA(1000)
+refSeq<-fakeSeqs[1]
+fakeSeqs<-fakeSeqs[-1]
+species<-sprintf('Species \%s',sub(' [0-9]+$','',names(fakeSeqs)))
+par(mar=c(3.5,4.4,.5,7))
+plotDNA(fakeSeqs,groups=species,groupCexScale=TRUE)
 }
 
