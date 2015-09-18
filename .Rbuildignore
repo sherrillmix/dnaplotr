@@ -1,2 +1,4 @@
 ^data-raw$
 ^makefile$
+^generatePlots.R$
+^.+.png$

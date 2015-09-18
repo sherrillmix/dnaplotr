@@ -17,5 +17,16 @@ And helper functions are:
         seqs<-c('--AA-A','--AA--','A-AA-A')
         replaceOuterGaps(seqs)
 
+A more complex example is:
 
+        fakeSeqs<-createFakeDNA(1000)
+        refSeq<-fakeSeqs[1]
+        fakeSeqs<-fakeSeqs[-1]
+        species<-sprintf('Species %s',sub(' [0-9]+$','',names(fakeSeqs)))
+        par(mar=c(3.5,4.4,.5,7))
+        plotDNA(fakeSeqs,groups=species,groupCexScale=TRUE)
+
+To produce something like:
+![Example of DNA plot](dnaPlotExample.png)
+See [generatePlots.R](generatePlots.R) for complete plotting details.
 

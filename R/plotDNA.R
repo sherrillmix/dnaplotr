@@ -77,6 +77,12 @@ indexToRange<-function(index){
 #' groups<-factor(c('Group1','Group2','Group3','Group1','Group3','Reference'),levels=groupOrder)
 #' seqCounts<-c(30,10,10,15,5,5)
 #' plotDNA(seqs,seqCounts=seqCounts,groups=groups,xStart=10,groupCexScale=TRUE,refSeq=refSeq)
+#' fakeSeqs<-createFakeDNA(1000)
+#' refSeq<-fakeSeqs[1]
+#' fakeSeqs<-fakeSeqs[-1]
+#' species<-sprintf('Species %s',sub(' [0-9]+$','',names(fakeSeqs)))
+#' par(mar=c(3.5,4.4,.5,7))
+#' plotDNA(fakeSeqs,groups=species,groupCexScale=TRUE)
 
 #things to add back:
 # gapTrim
@@ -114,8 +120,8 @@ plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red
 	#y axis
 	prettyY<-pretty(1:min(sum(seqCounts)))
 	prettyY<-prettyY[round(prettyY)==prettyY]
-	if(display['yAxis'])axis(2,prettyY,format(prettyY,scientific=FALSE,big.mark=','),mgp=c(3,.75,0))
-	title(ylab=ylab,line=3.5,las=3)
+	if(display['yAxis'])axis(2,prettyY,format(prettyY,scientific=FALSE,big.mark=','),mgp=c(3,.75,0),las=1)
+	title(ylab=ylab,line=3.25,las=3)
 
 	#Converting to first base as 0 for ease of use
 	xStart<-xStart-1
@@ -130,7 +136,7 @@ plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red
 		prettyX<-pretty(xStart+c(1,ncol(seqNum)))
 		prettyXPos<-prettyX-xStart
 	}
-	if(display['xAxis'])axis(1,prettyXPos,prettyX,mgp=c(3,1,0))
+	if(display['xAxis'])axis(1,prettyXPos,prettyX)
 	#needs to be slight overlap to avoid stupid white line problem
 	spacer<-.001
 	for(ii in 1:ncol(seqNum)){
@@ -161,7 +167,7 @@ plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red
 			thisMax<-max(which(groupOrder==ii))
 			if(groupCexScale)cexScale<-((diff(c(thisMin,thisMax))+1)/maxGroupCount)^.5
 			else cexScale<-1
-			if(display['groups'])mtext(sub('^[$^]','',ii),4,at=mean(c(thisMin,thisMax)),cex=max(.3,cexScale*par('cex.axis')),line=.5)
+			if(display['groups'])mtext(sub('^[$^]','',ii),4,at=mean(c(thisMin,thisMax)),cex=max(.3,cexScale*par('cex.axis')),line=.5,las=2)
 			segments(-.5,thisMin-.5,ncol(seqNum)+.5,thisMin-.5)
 			segments(-.5,thisMax+.5,ncol(seqNum)+.5,thisMax+.5)
 		}
@@ -169,7 +175,6 @@ plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red
 	box()
 	if(display['legend']){
 		insetPos<-c(grconvertX(1,'nfc','user'),grconvertY(0,'nfc','user')) #-.01 could cause trouble here
-		print(insetPos)
 		legendCols<-cols[!names(cols) %in% c('default','-')]
 		legend(insetPos[1],insetPos[2], names(legendCols),col=legendCols, pt.bg=legendCols,pch = 22,ncol=4,bty='n',xjust=1,yjust=0,xpd=NA,cex=par('cex.axis'),y.intersp=0)
 	}
@@ -282,3 +287,77 @@ replaceOuterGaps<-function(seqs,leftEnd=TRUE,rightEnd=TRUE,gapChars=c('*','-'),r
 	if(rightEnd)substring(seqs,nChars-endGapLength+1)<-substring(dummy,1,endGapLength)
 	return(seqs)
 }
+
+
+#' Create fake DNA sequences
+#'
+#' Creates a random reference sequence then adds mutations and indels to
+#' hierarchical sets of the sequences and random noise
+#'
+#' @param n number of fake sequences to generate
+#' @param nChar character length of the output fake sequences
+#' @param nSplit The number of hierarchical splits to make in the data e.g. 3 splits produces 2^3=8 "species"
+#' @param pGap probability of a large insertion or deletion in each grouping
+#' @param pNoise probability of a random substitution at each base
+#' @param pMutation probability of a substitution at each base in each hierarchical grouping
+#' @param bases the bases used in generating the sequence. '-' is excluded from the initial reference sequence generation
+#'
+#' @return A n+1 length character vector of fake sequences. The first sequence is the reference. Names of the remaining sequences indicate their hierarchical groupings follow by an arbitrary id
+#'
+#' @export
+#'
+#' @examples
+#' createFakeDNA(10,10)
+
+createFakeDNA<-function(n=500,nChar=400,nSplit=3,pGap=.3,pNoise=.01,pMutation=.005,bases=c('A','C','T','G','-')){
+	if(nSplit==0){
+		nSplit<-1
+		pGap=0
+		pMutation<-0
+	}
+	refSeq<-sample(bases[bases != '-'],nChar,TRUE)
+	seqMat<-matrix(refSeq,nrow=n,ncol=nChar,byrow=TRUE)
+	groupAssign<-list(rep('0',n))
+	for(ii in 1:nSplit){
+		#groupSplits<-1:n%%2^ii
+		groupSplits<-ave(groupAssign[[ii]],groupAssign[[ii]],FUN=function(x){
+			pGroup<-exp(rnorm(2))
+			pGroup<-pGroup/sum(pGroup)
+			paste(x,sample(0:1,length(x),TRUE,pGroup),sep='')
+		})
+		groupAssign[[ii+1]]<-groupSplits
+		for(jj in unique(groupSplits)){
+			nSubs<-rbinom(1,nChar,pMutation)	
+			selector<-groupSplits==jj
+			seqMat[selector,sample(1:nChar,nSubs)]<-matrix(sample(bases,nSubs,TRUE),nrow=sum(selector),ncol=nSubs,byrow=TRUE)
+		}
+	}
+	nNoise<-rbinom(1,n*nChar,pNoise)
+	randomNoiseLoc<-sample(1:(n*nChar),nNoise)
+	seqMat[randomNoiseLoc]<-sample(bases,nNoise,TRUE)
+	if(pGap>0){
+		for(ii in 1:nSplit){
+			groupSplits<-groupAssign[[ii+1]]
+			for(jj in unique(groupSplits)){
+				selector<-groupSplits==jj
+				if(runif(1)<pGap){
+					gapStart<-sample(1:nChar,1)
+					gapEnd<-min(nChar,gapStart+sample(floor(nChar/30):ceiling(nChar/10),1))
+					if(runif(1)<.5){
+						#deletion
+						seqMat[selector,gapStart:gapEnd]<-'-'
+					} else {
+						#insertion
+						seqMat[!selector,gapStart:gapEnd]<-'-' 
+						refSeq[gapStart:gapEnd]<-'-' 
+					}
+				}
+			}
+		}
+	}
+	rownames(seqMat)<-sprintf('%s %d',groupAssign[[nSplit+1]],1:n)
+	seqMat<-seqMat[do.call(order,c(groupAssign,list(apply(seqMat,1,paste,collapse='')))),]
+	out<-apply(rbind(refSeq,seqMat),1,paste,collapse='')
+	return(out)
+}
+
