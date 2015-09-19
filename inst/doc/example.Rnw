@@ -1,0 +1,36 @@
+\documentclass[article,nojss]{jss}
+
+
+<<package,include=FALSE,echo=FALSE>>=
+options(keep.source = TRUE, width = 60)
+packageInfo <- packageDescription("DNAPlotR")
+library(DNAPlotR)
+packageKeywords<-"visualization, alignment, display, genome, DNA, sequence, multiple sequence alignment, reference sequence"
+@
+%\VignetteIndexEntry{\Sexpr{packageInfo$Package} examples}
+%\VignetteDepends{}
+%\VignetteKeywords{\Sexpr{packageKeywords}}
+%\VignettePackage{\Sexpr{packageInfo$Package}}
+
+\title{\pkg{\Sexpr{packageInfo$Package}} package example (version \Sexpr{packageInfo$Version})}
+\author{\Sexpr{packageInfo$Author}}
+\Plainauthor{\Sexpr{packageInfo$Author}}
+
+\Address{
+  Github: \url{http://github.com/sherrillmix/dnaplotr}
+}
+
+\Keywords{\Sexpr{packageKeywords}}
+
+\Abstract{
+  This is a collection of examples of usage for the \pkg{\Sexpr{packageInfo$Package}} package.
+}
+
+\begin{document}
+\SweaveOpts{engine=R,eps=FALSE}
+
+\section{General description}
+
+This is an example of using the \pkg{DNAPlotR} package in R.
+
+\end{document}
