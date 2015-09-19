@@ -18,6 +18,8 @@ And main helper functions are:
      \describe{
        \item{\code{\link{replaceOuterGaps}}:}{to mark gaps at the ends of sequences differently than internal indels}
      }
+
+A vignette is a available using \code{vignette('example',package='DNAPlotR')}.
 }
 \examples{
 seqs<-c('ACTGGA','ACTGCA','ACTGGC')

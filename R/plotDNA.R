@@ -12,6 +12,9 @@
 #'        \item{\code{\link{replaceOuterGaps}}:}{to mark gaps at the ends of sequences differently than internal indels}
 #'      }
 #'
+#' A vignette is a available using \code{vignette('example',package='DNAPlotR')}.
+#'
+#'
 #'
 #' @docType package
 #' @name DNAPlotR
