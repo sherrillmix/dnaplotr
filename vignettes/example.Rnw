@@ -32,5 +32,27 @@ packageKeywords<-"visualization, alignment, display, genome, DNA, sequence, mult
 \section{General description}
 
 This is an example of using the \pkg{DNAPlotR} package in R.
+<<plotDNA, echo=TRUE, eval=FALSE>>=
+  set.seed(1234)
+  fakeSeqs<-createFakeDNA(5000,500)
+  refSeq<-fakeSeqs[1]
+  fakeSeqs<-fakeSeqs[-1]
+  species<-sprintf('Species %s',sub(' [0-9]+$','',names(fakeSeqs)))
+  par(mar=c(3.5,4.4,.5,7),mgp=c(2.5,1,0))
+  dummy<-plotDNA(fakeSeqs,groups=species)
+@
+
+\begin{figure}[htbp]
+\begin{center}
+<<showPlotDNA, fig=TRUE, height=4.5, width=8, echo=FALSE>>=
+<<plotDNA>>
+@
+\label{figPlotDNA}
+\caption{An example of a DNA plot}
+\end{center}
+\end{figure}
+
+
+
 
 \end{document}
