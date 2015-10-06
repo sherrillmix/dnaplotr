@@ -1,8 +1,6 @@
 
 #http://jmol.sourceforge.net/jscolors/
-aminoColors<-data.frame('aa'=c("ASP","GLU","CYS","MET","LYS","ARG","SER","THR","PHE","TYR","ASN","GLN","GLY","LEU","VAL","ILE","ALA","TRP","HIS","PRO"),'col'=c("#E60A0A","#E60A0A","#E6E600","#E6E600","#145AFF","#145AFF","#FA9600","#FA9600","#3232AA","#3232AA","#00DCDC","#00DCDC","#EBEBEB","#0F820F","#0F820F","#0F820F","#C8C8C8","#B45AB4","#8282D2","#DC9682"),stringsAsFactors=FALSE)
-tmp<-with(aminoAcids[!duplicated(aminoAcids[,c('code')]),],data.frame('letter'=code,row.names=toupper(abbr),stringsAsFactors=FALSE))
-rownames(aminoColors)<-tmp[aminoColors$aa,'letter']
+aminoColors<-data.frame('code'=c("D","E","C","M","K","R","S","T","F","Y","N","Q","G","L","V","I","A","W","H","P"),'abbr'=c("ASP","GLU","CYS","MET","LYS","ARG","SER","THR","PHE","TYR","ASN","GLN","GLY","LEU","VAL","ILE","ALA","TRP","HIS","PRO"),'col'=c("#E60A0A","#E60A0A","#E6E600","#E6E600","#145AFF","#145AFF","#FA9600","#FA9600","#3232AA","#3232AA","#00DCDC","#00DCDC","#EBEBEB","#0F820F","#0F820F","#0F820F","#C8C8C8","#B45AB4","#8282D2","#DC9682"),stringsAsFactors=FALSE)
 tmpAngles1<-cos(1+1:nrow(aminoColors)/nrow(aminoColors)*pi)
 tmpAngles2<-sin(1:nrow(aminoColors)/nrow(aminoColors)*pi)
 tmpAngles1<-tapply(tmpAngles1,aminoColors$col,c)
