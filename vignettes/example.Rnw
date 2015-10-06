@@ -32,7 +32,7 @@ packageKeywords<-"visualization, alignment, display, genome, DNA, sequence, mult
 \section{General description}
 
 This is an example of using the \pkg{DNAPlotR} package in R.
-<<plotDNA, echo=TRUE, eval=FALSE>>=
+<<plotDNA, echo=FALSE, eval=FALSE>>=
   set.seed(1234)
   fakeSeqs<-createFakeDNA(5000,500)
   refSeq<-fakeSeqs[1]
@@ -48,7 +48,36 @@ This is an example of using the \pkg{DNAPlotR} package in R.
 <<plotDNA>>
 @
 \label{figPlotDNA}
-\caption{An example of a DNA plot}
+\caption{An example of a comparison of many sequences aligned against a reference}
+\end{center}
+\end{figure}
+
+<<plotShortReads, echo=FALSE, eval=FALSE>>=
+  set.seed(1234)
+  seqLength<-1000
+  fakeSeqs<-createFakeDNA(5000,seqLength,pGap=0)
+  refSeq<-fakeSeqs[1]
+  fakeSeqs<-fakeSeqs[-1]
+  potentialStarts<-1:(seqLength-99)
+  #leave a gap in sequences
+  potentialStarts<-potentialStarts[potentialStarts>550|potentialStarts<400]
+  startCoords<-sort(sample(potentialStarts,5000,TRUE))
+  endCoords<-startCoords+99
+  dummy<-paste(rep('-',seqLength),collapse='')
+  substring(fakeSeqs,1,startCoords)<-substring(dummy,1,startCoords)
+  substring(fakeSeqs,endCoords+1,seqLength)<-substring(dummy,endCoords+1,seqLength)
+  fakeSeqs<-replaceOuterGaps(fakeSeqs)
+  par(mar=c(3.5,4.4,.5,7),mgp=c(2.5,1,0))
+  dummy<-plotDNA(fakeSeqs)
+@
+
+\begin{figure}[htbp]
+\begin{center}
+<<showShortReads, fig=TRUE, height=4.5, width=8, echo=FALSE>>=
+<<plotShortReads>>
+@
+\label{figPlotShortReads}
+\caption{An example plot of short reads aligned against a reference sequence. The gap in coverage might indicate an indel, mapping problem or incorrect reference.}
 \end{center}
 \end{figure}
 
