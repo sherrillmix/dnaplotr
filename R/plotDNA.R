@@ -184,6 +184,10 @@ plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red
 	return(NULL)
 }
 
+plotAA<-function(...,cols=c(aminoCols,'-'='grey','X'='black')){
+	plotDNA(...,cols=cols)
+}
+
 #' Convenience function for binding a bunch of sequences together
 #' 
 #' Take a vector of strings and return a matrix with each row corresponding to
