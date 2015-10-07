@@ -61,7 +61,8 @@ species<-sprintf('Species \%s',sub(' [0-9]+$','',names(fakeSeqs)))
 par(mar=c(3.5,4.4,.5,7))
 plotDNA(fakeSeqs,groups=species,groupCexScale=TRUE)
 fakeAA<-c('MALWTRLRPLLALLALWPPPPARAFVNQHLCGSHLVEALY',
+'MALWTRLRPLLALLALWPLPPARAFVNQHLCGSHLVEALY',
 'MALWTRLRPLLALLALWPPPPARAFVNX')
-plotAA(fakeAA)
+plotAA(fakeAA,groups=c('Ref','Sub','Stop'))
 }
 
