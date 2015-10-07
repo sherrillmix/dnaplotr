@@ -86,14 +86,16 @@ indexToRange<-function(index){
 #' species<-sprintf('Species %s',sub(' [0-9]+$','',names(fakeSeqs)))
 #' par(mar=c(3.5,4.4,.5,7))
 #' plotDNA(fakeSeqs,groups=species,groupCexScale=TRUE)
-
+#' fakeAA<-c('MALWTRLRPLLALLALWPPPPARAFVNQHLCGSHLVEALYLVCGERGFFYT
+#' PKARREVEGPQVGALELAGGPGAGGLEGPPQKRGIVEQCCASVCSLYQLENYCN',
+#' 'MALWTRLRPLLALLALWPPPPARAFVNQHLCGSHLVEALYLVCGERGFFYTPKARREVEGPX')
+#' plotAA(fakeAA)
 #things to add back:
 # gapTrim
 # orderBy?
 # refSeq matched - into white
 # refseq display
 # distOrder
-
 plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red','C'='blue','G'='yellow','-'='grey','default'='white'),xlab='Position',ylab='Sequence Read',display=c('groups'=!is.null(groups)),xStart=1,groups=NULL,groupCexScale=FALSE, refSeq=NULL,...){
 	if(length(seqs)<1|is.null(seqs))stop(simpleError("Seqs missing"))
 	if(length(seqs)!=length(seqCounts))stop(simpleError('Lengths of seqs and seqCounts not equal'))
@@ -184,7 +186,9 @@ plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red
 	return(NULL)
 }
 
-plotAA<-function(...,cols=c(aminoCols,'-'='grey','X'='black')){
+#' @describeIn plotDNA Plot a bunch of AA sequences
+#' @export
+plotAA<-function(...,cols=c(DNAPlotR::aminoCols,'-'='grey','X'='black')){
 	plotDNA(...,cols=cols)
 }
 
@@ -315,7 +319,6 @@ replaceOuterGaps<-function(seqs,leftEnd=TRUE,rightEnd=TRUE,gapChars=c('*','-'),r
 #'
 #' @examples
 #' createFakeDNA(10,10)
-
 createFakeDNA<-function(n=500,nChar=400,nSplit=3,pGap=.3,pNoise=.01,pMutation=.005,bases=c('A','C','T','G','-')){
 	if(nSplit==0){
 		nSplit<-1
@@ -368,3 +371,12 @@ createFakeDNA<-function(n=500,nChar=400,nSplit=3,pGap=.3,pNoise=.01,pMutation=.0
 	return(out)
 }
 
+#' Some colors for amino acids
+#'
+#' A vector indexed by single letter amino acid code giving color codes based on colors provided by Jmol tweaked slightly so that no two colors are identical
+#'
+#' @docType data
+#' @format A vector with each element giving a color for an amino acid. Vector names correspond to single letter amino acid codes.
+#' @references \url{http://jmol.sourceforge.net/jscolors/}
+#' @source system.file("data-raw", "makeAminoColors.R", package = "DNAPlotR")
+"aminoCols"
