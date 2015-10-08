@@ -317,8 +317,11 @@ replaceOuterGaps<-function(seqs,leftEnd=TRUE,rightEnd=TRUE,gapChars=c('*','-'),r
 #' replaceAfterStop(c('LYSXAAA','LYSRAAA','AXAAA','AAAAX'))
 replaceAfterStop<-function(seqs,stopChars='X',replaceChar='X'){
 	if(any(is.na(seqs)))stop(simpleError('NA sequence found in replaceAfterStop'))
-	out<-replaceOuterGaps(seqs,gapChars=stopChars,leftEnd=FALSE,replaceChar=replaceChar)
-	return(out)
+	stopRegex<-sprintf('[%s].*$',paste(stopChars,collapse=''))
+	stopLength<-attr(regexpr(stopRegex,seqs),'match.length')-1
+	dummy<-paste(rep(replaceChar,max(stopLength)+100),collapse='')
+	substring(seqs,nchar(seqs)-stopLength+1)<-substring(dummy,1,stopLength)
+	return(seqs)
 }
 
 

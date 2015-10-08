@@ -62,3 +62,13 @@ test_that("Check if replaceOuterGaps works",{
 	expect_that(replaceOuterGaps(c(NA,'---AA--A','AAZ-------ZZ----','--A-')), throws_error('NA sequence found'))
 })
 
+
+test_that("Check if replaceAfterStop works",{
+	expect_that(replaceAfterStop(c('AAA','AAZZZ')), equals(c('AAA','AAZZZ')))
+	expect_that(replaceAfterStop(c('AA--A','AAZ-------ZZ')), equals(c('AA--A','AAZ-------ZZ')))
+	expect_that(replaceAfterStop(c('AXAAXAA','AAAAAAAA','AAAX')), equals(c('AXXXXXX','AAAAAAAA','AAAX')))
+	expect_that(replaceAfterStop(c('AXAAXAA','AAAAAAAA','AAAX'),'Z'), equals(c('AXAAXAA','AAAAAAAA','AAAX')))
+	expect_that(replaceAfterStop(c('AXZAZAA','AAAAXAAA','AAAZ'),'Z'), equals(c('AXZXXXX','AAAAXAAA','AAAZ')))
+	expect_that(replaceAfterStop(c('AZAAZAA','AAAAAAAA','AAAZ'),'Z','!'), equals(c('AZ!!!!!','AAAAAAAA','AAAZ')))
+	expect_that(replaceAfterStop(c('AAAXA','AAZXXAAAXA',NA,'ASDASADS')), throws_error('NA sequence found'))
+})
