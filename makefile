@@ -1,4 +1,7 @@
-all: ../DNAPlotR_0.1.tar.gz
+VERSION:=$(shell grep Version: DESCRIPTION|sed 's/Version: //')
+NAME:=$(shell grep Package: DESCRIPTION|sed 's/Package: //')
+PACKAGEFILE:=$(NAME)_$(VERSION).tar.gz
+all: ../$(PACKAGEFILE)
 
 .PHONY: all install
 
@@ -18,6 +21,6 @@ data: data-raw/makeAminoColors.R
 	Rscript data-raw/makeAminoColors.R
 	touch data
 	
-../DNAPlotR_0.1.tar.gz: man R/*.R DESCRIPTION inst/doc data
+../$(PACKAGEFILE): man R/*.R DESCRIPTION inst/doc data
 	sed -i "s/^Date:.*$$/Date: `date +%Y-%m-%d`/" DESCRIPTION
 	R -e 'devtools::check();devtools::build()'

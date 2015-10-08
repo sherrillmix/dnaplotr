@@ -19,8 +19,8 @@ aminoColors$spreadCol<-ave(aminoColors$col,aminoColors$col,FUN=function(x){
 })
 aminoCols<-aminoColors$spreadCol
 names(aminoCols)<-aminoColors$code
-aminoCols['-']<-'grey'
-aminoCols['-']<-'grey'
+aminoCols['-']<-'white'
+aminoCols['X']<-'black'
 
-save(aminoCols,file='data/aminoColors.Rdata')
-tools::resaveRdaFiles('data/aminoColors.Rdata')
+save(aminoCols,file='data/aminoColors.RData')
+tools::resaveRdaFiles('data/aminoColors.RData')
