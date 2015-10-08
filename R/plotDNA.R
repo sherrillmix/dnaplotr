@@ -295,6 +295,29 @@ replaceOuterGaps<-function(seqs,leftEnd=TRUE,rightEnd=TRUE,gapChars=c('*','-'),r
 	return(seqs)
 }
 
+#' Convenience function to remove amino acids following a stop codon 
+#'
+#' Replace any non X characters following a stop codon (marked as X)
+#' with Xs (e.g. LSYXAAA to LSYXXXX). This can be used to frame shift
+#' mutations and early terminations
+#'
+#' @param seqs a character vector of sequences
+#' @param stopChars a vector of single characters that count as stop codons
+#' @param replaceChar character to replace with (default: X)
+#'
+#' @return A character vector of sequences with amino acids following a stop replaced
+#'
+#' @export
+#'
+#' @examples
+#' replaceAfterStop(c('LYSXAAA','LYSRAAA','AXAAA','AAAAX'))
+replaceAfterStop<-function(seqs,stopChars='X',replaceChar='X'){
+	if(any(is.na(seqs)))stop(simpleError('NA sequence found in replaceAfterStop'))
+	out<-replaceOuterGaps(seqs,gapChars=stopChars,leftEnd=FALSE,replaceChar=replaceChar)
+	return(out)
+}
+
+
 
 #' Create fake DNA sequences
 #'
