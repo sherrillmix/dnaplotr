@@ -183,7 +183,7 @@ plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red
 		legendCols<-cols[!names(cols) %in% c('default','-')]
 		legend(insetPos[1],insetPos[2], names(legendCols),col=legendCols, pt.bg=legendCols,pch = 22,ncol=4,bty='n',xjust=1,yjust=0,xpd=NA,cex=par('cex.axis'),y.intersp=0)
 	}
-	return(NULL)
+	invisible(NULL)
 }
 
 #' @describeIn plotDNA Plot a bunch of AA sequences
