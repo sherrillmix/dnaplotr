@@ -8,6 +8,9 @@ all: ../$(PACKAGEFILE)
 install:
 	R -e 'devtools::install_github("sherrillmix/DNAPlotR")'
 
+localInstall:
+	R -e 'devtools::install()'
+
 man: R/*.R
 	R -e 'devtools::document()'
 	touch man
