@@ -326,7 +326,7 @@ replaceAfterStop<-function(seqs,stopChars='X',replaceChar='X'){
 
 
 
-#' Create fake DNA sequences
+#' Create fake DNA or amino acid sequences
 #'
 #' Creates a random reference sequence then adds mutations and indels to
 #' hierarchical sets of the sequences and random noise
@@ -395,6 +395,15 @@ createFakeDNA<-function(n=500,nChar=400,nSplit=3,pGap=.3,pNoise=.01,pMutation=.0
 	seqMat<-seqMat[do.call(order,c(groupAssign,list(apply(seqMat,1,paste,collapse='')))),]
 	out<-apply(rbind(refSeq,seqMat),1,paste,collapse='')
 	return(out)
+}
+
+#' @rdname createFakeDNA 
+#' @param ... additional arguments to createFakeDNA
+#' @export
+#' @examples
+#' createFakeAA(10,10)
+createFakeAA<-function(n=100,nChar=100,...,pGap=.2,pNoise=0,pMutation=.01,bases=c(names(DNAPlotR::aminoCols),'-')){
+	createFakeDNA(n,nChar,bases=bases,pGap=pGap,pNoise=pNoise)
 }
 
 #' Some colors for amino acids

@@ -18,7 +18,7 @@ packageKeywords<-"visualization, alignment, display, genome, DNA, sequence, mult
 ##   fakeSeqs<-fakeSeqs[-1]
 ##   species<-sprintf('Species %s',sub(' [0-9]+$','',names(fakeSeqs)))
 ##   par(mar=c(3.5,4.4,.5,7),mgp=c(2.5,1,0))
-##   dummy<-plotDNA(fakeSeqs,groups=species)
+##   plotDNA(fakeSeqs,groups=species)
 
 
 ###################################################
@@ -30,7 +30,7 @@ packageKeywords<-"visualization, alignment, display, genome, DNA, sequence, mult
   fakeSeqs<-fakeSeqs[-1]
   species<-sprintf('Species %s',sub(' [0-9]+$','',names(fakeSeqs)))
   par(mar=c(3.5,4.4,.5,7),mgp=c(2.5,1,0))
-  dummy<-plotDNA(fakeSeqs,groups=species)
+  plotDNA(fakeSeqs,groups=species)
 
 
 ###################################################
@@ -51,7 +51,7 @@ packageKeywords<-"visualization, alignment, display, genome, DNA, sequence, mult
 ##   substring(fakeSeqs,endCoords+1,seqLength)<-substring(dummy,endCoords+1,seqLength)
 ##   fakeSeqs<-replaceOuterGaps(fakeSeqs)
 ##   par(mar=c(3.5,4.4,.5,7),mgp=c(2.5,1,0))
-##   dummy<-plotDNA(fakeSeqs)
+##   plotDNA(fakeSeqs)
 
 
 ###################################################
@@ -72,6 +72,24 @@ packageKeywords<-"visualization, alignment, display, genome, DNA, sequence, mult
   substring(fakeSeqs,endCoords+1,seqLength)<-substring(dummy,endCoords+1,seqLength)
   fakeSeqs<-replaceOuterGaps(fakeSeqs)
   par(mar=c(3.5,4.4,.5,7),mgp=c(2.5,1,0))
-  dummy<-plotDNA(fakeSeqs)
+  plotDNA(fakeSeqs)
+
+
+###################################################
+### code chunk number 6: plotAA (eval = FALSE)
+###################################################
+##   fakeSeqs<-c()
+##   par(mar=c(3.5,4.4,.5,7),mgp=c(2.5,1,0))
+##   fakeAAs<-createFakeAA()
+##   plotAA(fakeAAs)
+
+
+###################################################
+### code chunk number 7: showAA
+###################################################
+  fakeSeqs<-c()
+  par(mar=c(3.5,4.4,.5,7),mgp=c(2.5,1,0))
+  fakeAAs<-createFakeAA()
+  plotAA(fakeAAs)
 
 

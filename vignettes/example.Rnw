@@ -39,7 +39,7 @@ This is an example of using the \pkg{DNAPlotR} package in R.
   fakeSeqs<-fakeSeqs[-1]
   species<-sprintf('Species %s',sub(' [0-9]+$','',names(fakeSeqs)))
   par(mar=c(3.5,4.4,.5,7),mgp=c(2.5,1,0))
-  dummy<-plotDNA(fakeSeqs,groups=species)
+  plotDNA(fakeSeqs,groups=species)
 @
 
 \begin{figure}[htbp]
@@ -68,7 +68,7 @@ This is an example of using the \pkg{DNAPlotR} package in R.
   substring(fakeSeqs,endCoords+1,seqLength)<-substring(dummy,endCoords+1,seqLength)
   fakeSeqs<-replaceOuterGaps(fakeSeqs)
   par(mar=c(3.5,4.4,.5,7),mgp=c(2.5,1,0))
-  dummy<-plotDNA(fakeSeqs)
+  plotDNA(fakeSeqs)
 @
 
 \begin{figure}[htbp]
@@ -81,6 +81,23 @@ This is an example of using the \pkg{DNAPlotR} package in R.
 \end{center}
 \end{figure}
 
+
+<<plotAA, echo=FALSE, eval=FALSE>>=
+  fakeSeqs<-c()
+  par(mar=c(3.5,4.4,.5,7),mgp=c(2.5,1,0))
+  fakeAAs<-createFakeAA()
+  plotAA(fakeAAs)
+@
+
+\begin{figure}[htbp]
+\begin{center}
+<<showAA, fig=TRUE, height=4.5, width=8, echo=FALSE>>=
+<<plotAA>>
+@
+\label{figPlotAA}
+\caption{An example plot of amino acids}
+\end{center}
+\end{figure}
 
 
 
