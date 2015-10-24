@@ -11,7 +11,8 @@ plotDNA(seqs, seqCounts = rep(1, length(seqs)), cols = c(A = "green", T =
   !is.null(groups)), xStart = 1, groups = NULL, groupCexScale = FALSE,
   refSeq = NULL, ...)
 
-plotAA(..., cols = c(DNAPlotR::aminoCols, `-` = "grey", X = "black"))
+plotAA(..., mar = c(6.5, 4, 4, 2) + 0.1, cols = c(DNAPlotR::aminoCols, `-` =
+  "grey"))
 }
 \arguments{
 \item{seqs}{A character vector containing DNA sequences}
@@ -35,6 +36,8 @@ plotAA(..., cols = c(DNAPlotR::aminoCols, `-` = "grey", X = "black"))
 \item{refSeq}{Reference sequence used for numbering the x-axis without counting gaps present in this sequence}
 
 \item{...}{Additional arguments to plot}
+
+\item{mar}{margin sizes as in \code{\link{par}} (needed to give the amino acid legend more space by default)}
 }
 \description{
 Take a vector of strings representing DNA sequences and plot them to the

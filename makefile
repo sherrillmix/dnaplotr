@@ -18,7 +18,7 @@ man: R/*.R
 README.md: README.Rmd
 	R -e 'knitr::opts_chunk$$set(fig.path="README_files/");knitr::knit("README.Rmd")'
 
-inst/doc: vignettes/*.Rnw
+inst/doc: vignettes/*.Rnw R/*.R
 	make localInstall
 	R -e 'devtools::build_vignettes()'
 	touch inst/doc

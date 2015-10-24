@@ -181,14 +181,16 @@ plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red
 	if(display['legend']){
 		insetPos<-c(grconvertX(1,'nfc','user'),grconvertY(0,'nfc','user')) #-.01 could cause trouble here
 		legendCols<-cols[!names(cols) %in% c('default','-')]
-		legend(insetPos[1],insetPos[2], names(legendCols),col=legendCols, pt.bg=legendCols,pch = 22,ncol=4,bty='n',xjust=1,yjust=0,xpd=NA,cex=par('cex.axis'),y.intersp=0)
+		legend(insetPos[1],insetPos[2], names(legendCols),col=legendCols, pt.bg=legendCols,pch = 22,ncol=max(4,length(legendCols)/2),bty='n',xjust=1,yjust=0,xpd=NA,cex=par('cex.axis'),x.intersp=0.75)
 	}
 	invisible(NULL)
 }
 
 #' @describeIn plotDNA Plot a bunch of AA sequences
+#' @param mar margin sizes as in \code{\link{par}} (needed to give the amino acid legend more space by default)
 #' @export
-plotAA<-function(...,cols=c(DNAPlotR::aminoCols,'-'='grey','X'='black')){
+plotAA<-function(...,mar=c(6.5,4,4,2)+.1,cols=c(DNAPlotR::aminoCols,'-'='grey')){
+	par(mar=mar)
 	plotDNA(...,cols=cols)
 }
 
