@@ -1,8 +1,10 @@
 # DNAPlotR
 ##Install
 An R library to plot a visual representation of a vector of DNA sequences. To install directly from github, use the [<code>devtools</code>](https://github.com/hadley/devtools) library and run:
-```
-devtools::install_github('sherrillmix/DNAPlotR')
+
+
+```r
+devtools::install_github("sherrillmix/levenR")
 ```
 
 ## Main functions
@@ -42,5 +44,5 @@ A more complex example displaying 1000 sequences is:
 
 To produce something like:
 ![Example of DNA plot](dnaPlotExample.png)
-See [generatePlots.R](generatePlots.R) for complete plotting details.
+See [generatePlots.R](generatePlots.R) or [inst/doc/example.pdf](the vignette) for complete plotting details.
 

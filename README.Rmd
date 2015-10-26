@@ -43,5 +43,5 @@ A more complex example displaying 1000 sequences is:
 
 To produce something like:
 ![Example of DNA plot](dnaPlotExample.png)
-See [generatePlots.R](generatePlots.R) for complete plotting details.
+See [generatePlots.R](generatePlots.R) or [inst/doc/example.pdf](the vignette) for complete plotting details.
 
