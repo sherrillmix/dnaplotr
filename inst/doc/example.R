@@ -50,7 +50,7 @@ packageKeywords<-"visualization, alignment, display, genome, DNA, sequence, mult
 ##   substring(fakeSeqs,1,startCoords)<-substring(dummy,1,startCoords)
 ##   substring(fakeSeqs,endCoords+1,seqLength)<-substring(dummy,endCoords+1,seqLength)
 ##   fakeSeqs<-replaceOuterGaps(fakeSeqs)
-##   par(mar=c(3.5,4.4,.5,7),mgp=c(2.5,1,0))
+##   par(mar=c(3.5,4.4,.5,1),mgp=c(2.5,1,0))
 ##   plotDNA(fakeSeqs)
 
 
@@ -71,7 +71,7 @@ packageKeywords<-"visualization, alignment, display, genome, DNA, sequence, mult
   substring(fakeSeqs,1,startCoords)<-substring(dummy,1,startCoords)
   substring(fakeSeqs,endCoords+1,seqLength)<-substring(dummy,endCoords+1,seqLength)
   fakeSeqs<-replaceOuterGaps(fakeSeqs)
-  par(mar=c(3.5,4.4,.5,7),mgp=c(2.5,1,0))
+  par(mar=c(3.5,4.4,.5,1),mgp=c(2.5,1,0))
   plotDNA(fakeSeqs)
 
 
