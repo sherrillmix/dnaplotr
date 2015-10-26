@@ -78,18 +78,16 @@ packageKeywords<-"visualization, alignment, display, genome, DNA, sequence, mult
 ###################################################
 ### code chunk number 6: plotAA (eval = FALSE)
 ###################################################
-##   fakeSeqs<-c()
-##   par(mar=c(3.5,4.4,.5,7),mgp=c(2.5,1,0))
 ##   fakeAAs<-createFakeAA()
+##   par(mar=c(3.5,4.4,.5,7),mgp=c(2.5,1,0))
 ##   plotAA(fakeAAs)
 
 
 ###################################################
 ### code chunk number 7: showAA
 ###################################################
-  fakeSeqs<-c()
-  par(mar=c(3.5,4.4,.5,7),mgp=c(2.5,1,0))
   fakeAAs<-createFakeAA()
+  par(mar=c(3.5,4.4,.5,7),mgp=c(2.5,1,0))
   plotAA(fakeAAs)
 
 

@@ -31,8 +31,8 @@ packageKeywords<-"visualization, alignment, display, genome, DNA, sequence, mult
 
 \section{General description}
 
-This is an example of using the \pkg{DNAPlotR} package in R.
-<<plotDNA, echo=FALSE, eval=FALSE>>=
+\pkg{\Sexpr{packageInfo$Package}} allows rapid visual assessment of many DNA, RNA or amino acid sequences by plotting each sequence as a row of colors with each color representing a base/amino acid. A simple example of using the \pkg{DNAPlotR} package in R (Figure \ref{figPlotDNA}):
+<<plotDNA, echo=TRUE, eval=FALSE>>=
   set.seed(1234)
   fakeSeqs<-createFakeDNA(5000,500)
   refSeq<-fakeSeqs[1]
@@ -52,7 +52,9 @@ This is an example of using the \pkg{DNAPlotR} package in R.
 \end{center}
 \end{figure}
 
-<<plotShortReads, echo=FALSE, eval=FALSE>>=
+
+The package is also useful to visualize high-throughput, short read data in a given region (Figure \ref{figShortReads}):
+<<plotShortReads, echo=TRUE, eval=FALSE>>=
   set.seed(1234)
   seqLength<-1000
   fakeSeqs<-createFakeDNA(5000,seqLength,pGap=0)
@@ -76,16 +78,17 @@ This is an example of using the \pkg{DNAPlotR} package in R.
 <<showShortReads, fig=TRUE, height=4.5, width=8, echo=FALSE>>=
 <<plotShortReads>>
 @
-\label{figPlotShortReads}
 \caption{An example plot of short reads aligned against a reference sequence. The gap in coverage might indicate an indel, mapping problem or incorrect reference.}
+\label{figShortReads}
 \end{center}
 \end{figure}
 
 
-<<plotAA, echo=FALSE, eval=FALSE>>=
-  fakeSeqs<-c()
-  par(mar=c(3.5,4.4,.5,7),mgp=c(2.5,1,0))
+Amino acids can also be plotted although the larger number of amino acids makes comparisons somewhat more difficult (Figure \ref{figAA}). This is somewhat ameliorated by the use of a color scheme based on \href{http://jmol.sourceforge.net/jscolors/}{Jmol} where amino acids with similar characteristics are colored similarly.
+
+<<plotAA, echo=TRUE, eval=FALSE>>=
   fakeAAs<-createFakeAA()
+  par(mar=c(3.5,4.4,.5,7),mgp=c(2.5,1,0))
   plotAA(fakeAAs)
 @
 
@@ -94,8 +97,8 @@ This is an example of using the \pkg{DNAPlotR} package in R.
 <<showAA, fig=TRUE, height=4.5, width=8, echo=FALSE>>=
 <<plotAA>>
 @
-\label{figPlotAA}
 \caption{An example plot of amino acids}
+\label{figAA}
 \end{center}
 \end{figure}
 
