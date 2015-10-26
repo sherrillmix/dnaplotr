@@ -6,7 +6,8 @@
 \title{Create fake DNA or amino acid sequences}
 \usage{
 createFakeDNA(n = 500, nChar = 400, nSplit = 3, pGap = 0.3,
-  pNoise = 0.01, pMutation = 0.005, bases = c("A", "C", "T", "G", "-"))
+  pNoise = 0.01, pMutation = 0.005, bases = c("A", "C", "T", "G", "-"),
+  excludeBases = c("-", "X"))
 
 createFakeAA(n = 100, nChar = 100, ..., pGap = 0.2, pNoise = 0,
   pMutation = 0.01, bases = c(names(DNAPlotR::aminoCols), "-"))
@@ -24,7 +25,9 @@ createFakeAA(n = 100, nChar = 100, ..., pGap = 0.2, pNoise = 0,
 
 \item{pMutation}{probability of a substitution at each base in each hierarchical grouping}
 
-\item{bases}{the bases used in generating the sequence. '-' is excluded from the initial reference sequence generation}
+\item{bases}{the bases used in generating the sequence (bases listed in excludeBases are excluded from the initial reference sequence generation}
+
+\item{excludeBases}{bases excluded from the initial reference sequence generation (default: '-' and 'X')}
 
 \item{...}{additional arguments to createFakeDNA}
 }

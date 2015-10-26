@@ -339,7 +339,8 @@ replaceAfterStop<-function(seqs,stopChars='X',replaceChar='X'){
 #' @param pGap probability of a large insertion or deletion in each grouping
 #' @param pNoise probability of a random substitution at each base
 #' @param pMutation probability of a substitution at each base in each hierarchical grouping
-#' @param bases the bases used in generating the sequence. '-' is excluded from the initial reference sequence generation
+#' @param bases the bases used in generating the sequence (bases listed in excludeBases are excluded from the initial reference sequence generation
+#' @param excludeBases bases excluded from the initial reference sequence generation (default: '-' and 'X')
 #'
 #' @return A n+1 length character vector of fake sequences. The first sequence is the reference. Names of the remaining sequences indicate their hierarchical groupings follow by an arbitrary id
 #'
@@ -347,13 +348,13 @@ replaceAfterStop<-function(seqs,stopChars='X',replaceChar='X'){
 #'
 #' @examples
 #' createFakeDNA(10,10)
-createFakeDNA<-function(n=500,nChar=400,nSplit=3,pGap=.3,pNoise=.01,pMutation=.005,bases=c('A','C','T','G','-')){
+createFakeDNA<-function(n=500,nChar=400,nSplit=3,pGap=.3,pNoise=.01,pMutation=.005,bases=c('A','C','T','G','-'),excludeBases=c('-','X')){
 	if(nSplit==0){
 		nSplit<-1
 		pGap=0
 		pMutation<-0
 	}
-	refSeq<-sample(bases[bases != '-'],nChar,TRUE)
+	refSeq<-sample(bases[!bases %in% excludeBases],nChar,TRUE)
 	seqMat<-matrix(refSeq,nrow=n,ncol=nChar,byrow=TRUE)
 	groupAssign<-list(rep('0',n))
 	for(ii in 1:nSplit){
