@@ -6,7 +6,7 @@
 \title{Some colors for amino acids}
 \format{A vector with each element giving a color for an amino acid. Vector names correspond to single letter amino acid codes.}
 \source{
-system.file("data-raw", "makeAminoColors.R", package = "DNAPlotR")
+system.file("data-raw", "makeAminoColors.R", package = "dnaplotr")
 }
 \usage{
 aminoCols

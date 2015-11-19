@@ -3,14 +3,14 @@
 
 <<package,include=FALSE,echo=FALSE>>=
 options(keep.source = TRUE, width = 60)
-packageInfo <- packageDescription("DNAPlotR")
-library(DNAPlotR)
+packageInfo <- packageDescription("dnaplotr")
+library(dnaplotr)
 packageKeywords<-"visualization, alignment, display, genome, DNA, sequence, multiple sequence alignment, reference sequence"
 @
-%\VignetteIndexEntry{\Sexpr{packageInfo$Package} examples}
+%\VignetteIndexEntry{dnaplotr examples}
 %\VignetteDepends{}
-%\VignetteKeywords{\Sexpr{packageKeywords}}
-%\VignettePackage{\Sexpr{packageInfo$Package}}
+%\VignetteKeywords{visualization, alignment, display, genome, DNA, sequence, multiple sequence alignment, reference sequence}
+%\VignettePackage{dnaplotr}
 
 \title{\pkg{\Sexpr{packageInfo$Package}} package example (version \Sexpr{packageInfo$Version})}
 \author{\Sexpr{packageInfo$Author}}
@@ -31,7 +31,7 @@ packageKeywords<-"visualization, alignment, display, genome, DNA, sequence, mult
 
 \section{General description}
 
-\pkg{\Sexpr{packageInfo$Package}} allows rapid visual assessment of many DNA, RNA or amino acid sequences by plotting each sequence as a row of colors with each color representing a base/amino acid. A simple example of using the \pkg{DNAPlotR} package in R (Figure \ref{figPlotDNA}):
+\pkg{\Sexpr{packageInfo$Package}} allows rapid visual assessment of many DNA, RNA or amino acid sequences by plotting each sequence as a row of colors with each color representing a base/amino acid. A simple example of using the \pkg{\Sexpr{packageInfo$Package}} package in R (Figure \ref{figPlotDNA}):
 <<plotDNA, echo=TRUE, eval=FALSE>>=
   set.seed(1234)
   fakeSeqs<-createFakeDNA(5000,500)

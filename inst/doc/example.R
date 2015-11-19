@@ -4,8 +4,8 @@
 ### code chunk number 1: package
 ###################################################
 options(keep.source = TRUE, width = 60)
-packageInfo <- packageDescription("DNAPlotR")
-library(DNAPlotR)
+packageInfo <- packageDescription("dnaplotr")
+library(dnaplotr)
 packageKeywords<-"visualization, alignment, display, genome, DNA, sequence, multiple sequence alignment, reference sequence"
 
 

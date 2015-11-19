@@ -11,7 +11,7 @@ plotDNA(seqs, seqCounts = rep(1, length(seqs)), cols = c(A = "green", T =
   !is.null(groups)), xStart = 1, groups = NULL, groupCexScale = FALSE,
   refSeq = NULL, ...)
 
-plotAA(..., mar = c(6.5, 4, 4, 2) + 0.1, cols = c(DNAPlotR::aminoCols, `-` =
+plotAA(..., mar = c(6.5, 4, 4, 2) + 0.1, cols = c(dnaplotr::aminoCols, `-` =
   "grey"))
 }
 \arguments{

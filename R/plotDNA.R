@@ -12,12 +12,12 @@
 #'        \item{\code{\link{replaceOuterGaps}}:}{to mark gaps at the ends of sequences differently than internal indels}
 #'      }
 #'
-#' A vignette is a available using \code{vignette('example',package='DNAPlotR')}.
+#' A vignette is a available using \code{vignette('example',package='dnaplotr')}.
 #'
 #'
 #'
 #' @docType package
-#' @name DNAPlotR
+#' @name dnaplotr
 #' @author Scott Sherrill-Mix, \email{shescott@@upenn.edu}
 #' @examples
 #' seqs<-c('ACTGGA','ACTGCA','ACTGGC')
@@ -189,7 +189,7 @@ plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red
 #' @describeIn plotDNA Plot a bunch of AA sequences
 #' @param mar margin sizes as in \code{\link{par}} (needed to give the amino acid legend more space by default)
 #' @export
-plotAA<-function(...,mar=c(6.5,4,4,2)+.1,cols=c(DNAPlotR::aminoCols,'-'='grey')){
+plotAA<-function(...,mar=c(6.5,4,4,2)+.1,cols=c(dnaplotr::aminoCols,'-'='grey')){
 	par(mar=mar)
 	plotDNA(...,cols=cols)
 }
@@ -405,7 +405,7 @@ createFakeDNA<-function(n=500,nChar=400,nSplit=3,pGap=.3,pNoise=.01,pMutation=.0
 #' @export
 #' @examples
 #' createFakeAA(10,10)
-createFakeAA<-function(n=100,nChar=100,...,pGap=.2,pNoise=0,pMutation=.01,bases=c(names(DNAPlotR::aminoCols),'-')){
+createFakeAA<-function(n=100,nChar=100,...,pGap=.2,pNoise=0,pMutation=.01,bases=c(names(dnaplotr::aminoCols),'-')){
 	createFakeDNA(n,nChar,bases=bases,pGap=pGap,pNoise=pNoise)
 }
 
@@ -416,5 +416,5 @@ createFakeAA<-function(n=100,nChar=100,...,pGap=.2,pNoise=0,pMutation=.01,bases=
 #' @docType data
 #' @format A vector with each element giving a color for an amino acid. Vector names correspond to single letter amino acid codes.
 #' @references \url{http://jmol.sourceforge.net/jscolors/}
-#' @source system.file("data-raw", "makeAminoColors.R", package = "DNAPlotR")
+#' @source system.file("data-raw", "makeAminoColors.R", package = "dnaplotr")
 "aminoCols"

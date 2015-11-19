@@ -4,7 +4,12 @@ An R library to plot a visual representation of a vector of DNA sequences. To in
 
 
 ```r
-devtools::install_github("sherrillmix/levenR")
+devtools::install_github("sherrillmix/dnaplotr")
+```
+Then load the library as normal using:
+
+```r
+library(dnaplotr)
 ```
 
 ## Main functions
@@ -17,9 +22,7 @@ seqs <- c("ACACA", "ACACA", "ACACT", "ACA-A")
 plotDNA(seqs)
 ```
 
-```
-## Error in eval(expr, envir, enclos): could not find function "plotDNA"
-```
+![plot of chunk seqExample](README_files/seqExample-1.png) 
 
 ### plotAA
 <code>plotAA(seqs)</code> takes a character vector of strings representing amino acid sequences and plots them to the current device. By default, amino acids are colored according to a colorscheme modified from [JMol](http://jmol.sourceforge.net/jscolors/) that seeks to assign similar colors to amino acids with similar properties. In addition, - are colored gray, stop codons (annotated as X) are black and all other characters are white. For example:
@@ -31,9 +34,7 @@ fakeAA <- c("MALWTRLRPLLALLALWPPPPARAFVNQHLCGSHLVEALY", "MALWTRLRPLLALLALWPLPPAR
 plotAA(fakeAA, groups = c("Ref", "Sub", "Stop"))
 ```
 
-```
-## Error in eval(expr, envir, enclos): could not find function "plotAA"
-```
+![plot of chunk aaExample](README_files/aaExample-1.png) 
 
 ##Helper functions
 
@@ -46,7 +47,7 @@ replaceOuterGaps(seqs)
 ```
 
 ```
-## Error in eval(expr, envir, enclos): could not find function "replaceOuterGaps"
+## [1] "..AA-A" "..AA.." "A-AA-A"
 ```
 
 ### replaceAfterStop
@@ -59,7 +60,7 @@ replaceAfterStop(seqs)
 ```
 
 ```
-## Error in eval(expr, envir, enclos): could not find function "replaceAfterStop"
+## [1] "AAARXXX"       "AAARX"         "ARARAXXXXXXXX"
 ```
 
 ## More complex example

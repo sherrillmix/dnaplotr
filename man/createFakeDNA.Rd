@@ -10,7 +10,7 @@ createFakeDNA(n = 500, nChar = 400, nSplit = 3, pGap = 0.3,
   excludeBases = c("-", "X"))
 
 createFakeAA(n = 100, nChar = 100, ..., pGap = 0.2, pNoise = 0,
-  pMutation = 0.01, bases = c(names(DNAPlotR::aminoCols), "-"))
+  pMutation = 0.01, bases = c(names(dnaplotr::aminoCols), "-"))
 }
 \arguments{
 \item{n}{number of fake sequences to generate}
