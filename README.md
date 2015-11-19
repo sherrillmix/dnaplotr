@@ -14,7 +14,7 @@ library(dnaplotr)
 
 ## Main functions
 ### plotDNA 
-<code>plotDNA(seqs) takes a character vector of strings representing DNA sequences and plots them to the current device. By default, A, C, T and G are colored, - are colored gray and all other characters are white. For example:
+<code>plotDNA(seqs)</code> takes a character vector of strings representing DNA sequences and plots them to the current device. By default, A, C, T and G are colored, - are colored gray and all other characters are white. For example:
 
 
 ```r
