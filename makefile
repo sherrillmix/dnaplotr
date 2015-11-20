@@ -27,6 +27,6 @@ data: data-raw/makeAminoColors.R
 	Rscript data-raw/makeAminoColors.R
 	touch data
 	
-../$(PACKAGEFILE): man R/*.R DESCRIPTION inst/doc data
+../$(PACKAGEFILE): man R/*.R DESCRIPTION inst/doc data tests/testthat/*.R
 	sed -i "s/^Date:.*$$/Date: `date +%Y-%m-%d`/" DESCRIPTION
 	R -e 'devtools::check();devtools::build()'

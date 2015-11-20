@@ -50,6 +50,16 @@ test_that("Check if seqSplit works",{
 	expect_that(seqSplit(c('AAA','AAZ',''),fill='*')[3,], equals(c('*','*','*')))
 	expect_that(seqSplit('AA','AAZA','',fill='-')[3,], equals(rep('-',4)))
 	expect_that(dim(seqSplit(sapply(0:1000,function(x)paste(sample(letters,x,TRUE),collapse='')),fill='~')), equals(c(1001,1000)))
+  expect_that(seqSplit(c("AAA","CCC","CTC"))[,1],equals(c('A','C','C')))
+  expect_that(seqSplit(c("AAA","CCC","CTC"))[1,],equals(c('A','A','A')))
+  expect_that(seqSplit(c("AAA","CC","CTC"))[1,],throws_error('length'))
+  expect_that(seqSplit(c("AAA",NA,"CTC"))[1,],throws_error('NA'))
+  expect_that(seqSplit(c("AAA",NA,"CTC"),fill='-')[1,],throws_error('NA'))
+  expect_that(seqSplit(c("AAA",'CC',"CTC"),fill='-')[,3],equals(c('A','-','C')))
+  expect_that(seqSplit(c("AAA",'CC',"CTC"),fill='@')[,3],equals(c('A','@','C')))
+  expect_that(dim(seqSplit(replicate(123,paste(sample(letters,543,TRUE),collapse='')))),equals(c(123,543)))
+  expect_that(dim(seqSplit(c('A',replicate(123,paste(sample(letters,543,TRUE),collapse=''))),fill='!')),equals(c(124,543)))
+  expect_that(dim(seqSplit(c('A',replicate(123,paste(sample(letters,543,TRUE),collapse=''))),fill='THISISSILLYBUTDOESNTBREAK')),equals(c(124,543)))
 })
 
 test_that("Check if replaceOuterGaps works",{
@@ -85,4 +95,37 @@ test_that("Check if indexToRange works",{
 	expect_that(indexToRange(c(1:100,123:234))$end, equals(c(100,234)))
 	expect_that(indexToRange(c(1:100,10:234))$end, equals(c(234)))
 	expect_that(indexToRange(c(1,3,5,6))$end, equals(c(1,3,6)))
+})
+
+
+test_that("plotDNA works",{
+  expect_that(plotDNA(c("AAA","CCC","CTC")),is_null())
+  expect_that(plotDNA(c("ZZXZX","CCC","CTC")),is_null())
+  expect_that(plotDNA(c("AA-","CC.","CTC")),is_null())
+})
+
+test_that("plotAA works",{
+  expect_that(plotAA(c("AAA","CCC","CTC")),is_null())
+  expect_that(plotAA(c("ZZXZX","CCC","CTC")),is_null())
+  expect_that(plotAA(c("AA-","CC.","CTC")),is_null())
+})
+
+test_that("createFakeDNA works",{
+  expect_that(length(createFakeDNA(500)),equals(500+1))
+  expect_that(length(createFakeDNA(10)),equals(10+1))
+  expect_that(length(unique(nchar(createFakeDNA(500,400)))),equals(1))
+  expect_that(unique(nchar(createFakeDNA(500,500))),equals(500))
+  expect_that(unique(nchar(createFakeDNA(1000,20))),equals(20))
+  expect_that(any(grepl('[^ACTG-]',(createFakeDNA(1000,500)))),equals(FALSE))
+  expect_that(any(grepl('[^ZYX-]',(createFakeDNA(1000,500,bases=c('Z','Y','X'))))),equals(FALSE))
+  expect_that(any(grepl('[^ZYX]',(createFakeDNA(1000,500,pGap=0,bases=c('Z','Y','X'))))),equals(FALSE))
+  expect_that(length(unique(createFakeDNA(1000,500,pGap=0,pMutation=0,pNoise=0,bases=c('Z','Y','X')))),equals(1))
+})
+
+test_that("createFakeAA works",{
+  expect_that(length(createFakeAA(500)),equals(500+1))
+  expect_that(length(createFakeAA(10)),equals(10+1))
+  expect_that(length(unique(nchar(createFakeAA(500,400)))),equals(1))
+  expect_that(unique(nchar(createFakeAA(500,500))),equals(500))
+  expect_that(unique(nchar(createFakeAA(1000,20))),equals(20))
 })
