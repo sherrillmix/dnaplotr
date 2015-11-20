@@ -102,6 +102,13 @@ test_that("plotDNA works",{
   expect_that(plotDNA(c("AAA","CCC","CTC")),is_null())
   expect_that(plotDNA(c("ZZXZX","CCC","CTC")),is_null())
   expect_that(plotDNA(c("AA-","CC.","CTC")),is_null())
+  expect_that(plotDNA(c("AA-","CC.","CTC"),groups=c(1,1,2)),is_null())
+  expect_that(plotDNA(c("AA-","CC.","CTC"),groups=c(1,1)),throws_error('[Ll]ength'))
+  expect_that(plotDNA(c("AA-","CC.","CTC"),seqCounts=c(1,1,100)),is_null())
+  expect_that(plotDNA(c()),throws_error('missing')) #is this desired?
+  expect_that(plotDNA(NULL),throws_error('missing')) #is this desired?
+  expect_that(plotDNA(c("AA-","CC.","CTC"),seqCounts=c(1,1)),throws_error('[Ll]ength'))
+  expect_that(plotDNA(c("AA-","CC.","CTC"),refSeq='A-A'),is_null())
 })
 
 test_that("plotAA works",{
@@ -116,6 +123,7 @@ test_that("createFakeDNA works",{
   expect_that(length(unique(nchar(createFakeDNA(500,400)))),equals(1))
   expect_that(unique(nchar(createFakeDNA(500,500))),equals(500))
   expect_that(unique(nchar(createFakeDNA(1000,20))),equals(20))
+  expect_that(unique(nchar(createFakeDNA(1000,20,nSplit=0))),equals(20))
   expect_that(any(grepl('[^ACTG-]',(createFakeDNA(1000,500)))),equals(FALSE))
   expect_that(any(grepl('[^ZYX-]',(createFakeDNA(1000,500,bases=c('Z','Y','X'))))),equals(FALSE))
   expect_that(any(grepl('[^ZYX]',(createFakeDNA(1000,500,pGap=0,bases=c('Z','Y','X'))))),equals(FALSE))
