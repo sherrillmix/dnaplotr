@@ -72,3 +72,17 @@ test_that("Check if replaceAfterStop works",{
 	expect_that(replaceAfterStop(c('AZAAZAA','AAAAAAAA','AAAZ'),'Z','!'), equals(c('AZ!!!!!','AAAAAAAA','AAAZ')))
 	expect_that(replaceAfterStop(c('AAAXA','AAZXXAAAXA',NA,'ASDASADS')), throws_error('NA sequence found'))
 })
+
+
+test_that("Check if indexToRange works",{
+	expect_that(indexToRange(1:10)$start, equals(1))
+	expect_that(indexToRange(1:100)$start, equals(1))
+	expect_that(indexToRange(c(1:100,123:234))$start, equals(c(1,123)))
+	expect_that(indexToRange(c(1:100,10:234))$start, equals(c(1)))
+	expect_that(indexToRange(c(1,3,5,6))$start, equals(c(1,3,5)))
+	expect_that(indexToRange(1:10)$end, equals(10))
+	expect_that(indexToRange(1:100)$end, equals(100))
+	expect_that(indexToRange(c(1:100,123:234))$end, equals(c(100,234)))
+	expect_that(indexToRange(c(1:100,10:234))$end, equals(c(234)))
+	expect_that(indexToRange(c(1,3,5,6))$end, equals(c(1,3,6)))
+})
