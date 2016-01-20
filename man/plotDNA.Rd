@@ -33,7 +33,7 @@ plotAA(..., mar = c(6.5, 4, 4, 2) + 0.1, cols = c(dnaplotr::aminoCols, `-` =
 
 \item{groupCexScale}{A logical wheter to scale group label size by the number of sequences. Useful to highlight more abundant groups and help squeeze in labels on smaller groups.}
 
-\item{refSeq}{Reference sequence used for numbering the x-axis without counting gaps present in this sequence}
+\item{refSeq}{Reference sequence used for numbering the x-axis without counting gaps present in this sequence (note that for further annotations outside this function, e.g. abline(v=3), the axis will be from xStart:xStart+max(nchar(seqs)) without any adjustments to ignore reference gaps}
 
 \item{...}{Additional arguments to plot}
 

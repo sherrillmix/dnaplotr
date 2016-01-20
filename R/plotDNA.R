@@ -64,7 +64,7 @@ indexToRange<-function(index){
 #' @param xStart First base in plot should be labelled as this (default: 1)
 #' @param groups Group sequences by group and show label on right side of plot. Note that any prior ordering of sequences will be disrupted. Use a factor and reorder the levels to set a particular order of groups.
 #' @param groupCexScale A logical wheter to scale group label size by the number of sequences. Useful to highlight more abundant groups and help squeeze in labels on smaller groups.
-#' @param refSeq Reference sequence used for numbering the x-axis without counting gaps present in this sequence
+#' @param refSeq Reference sequence used for numbering the x-axis without counting gaps present in this sequence (note that for further annotations outside this function, e.g. abline(v=3), the axis will be from xStart:xStart+max(nchar(seqs)) without any adjustments to ignore reference gaps
 #' @param ... Additional arguments to plot
 #'
 #' @return NULL
