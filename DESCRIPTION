@@ -2,7 +2,7 @@ Package: dnaplotr
 Type: Package
 Title: Plot a Collection of DNA Sequences
 Version: 0.1
-Date: 2015-11-20
+Date: 2016-01-20
 Author: Scott Sherrill-Mix
 Maintainer: Scott Sherrill-Mix <sherrillmix@upenn.edu>
 Description: A function to take a character vector of DNA sequences and visualize them in a nice plot.

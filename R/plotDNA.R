@@ -120,7 +120,10 @@ plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red
 	seqNum[,]<-cols['default']
 	for(ii in names(cols))seqNum[seqMat==ii]<-cols[ii]
 
-	plot(1,1,xlim=c(0.5,ncol(seqNum)+.5),ylim=c(0.5,sum(seqCounts)+.5),ylab="",xlab=xlab,type='n',xaxs='i',yaxs='i',xaxt='n',yaxt='n',...)
+	#Converting to first base as 0 for ease of use
+	xStart<-xStart-1
+
+	plot(1,1,xlim=xStart+c(0.5,ncol(seqNum)+.5),ylim=c(0.5,sum(seqCounts)+.5),ylab="",xlab=xlab,type='n',xaxs='i',yaxs='i',xaxt='n',yaxt='n',...)
 	
 	#y axis
 	prettyY<-pretty(1:min(sum(seqCounts)))
@@ -128,18 +131,16 @@ plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red
 	if(display['yAxis'])axis(2,prettyY,format(prettyY,scientific=FALSE,big.mark=','),mgp=c(3,.6,0),las=1)
 	title(ylab=ylab,line=3.25,las=3)
 
-	#Converting to first base as 0 for ease of use
-	xStart<-xStart-1
 	if(!is.null(refSeq)){
 		maxNoGap<-gapToNoGap(refSeq,ncol(seqNum))
 		prettyX<-pretty(xStart+c(1,maxNoGap))
 		prettyX<-prettyX[prettyX<=xStart+maxNoGap]
 		prettyX[prettyX==0]<-1
 		prettyX<-unique(prettyX[prettyX>xStart])
-		prettyXPos<-noGapToGap(refSeq,prettyX-xStart)
+		prettyXPos<-noGapToGap(refSeq,prettyX-xStart)+xStart
 	}else{
 		prettyX<-pretty(xStart+c(1,ncol(seqNum)))
-		prettyXPos<-prettyX-xStart
+		prettyXPos<-prettyX
 	}
 	if(display['xAxis'])axis(1,prettyXPos,prettyX)
 	#needs to be slight overlap to avoid stupid white line problem
@@ -161,7 +162,7 @@ plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red
 			return(out)
 		}))
 		#1 rectangle per string of identical bases
-		rect(ii-.5,colRanges$bottom+.5,ii+.5,colRanges$top+.5+spacer,col=colRanges$col,border=NA)
+		rect(xStart+ii-.5,colRanges$bottom+.5,xStart+ii+.5,colRanges$top+.5+spacer,col=colRanges$col,border=NA)
 	}
 	if(!is.null(groups)){
 		groupOrder<-rep(groups,seqCounts)
@@ -173,8 +174,8 @@ plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red
 			if(groupCexScale)cexScale<-((diff(c(thisMin,thisMax))+1)/maxGroupCount)^.5
 			else cexScale<-1
 			if(display['groups'])mtext(sub('^[$^]','',ii),4,at=mean(c(thisMin,thisMax)),cex=max(.3,cexScale*par('cex.axis')),line=.5,las=2)
-			segments(-.5,thisMin-.5,ncol(seqNum)+.5,thisMin-.5)
-			segments(-.5,thisMax+.5,ncol(seqNum)+.5,thisMax+.5)
+			segments(par('usr')[1]-.5,thisMin-.5,par('usr')[3]+.5,thisMin-.5)
+			segments(par('usr')[1]-.5,thisMax+.5,par('usr')[3]+.5,thisMax+.5)
 		}
 	}
 	box()
