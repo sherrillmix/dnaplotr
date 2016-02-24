@@ -72,6 +72,16 @@ test_that("Check if replaceOuterGaps works",{
 	expect_that(replaceOuterGaps(c(NA,'---AA--A','AAZ-------ZZ----','--A-')), throws_error('NA sequence found'))
 })
 
+test_that("Check if removeGapCols works",{
+	expect_that(removeGapCols(c('AAAZZ','AAZZZ')), equals(c('AAAZZ','AAZZZ')))
+	expect_that(removeGapCols(c('AA--A','AAZZZ')), equals(c('AA--A','AAZZZ')))
+	expect_that(removeGapCols(c('A-A','C-C','C-C','TAT'),maxGapProp=.74), equals(c('AA','CC','CC','TT')))
+	expect_that(removeGapCols(c('A-A','C-C','C-C','TAT'),maxGapProp=.75), equals(c('A-A','C-C','C-C','TAT')))
+	expect_that(removeGapCols(c('A-A','C-C','C-C','TAT'),maxGapProp=-.01), equals(c('','','','')))
+	expect_that(removeGapCols(c('A-A','C-C','C-C','TAT'),maxGapProp=-.01), equals(c('','','','')))
+	expect_that(removeGapCols(c('A-A','C-C','C-C','T-T'),maxGapProp=1), equals(c('A-A','C-C','C-C','T-T')))
+	expect_that(removeGapCols(c(NA,'---AA--A','AAZ-------ZZ----','--A-')), throws_error('NA sequence found'))
+})
 
 test_that("Check if replaceAfterStop works",{
 	expect_that(replaceAfterStop(c('AAA','AAZZZ')), equals(c('AAA','AAZZZ')))

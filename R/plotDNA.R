@@ -24,7 +24,6 @@
 #' plotDNA(seqs)
 NULL
 
-
 #' Find contiguous ranges within a vector of indices
 #' 
 #' Take a vector of indices and returns ranges of contiguous regions.
@@ -299,6 +298,30 @@ replaceOuterGaps<-function(seqs,leftEnd=TRUE,rightEnd=TRUE,gapChars=c('*','-'),r
 	if(leftEnd)substring(seqs,1,startGapLength)<-substring(dummy,1,startGapLength)
 	if(rightEnd)substring(seqs,nChars-endGapLength+1)<-substring(dummy,1,endGapLength)
 	return(seqs)
+}
+
+#' Convenience function to remove columns composed mostly of gaps
+#'
+#' Remove columns in an alignment that contain more than a give proportion of gaps
+#' (e.g. A-A, G-G to AA,GG). 
+#'
+#' @param seqs a character vector of sequences
+#' @param gapChars a vector of single characters that count as gaps
+#' @param maxGapProp remove columns with greater than this proportion of gaps
+#'
+#' @return A character vector of sequences with gap columns removed
+#'
+#' @export
+#'
+#' @examples
+#' removeGapCols(c('A-A-','A-AA','A-AT','A-AG'))
+removeGapCols<-function(seqs,gapChars=c('*','-','.'),maxGapProp=.9){
+	if(any(is.na(seqs)))stop(simpleError('NA sequence found in replaceOuterGaps'))
+  mat<-seqSplit(seqs)
+  gapProp<-apply(mat,2,function(x)mean(x %in% gapChars))
+  gapCols<-gapProp>maxGapProp
+  out<-apply(mat[,!gapCols],1,paste,collapse='')
+	return(out)
 }
 
 #' Convenience function to remove amino acids following a stop codon 
