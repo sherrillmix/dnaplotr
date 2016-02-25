@@ -41,11 +41,11 @@ NULL
 #' @examples
 #' indexToRange(c(1:10,11,14,16,17:20))
 indexToRange<-function(index){
-	index<-sort(unique(index))
-	diffs<-c(diff(index),Inf)
-	ends<-c(which(diffs>1))
-	starts<-c(1,ends[-length(ends)]+1)
-	return(data.frame('start'=index[starts],'end'=index[ends]))
+  index<-sort(unique(index))
+  diffs<-c(diff(index),Inf)
+  ends<-c(which(diffs>1))
+  starts<-c(1,ends[-length(ends)]+1)
+  return(data.frame('start'=index[starts],'end'=index[ends]))
 }
 
 #' Plot a bunch of DNA sequences
@@ -96,101 +96,101 @@ indexToRange<-function(index){
 # refseq display
 # distOrder
 plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red','C'='blue','G'='yellow','-'='grey','default'='white'),xlab='Position',ylab='Sequence Read',display=c('groups'=!is.null(groups)),xStart=1,groups=NULL,groupCexScale=FALSE, refSeq=NULL,...){
-	if(length(seqs)<1|is.null(seqs))stop(simpleError("Seqs missing"))
-	if(length(seqs)!=length(seqCounts))stop(simpleError('Lengths of seqs and seqCounts not equal'))
-	if(!is.null(groups)&&length(seqs)!=length(groups))stop(simpleError('Lengths of seqs and groups not equal'))
-	seqs<-toupper(seqs)
-	displayOptions<-c('legend','xAxis','yAxis','groups')
-	missingOptions<-!displayOptions %in% names(display)
-	if(any(missingOptions))display[displayOptions[missingOptions]]<-TRUE
+  if(length(seqs)<1|is.null(seqs))stop(simpleError("Seqs missing"))
+  if(length(seqs)!=length(seqCounts))stop(simpleError('Lengths of seqs and seqCounts not equal'))
+  if(!is.null(groups)&&length(seqs)!=length(groups))stop(simpleError('Lengths of seqs and groups not equal'))
+  seqs<-toupper(seqs)
+  displayOptions<-c('legend','xAxis','yAxis','groups')
+  missingOptions<-!displayOptions %in% names(display)
+  if(any(missingOptions))display[displayOptions[missingOptions]]<-TRUE
 
-	if(!is.null(groups)){
-		groups<-as.factor(groups)
-		groupOrder<-order(as.numeric(groups),1:length(seqs)) #preserve original order within groups
-		seqs<-seqs[groupOrder]
-		seqCounts<-seqCounts[groupOrder]
-		groups<-groups[groupOrder]
-	}
+  if(!is.null(groups)){
+    groups<-as.factor(groups)
+    groupOrder<-order(as.numeric(groups),1:length(seqs)) #preserve original order within groups
+    seqs<-seqs[groupOrder]
+    seqCounts<-seqCounts[groupOrder]
+    groups<-groups[groupOrder]
+  }
 
-	#fill any trailing gaps
-	seqMat<-seqSplit(seqs,fill='-')
-	seqNum<-seqMat
-	if(!'default' %in% names(cols))cols['default']<-'white'
-	seqNum[,]<-cols['default']
-	for(ii in names(cols))seqNum[seqMat==ii]<-cols[ii]
+  #fill any trailing gaps
+  seqMat<-seqSplit(seqs,fill='-')
+  seqNum<-seqMat
+  if(!'default' %in% names(cols))cols['default']<-'white'
+  seqNum[,]<-cols['default']
+  for(ii in names(cols))seqNum[seqMat==ii]<-cols[ii]
 
-	#Converting to first base as 0 for ease of use
-	xStart<-xStart-1
+  #Converting to first base as 0 for ease of use
+  xStart<-xStart-1
 
-	plot(1,1,xlim=xStart+c(0.5,ncol(seqNum)+.5),ylim=c(0.5,sum(seqCounts)+.5),ylab="",xlab=xlab,type='n',xaxs='i',yaxs='i',xaxt='n',yaxt='n',...)
-	
-	#y axis
-	prettyY<-pretty(1:min(sum(seqCounts)))
-	prettyY<-prettyY[round(prettyY)==prettyY]
-	if(display['yAxis'])axis(2,prettyY,format(prettyY,scientific=FALSE,big.mark=','),mgp=c(3,.6,0),las=1)
-	title(ylab=ylab,line=3.25,las=3)
+  plot(1,1,xlim=xStart+c(0.5,ncol(seqNum)+.5),ylim=c(0.5,sum(seqCounts)+.5),ylab="",xlab=xlab,type='n',xaxs='i',yaxs='i',xaxt='n',yaxt='n',...)
+  
+  #y axis
+  prettyY<-pretty(1:min(sum(seqCounts)))
+  prettyY<-prettyY[round(prettyY)==prettyY]
+  if(display['yAxis'])axis(2,prettyY,format(prettyY,scientific=FALSE,big.mark=','),mgp=c(3,.6,0),las=1)
+  title(ylab=ylab,line=3.25,las=3)
 
-	if(!is.null(refSeq)){
-		maxNoGap<-gapToNoGap(refSeq,ncol(seqNum))
-		prettyX<-pretty(xStart+c(1,maxNoGap))
-		prettyX<-prettyX[prettyX<=xStart+maxNoGap]
-		prettyX[prettyX==0]<-1
-		prettyX<-unique(prettyX[prettyX>xStart])
-		prettyXPos<-noGapToGap(refSeq,prettyX-xStart)+xStart
-	}else{
-		prettyX<-pretty(xStart+c(1,ncol(seqNum)))
-		prettyXPos<-prettyX
-	}
-	if(display['xAxis'])axis(1,prettyXPos,prettyX)
-	#needs to be slight overlap to avoid stupid white line problem
-	spacer<-.001
-	for(ii in 1:ncol(seqNum)){
-		#1 rectangle per read
-		#rect(1:ncol(seqNum)-.5,i-.5,1:ncol(seqNum)+.5,i+.5+spacer,col=seqNum[i,],border=NA)
-		bottoms<-c(0,cumsum(seqCounts)[-length(seqCounts)])
-		tops<-cumsum(seqCounts)
-		thisCols<-seqNum[,ii]
-		#1 rectangle per repped read 
-		#rect(i-.5,bottoms+.5,i+.5,tops+.5+spacer,col=cols,border=NA)
-		uniqCols<-unique(thisCols)
-		colRanges<-do.call(rbind,lapply(unique(thisCols),function(x){
-			out<-indexToRange(which(thisCols==x))
-			out$bottom<-bottoms[out$start]
-			out$top<-tops[out$end]
-			out$col<-x
-			return(out)
-		}))
-		#1 rectangle per string of identical bases
-		rect(xStart+ii-.5,colRanges$bottom+.5,xStart+ii+.5,colRanges$top+.5+spacer,col=colRanges$col,border=NA)
-	}
-	if(!is.null(groups)){
-		groupOrder<-rep(groups,seqCounts)
-		maxGroupCount<-max(table(groupOrder))
-		uniqueGroups<-unique(groups)
-		for(ii in uniqueGroups){
-			thisMin<-min(which(groupOrder==ii))
-			thisMax<-max(which(groupOrder==ii))
-			if(groupCexScale)cexScale<-((diff(c(thisMin,thisMax))+1)/maxGroupCount)^.5
-			else cexScale<-1
-			if(display['groups'])mtext(sub('^[$^]','',ii),4,at=mean(c(thisMin,thisMax)),cex=max(.3,cexScale*par('cex.axis')),line=.5,las=2)
-			abline(h=c(thisMin-.5,thisMax+.5))
-		}
-	}
-	box()
-	if(display['legend']){
-		insetPos<-c(grconvertX(1,'nfc','user'),grconvertY(0,'nfc','user')) #-.01 could cause trouble here
-		legendCols<-cols[!names(cols) %in% c('default','-')]
-		legend(insetPos[1],insetPos[2], names(legendCols),col=legendCols, pt.bg=legendCols,pch = 22,ncol=max(4,length(legendCols)/2),bty='n',xjust=1,yjust=0,xpd=NA,cex=par('cex.axis'),x.intersp=0.75)
-	}
-	invisible(NULL)
+  if(!is.null(refSeq)){
+    maxNoGap<-gapToNoGap(refSeq,ncol(seqNum))
+    prettyX<-pretty(xStart+c(1,maxNoGap))
+    prettyX<-prettyX[prettyX<=xStart+maxNoGap]
+    prettyX[prettyX==0]<-1
+    prettyX<-unique(prettyX[prettyX>xStart])
+    prettyXPos<-noGapToGap(refSeq,prettyX-xStart)+xStart
+  }else{
+    prettyX<-pretty(xStart+c(1,ncol(seqNum)))
+    prettyXPos<-prettyX
+  }
+  if(display['xAxis'])axis(1,prettyXPos,prettyX)
+  #needs to be slight overlap to avoid stupid white line problem
+  spacer<-.001
+  for(ii in 1:ncol(seqNum)){
+    #1 rectangle per read
+    #rect(1:ncol(seqNum)-.5,i-.5,1:ncol(seqNum)+.5,i+.5+spacer,col=seqNum[i,],border=NA)
+    bottoms<-c(0,cumsum(seqCounts)[-length(seqCounts)])
+    tops<-cumsum(seqCounts)
+    thisCols<-seqNum[,ii]
+    #1 rectangle per repped read 
+    #rect(i-.5,bottoms+.5,i+.5,tops+.5+spacer,col=cols,border=NA)
+    uniqCols<-unique(thisCols)
+    colRanges<-do.call(rbind,lapply(unique(thisCols),function(x){
+      out<-indexToRange(which(thisCols==x))
+      out$bottom<-bottoms[out$start]
+      out$top<-tops[out$end]
+      out$col<-x
+      return(out)
+    }))
+    #1 rectangle per string of identical bases
+    rect(xStart+ii-.5,colRanges$bottom+.5,xStart+ii+.5,colRanges$top+.5+spacer,col=colRanges$col,border=NA)
+  }
+  if(!is.null(groups)){
+    groupOrder<-rep(groups,seqCounts)
+    maxGroupCount<-max(table(groupOrder))
+    uniqueGroups<-unique(groups)
+    for(ii in uniqueGroups){
+      thisMin<-min(which(groupOrder==ii))
+      thisMax<-max(which(groupOrder==ii))
+      if(groupCexScale)cexScale<-((diff(c(thisMin,thisMax))+1)/maxGroupCount)^.5
+      else cexScale<-1
+      if(display['groups'])mtext(sub('^[$^]','',ii),4,at=mean(c(thisMin,thisMax)),cex=max(.3,cexScale*par('cex.axis')),line=.5,las=2)
+      abline(h=c(thisMin-.5,thisMax+.5))
+    }
+  }
+  box()
+  if(display['legend']){
+    insetPos<-c(grconvertX(1,'nfc','user'),grconvertY(0,'nfc','user')) #-.01 could cause trouble here
+    legendCols<-cols[!names(cols) %in% c('default','-')]
+    legend(insetPos[1],insetPos[2], names(legendCols),col=legendCols, pt.bg=legendCols,pch = 22,ncol=max(4,length(legendCols)/2),bty='n',xjust=1,yjust=0,xpd=NA,cex=par('cex.axis'),x.intersp=0.75)
+  }
+  invisible(NULL)
 }
 
 #' @describeIn plotDNA Plot a bunch of AA sequences
 #' @param mar margin sizes as in \code{\link{par}} (needed to give the amino acid legend more space by default)
 #' @export
 plotAA<-function(...,mar=c(6.5,4,4,2)+.1,cols=c(dnaplotr::aminoCols,'-'='grey')){
-	par(mar=mar)
-	plotDNA(...,cols=cols)
+  par(mar=mar)
+  plotDNA(...,cols=cols)
 }
 
 #' Convenience function for binding a bunch of sequences together
@@ -210,14 +210,14 @@ plotAA<-function(...,mar=c(6.5,4,4,2)+.1,cols=c(dnaplotr::aminoCols,'-'='grey'))
 #' @examples
 #' seqSplit('AAAT','AA','ATT',fill='-')
 seqSplit<-function(...,fill=NULL){
-	seqs<-c(...)
-	if(any(is.na(seqs)))stop(simpleError('NA sequence found in seqSplit'))
-	seqN<-nchar(seqs)
-	maxN<-max(seqN)
-	dummy<-paste(rep(fill,maxN-min(seqN)+100),collapse='')
-	if(is.null(fill)&&any(seqN!=maxN))stop(simpleError('All sequences not same length'))
-	else seqs<-sprintf('%s%s',seqs,substring(dummy,1,maxN-seqN))
-	return(do.call(rbind,strsplit(seqs,'')))
+  seqs<-c(...)
+  if(any(is.na(seqs)))stop(simpleError('NA sequence found in seqSplit'))
+  seqN<-nchar(seqs)
+  maxN<-max(seqN)
+  dummy<-paste(rep(fill,maxN-min(seqN)+100),collapse='')
+  if(is.null(fill)&&any(seqN!=maxN))stop(simpleError('All sequences not same length'))
+  else seqs<-sprintf('%s%s',seqs,substring(dummy,1,maxN-seqN))
+  return(do.call(rbind,strsplit(seqs,'')))
 }
 
 #' Convenience function to convert gapped coordinates to what the coordinates would be without gaps
@@ -239,11 +239,11 @@ seqSplit<-function(...,fill=NULL){
 #' @examples
 #' gapToNoGap('AA--AA-A',c(1:8))
 gapToNoGap<-function(refSeq,coords,gapChars=c('*','.','-')){
-	gapSeqSplit<-strsplit(refSeq,'')[[1]]
-	nonDash<-!gapSeqSplit %in% gapChars
-	newCoords<-cumsum(nonDash)
-	coords[coords<1|coords>length(newCoords)]<-NA
-	return(newCoords[c(0,coords)]) #using 0 to prevent x[NA] returning everything
+  gapSeqSplit<-strsplit(refSeq,'')[[1]]
+  nonDash<-!gapSeqSplit %in% gapChars
+  newCoords<-cumsum(nonDash)
+  coords[coords<1|coords>length(newCoords)]<-NA
+  return(newCoords[c(0,coords)]) #using 0 to prevent x[NA] returning everything
 }
 
 #' Convenience function to convert ungapped coordinates in a reference function to what the coordinates would be in the gapped reference sequence
@@ -263,10 +263,10 @@ gapToNoGap<-function(refSeq,coords,gapChars=c('*','.','-')){
 #' @examples
 #' noGapToGap('AA--AA-A',c(1:5))
 noGapToGap<-function(refSeq,coords,gapChars=c('*','.','-')){
-	gapSeqSplit<-strsplit(refSeq,'')[[1]]
-	nonDash<-which(!gapSeqSplit %in% gapChars)
-	coords[coords<1|coords>length(nonDash)]<-NA
-	return(nonDash[c(0,coords)])
+  gapSeqSplit<-strsplit(refSeq,'')[[1]]
+  nonDash<-which(!gapSeqSplit %in% gapChars)
+  coords[coords<1|coords>length(nonDash)]<-NA
+  return(nonDash[c(0,coords)])
 }
 
 #' Convenience function to replace gaps at the start and end of a sequence with a different character
@@ -289,15 +289,15 @@ noGapToGap<-function(refSeq,coords,gapChars=c('*','.','-')){
 #' @examples
 #' replaceOuterGaps(c('--A-A--','AAA--AAA','--A-A','A-A--'))
 replaceOuterGaps<-function(seqs,leftEnd=TRUE,rightEnd=TRUE,gapChars=c('*','-'),replaceChar='.'){
-	if(any(is.na(seqs)))stop(simpleError('NA sequence found in replaceOuterGaps'))
-	gapRegex<-sprintf('[%s]',paste(gapChars,collapse=''))
-	startGapLength<-attr(regexpr(sprintf('^%s+',gapRegex),seqs),'match.length')
-	endGapLength<-attr(regexpr(sprintf('%s+$',gapRegex),seqs),'match.length')
-	nChars<-nchar(seqs)
-	dummy<-paste(rep(replaceChar,max(c(startGapLength,endGapLength))+100),collapse='')
-	if(leftEnd)substring(seqs,1,startGapLength)<-substring(dummy,1,startGapLength)
-	if(rightEnd)substring(seqs,nChars-endGapLength+1)<-substring(dummy,1,endGapLength)
-	return(seqs)
+  if(any(is.na(seqs)))stop(simpleError('NA sequence found in replaceOuterGaps'))
+  gapRegex<-sprintf('[%s]',paste(gapChars,collapse=''))
+  startGapLength<-attr(regexpr(sprintf('^%s+',gapRegex),seqs),'match.length')
+  endGapLength<-attr(regexpr(sprintf('%s+$',gapRegex),seqs),'match.length')
+  nChars<-nchar(seqs)
+  dummy<-paste(rep(replaceChar,max(c(startGapLength,endGapLength))+100),collapse='')
+  if(leftEnd)substring(seqs,1,startGapLength)<-substring(dummy,1,startGapLength)
+  if(rightEnd)substring(seqs,nChars-endGapLength+1)<-substring(dummy,1,endGapLength)
+  return(seqs)
 }
 
 #' Convenience function to remove columns composed mostly of gaps
@@ -316,12 +316,12 @@ replaceOuterGaps<-function(seqs,leftEnd=TRUE,rightEnd=TRUE,gapChars=c('*','-'),r
 #' @examples
 #' removeGapCols(c('A-A-','A-AA','A-AT','A-AG'))
 removeGapCols<-function(seqs,gapChars=c('*','-','.'),maxGapProp=.9){
-	if(any(is.na(seqs)))stop(simpleError('NA sequence found in replaceOuterGaps'))
+  if(any(is.na(seqs)))stop(simpleError('NA sequence found in replaceOuterGaps'))
   mat<-seqSplit(seqs)
   gapProp<-apply(mat,2,function(x)mean(x %in% gapChars))
   gapCols<-gapProp>maxGapProp
   out<-apply(mat[,!gapCols],1,paste,collapse='')
-	return(out)
+  return(out)
 }
 
 #' Convenience function to remove amino acids following a stop codon 
@@ -341,12 +341,12 @@ removeGapCols<-function(seqs,gapChars=c('*','-','.'),maxGapProp=.9){
 #' @examples
 #' replaceAfterStop(c('LYSXAAA','LYSRAAA','AXAAA','AAAAX'))
 replaceAfterStop<-function(seqs,stopChars='X',replaceChar='X'){
-	if(any(is.na(seqs)))stop(simpleError('NA sequence found in replaceAfterStop'))
-	stopRegex<-sprintf('[%s].*$',paste(stopChars,collapse=''))
-	stopLength<-attr(regexpr(stopRegex,seqs),'match.length')-1
-	dummy<-paste(rep(replaceChar,max(stopLength)+100),collapse='')
-	substring(seqs,nchar(seqs)-stopLength+1)<-substring(dummy,1,stopLength)
-	return(seqs)
+  if(any(is.na(seqs)))stop(simpleError('NA sequence found in replaceAfterStop'))
+  stopRegex<-sprintf('[%s].*$',paste(stopChars,collapse=''))
+  stopLength<-attr(regexpr(stopRegex,seqs),'match.length')-1
+  dummy<-paste(rep(replaceChar,max(stopLength)+100),collapse='')
+  substring(seqs,nchar(seqs)-stopLength+1)<-substring(dummy,1,stopLength)
+  return(seqs)
 }
 
 
@@ -372,55 +372,55 @@ replaceAfterStop<-function(seqs,stopChars='X',replaceChar='X'){
 #' @examples
 #' createFakeDNA(10,10)
 createFakeDNA<-function(n=500,nChar=400,nSplit=3,pGap=.3,pNoise=.01,pMutation=.005,bases=c('A','C','T','G','-'),excludeBases=c('-','X')){
-	if(nSplit==0){
-		nSplit<-1
-		pGap=0
-		pMutation<-0
-	}
-	refSeq<-sample(bases[!bases %in% excludeBases],nChar,TRUE)
-	seqMat<-matrix(refSeq,nrow=n,ncol=nChar,byrow=TRUE)
-	groupAssign<-list(rep('0',n))
-	for(ii in 1:nSplit){
-		#groupSplits<-1:n%%2^ii
-		groupSplits<-ave(groupAssign[[ii]],groupAssign[[ii]],FUN=function(x){
-			pGroup<-exp(rnorm(2))
-			pGroup<-pGroup/sum(pGroup)
-			paste(x,sample(0:1,length(x),TRUE,pGroup),sep='')
-		})
-		groupAssign[[ii+1]]<-groupSplits
-		for(jj in unique(groupSplits)){
-			nSubs<-rbinom(1,nChar,pMutation)	
-			selector<-groupSplits==jj
-			seqMat[selector,sample(1:nChar,nSubs)]<-matrix(sample(bases,nSubs,TRUE),nrow=sum(selector),ncol=nSubs,byrow=TRUE)
-		}
-	}
-	nNoise<-rbinom(1,n*nChar,pNoise)
-	randomNoiseLoc<-sample(1:(n*nChar),nNoise)
-	seqMat[randomNoiseLoc]<-sample(bases,nNoise,TRUE)
-	if(pGap>0){
-		for(ii in 1:nSplit){
-			groupSplits<-groupAssign[[ii+1]]
-			for(jj in unique(groupSplits)){
-				selector<-groupSplits==jj
-				if(runif(1)<pGap){
-					gapStart<-sample(1:nChar,1)
-					gapEnd<-min(nChar,gapStart+sample(floor(nChar/30):ceiling(nChar/10),1))
-					if(runif(1)<.5){
-						#deletion
-						seqMat[selector,gapStart:gapEnd]<-'-'
-					} else {
-						#insertion
-						seqMat[!selector,gapStart:gapEnd]<-'-' 
-						refSeq[gapStart:gapEnd]<-'-' 
-					}
-				}
-			}
-		}
-	}
-	rownames(seqMat)<-sprintf('%s %d',groupAssign[[nSplit+1]],1:n)
-	seqMat<-seqMat[do.call(order,c(groupAssign,list(apply(seqMat,1,paste,collapse='')))),]
-	out<-apply(rbind(refSeq,seqMat),1,paste,collapse='')
-	return(out)
+  if(nSplit==0){
+    nSplit<-1
+    pGap=0
+    pMutation<-0
+  }
+  refSeq<-sample(bases[!bases %in% excludeBases],nChar,TRUE)
+  seqMat<-matrix(refSeq,nrow=n,ncol=nChar,byrow=TRUE)
+  groupAssign<-list(rep('0',n))
+  for(ii in 1:nSplit){
+    #groupSplits<-1:n%%2^ii
+    groupSplits<-ave(groupAssign[[ii]],groupAssign[[ii]],FUN=function(x){
+      pGroup<-exp(rnorm(2))
+      pGroup<-pGroup/sum(pGroup)
+      paste(x,sample(0:1,length(x),TRUE,pGroup),sep='')
+    })
+    groupAssign[[ii+1]]<-groupSplits
+    for(jj in unique(groupSplits)){
+      nSubs<-rbinom(1,nChar,pMutation)  
+      selector<-groupSplits==jj
+      seqMat[selector,sample(1:nChar,nSubs)]<-matrix(sample(bases,nSubs,TRUE),nrow=sum(selector),ncol=nSubs,byrow=TRUE)
+    }
+  }
+  nNoise<-rbinom(1,n*nChar,pNoise)
+  randomNoiseLoc<-sample(1:(n*nChar),nNoise)
+  seqMat[randomNoiseLoc]<-sample(bases,nNoise,TRUE)
+  if(pGap>0){
+    for(ii in 1:nSplit){
+      groupSplits<-groupAssign[[ii+1]]
+      for(jj in unique(groupSplits)){
+        selector<-groupSplits==jj
+        if(runif(1)<pGap){
+          gapStart<-sample(1:nChar,1)
+          gapEnd<-min(nChar,gapStart+sample(floor(nChar/30):ceiling(nChar/10),1))
+          if(runif(1)<.5){
+            #deletion
+            seqMat[selector,gapStart:gapEnd]<-'-'
+          } else {
+            #insertion
+            seqMat[!selector,gapStart:gapEnd]<-'-' 
+            refSeq[gapStart:gapEnd]<-'-' 
+          }
+        }
+      }
+    }
+  }
+  rownames(seqMat)<-sprintf('%s %d',groupAssign[[nSplit+1]],1:n)
+  seqMat<-seqMat[do.call(order,c(groupAssign,list(apply(seqMat,1,paste,collapse='')))),]
+  out<-apply(rbind(refSeq,seqMat),1,paste,collapse='')
+  return(out)
 }
 
 #' @rdname createFakeDNA 
@@ -429,7 +429,7 @@ createFakeDNA<-function(n=500,nChar=400,nSplit=3,pGap=.3,pNoise=.01,pMutation=.0
 #' @examples
 #' createFakeAA(10,10)
 createFakeAA<-function(n=100,nChar=100,...,pGap=.2,pNoise=0,pMutation=.01,bases=c(names(dnaplotr::aminoCols),'-')){
-	createFakeDNA(n,nChar,bases=bases,pGap=pGap,pNoise=pNoise)
+  createFakeDNA(n,nChar,bases=bases,pGap=pGap,pNoise=pNoise)
 }
 
 #' Some colors for amino acids
