@@ -173,8 +173,7 @@ plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red
 			if(groupCexScale)cexScale<-((diff(c(thisMin,thisMax))+1)/maxGroupCount)^.5
 			else cexScale<-1
 			if(display['groups'])mtext(sub('^[$^]','',ii),4,at=mean(c(thisMin,thisMax)),cex=max(.3,cexScale*par('cex.axis')),line=.5,las=2)
-			segments(par('usr')[1]-.5,thisMin-.5,par('usr')[3]+.5,thisMin-.5)
-			segments(par('usr')[1]-.5,thisMax+.5,par('usr')[3]+.5,thisMax+.5)
+			abline(h=c(thisMin-.5,thisMax+.5))
 		}
 	}
 	box()
