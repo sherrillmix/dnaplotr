@@ -55,7 +55,6 @@ packageKeywords<-"visualization, alignment, display, genome, DNA, sequence, mult
 
 The package is also useful to visualize high-throughput, short read data in a given region (Figure \ref{figShortReads}):
 <<plotShortReads, echo=TRUE, eval=FALSE>>=
-  set.seed(1234)
   seqLength<-1000
   fakeSeqs<-createFakeDNA(5000,seqLength,pGap=0)
   refSeq<-fakeSeqs[1]

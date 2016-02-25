@@ -36,7 +36,6 @@ packageKeywords<-"visualization, alignment, display, genome, DNA, sequence, mult
 ###################################################
 ### code chunk number 4: plotShortReads (eval = FALSE)
 ###################################################
-##   set.seed(1234)
 ##   seqLength<-1000
 ##   fakeSeqs<-createFakeDNA(5000,seqLength,pGap=0)
 ##   refSeq<-fakeSeqs[1]
@@ -57,7 +56,6 @@ packageKeywords<-"visualization, alignment, display, genome, DNA, sequence, mult
 ###################################################
 ### code chunk number 5: showShortReads
 ###################################################
-  set.seed(1234)
   seqLength<-1000
   fakeSeqs<-createFakeDNA(5000,seqLength,pGap=0)
   refSeq<-fakeSeqs[1]
