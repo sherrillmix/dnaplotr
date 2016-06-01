@@ -99,6 +99,7 @@ plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red
   if(length(seqs)<1|is.null(seqs))stop(simpleError("Seqs missing"))
   if(length(seqs)!=length(seqCounts))stop(simpleError('Lengths of seqs and seqCounts not equal'))
   if(!is.null(groups)&&length(seqs)!=length(groups))stop(simpleError('Lengths of seqs and groups not equal'))
+  if(any(is.na(groups)))stop(simpleError('NAs in sequence groups'))
   seqs<-toupper(seqs)
   displayOptions<-c('legend','xAxis','yAxis','groups')
   missingOptions<-!displayOptions %in% names(display)
