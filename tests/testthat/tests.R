@@ -119,6 +119,7 @@ test_that("plotDNA works",{
   expect_that(plotDNA(c("AA-","CC.","CTC"),seqCounts=c(1,1)),throws_error('[Ll]ength'))
   expect_that(plotDNA(c("AA-","CC.","CTC"),refSeq='A-A'),is_null())
   expect_that(plotDNA(c("AA-","CC.","CTC"),groups=c(1,1,NA)),throws_error('NA'))
+  expect_error(plotDNA(c("AA-","CC.","CTC")),NA)
 })
 
 test_that("plotAA works",{
