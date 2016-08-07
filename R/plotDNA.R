@@ -123,13 +123,13 @@ plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red
   #Converting to first base as 0 for ease of use
   xStart<-xStart-1
 
-  plot(1,1,xlim=xStart+c(0.5,ncol(seqNum)+.5),ylim=c(0.5,sum(seqCounts)+.5),ylab="",xlab=xlab,type='n',xaxs='i',yaxs='i',xaxt='n',yaxt='n',...)
+  graphics::plot(1,1,xlim=xStart+c(0.5,ncol(seqNum)+.5),ylim=c(0.5,sum(seqCounts)+.5),ylab="",xlab=xlab,type='n',xaxs='i',yaxs='i',xaxt='n',yaxt='n',...)
   
   #y axis
   prettyY<-pretty(1:min(sum(seqCounts)))
   prettyY<-prettyY[round(prettyY)==prettyY]
-  if(display['yAxis'])axis(2,prettyY,format(prettyY,scientific=FALSE,big.mark=','),mgp=c(3,.6,0),las=1)
-  title(ylab=ylab,line=3.25,las=3)
+  if(display['yAxis'])graphics::axis(2,prettyY,format(prettyY,scientific=FALSE,big.mark=','),mgp=c(3,.6,0),las=1)
+  graphics::title(ylab=ylab,line=3.25,las=3)
 
   if(!is.null(refSeq)){
     maxNoGap<-gapToNoGap(refSeq,ncol(seqNum))
@@ -142,7 +142,7 @@ plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red
     prettyX<-pretty(xStart+c(1,ncol(seqNum)))
     prettyXPos<-prettyX
   }
-  if(display['xAxis'])axis(1,prettyXPos,prettyX)
+  if(display['xAxis'])graphics::axis(1,prettyXPos,prettyX)
   #needs to be slight overlap to avoid stupid white line problem
   spacer<-.001
   for(ii in 1:ncol(seqNum)){
@@ -162,7 +162,7 @@ plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red
       return(out)
     }))
     #1 rectangle per string of identical bases
-    rect(xStart+ii-.5,colRanges$bottom+.5,xStart+ii+.5,colRanges$top+.5+spacer,col=colRanges$col,border=NA)
+    graphics::rect(xStart+ii-.5,colRanges$bottom+.5,xStart+ii+.5,colRanges$top+.5+spacer,col=colRanges$col,border=NA)
   }
   if(!is.null(groups)){
     groupOrder<-rep(groups,seqCounts)
@@ -173,15 +173,15 @@ plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red
       thisMax<-max(which(groupOrder==ii))
       if(groupCexScale)cexScale<-((diff(c(thisMin,thisMax))+1)/maxGroupCount)^.5
       else cexScale<-1
-      if(display['groups'])mtext(sub('^[$^]','',ii),4,at=mean(c(thisMin,thisMax)),cex=max(.3,cexScale*par('cex.axis')),line=.5,las=2)
-      abline(h=c(thisMin-.5,thisMax+.5))
+      if(display['groups'])graphics::mtext(sub('^[$^]','',ii),4,at=mean(c(thisMin,thisMax)),cex=max(.3,cexScale*graphics::par('cex.axis')),line=.5,las=2)
+      graphics::abline(h=c(thisMin-.5,thisMax+.5))
     }
   }
-  box()
+  graphics::box()
   if(display['legend']){
-    insetPos<-c(grconvertX(1,'nfc','user'),grconvertY(0,'nfc','user')) #-.01 could cause trouble here
+    insetPos<-c(graphics::grconvertX(1,'nfc','user'),graphics::grconvertY(0,'nfc','user')) #-.01 could cause trouble here
     legendCols<-cols[!names(cols) %in% c('default','-')]
-    legend(insetPos[1],insetPos[2], names(legendCols),col=legendCols, pt.bg=legendCols,pch = 22,ncol=max(4,length(legendCols)/2),bty='n',xjust=1,yjust=0,xpd=NA,cex=par('cex.axis'),x.intersp=0.75)
+    graphics::legend(insetPos[1],insetPos[2], names(legendCols),col=legendCols, pt.bg=legendCols,pch = 22,ncol=max(4,length(legendCols)/2),bty='n',xjust=1,yjust=0,xpd=NA,cex=graphics::par('cex.axis'),x.intersp=0.75)
   }
   invisible(NULL)
 }
@@ -190,7 +190,7 @@ plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red
 #' @param mar margin sizes as in \code{\link{par}} (needed to give the amino acid legend more space by default)
 #' @export
 plotAA<-function(...,mar=c(6.5,4,4,2)+.1,cols=c(dnaplotr::aminoCols,'-'='grey')){
-  par(mar=mar)
+  graphics::par(mar=mar)
   plotDNA(...,cols=cols)
 }
 
@@ -383,19 +383,19 @@ createFakeDNA<-function(n=500,nChar=400,nSplit=3,pGap=.3,pNoise=.01,pMutation=.0
   groupAssign<-list(rep('0',n))
   for(ii in 1:nSplit){
     #groupSplits<-1:n%%2^ii
-    groupSplits<-ave(groupAssign[[ii]],groupAssign[[ii]],FUN=function(x){
-      pGroup<-exp(rnorm(2))
+    groupSplits<-stats::ave(groupAssign[[ii]],groupAssign[[ii]],FUN=function(x){
+      pGroup<-exp(stats::rnorm(2))
       pGroup<-pGroup/sum(pGroup)
       paste(x,sample(0:1,length(x),TRUE,pGroup),sep='')
     })
     groupAssign[[ii+1]]<-groupSplits
     for(jj in unique(groupSplits)){
-      nSubs<-rbinom(1,nChar,pMutation)  
+      nSubs<-stats::rbinom(1,nChar,pMutation)  
       selector<-groupSplits==jj
       seqMat[selector,sample(1:nChar,nSubs)]<-matrix(sample(bases,nSubs,TRUE),nrow=sum(selector),ncol=nSubs,byrow=TRUE)
     }
   }
-  nNoise<-rbinom(1,n*nChar,pNoise)
+  nNoise<-stats::rbinom(1,n*nChar,pNoise)
   randomNoiseLoc<-sample(1:(n*nChar),nNoise)
   seqMat[randomNoiseLoc]<-sample(bases,nNoise,TRUE)
   if(pGap>0){
@@ -403,10 +403,10 @@ createFakeDNA<-function(n=500,nChar=400,nSplit=3,pGap=.3,pNoise=.01,pMutation=.0
       groupSplits<-groupAssign[[ii+1]]
       for(jj in unique(groupSplits)){
         selector<-groupSplits==jj
-        if(runif(1)<pGap){
+        if(stats::runif(1)<pGap){
           gapStart<-sample(1:nChar,1)
           gapEnd<-min(nChar,gapStart+sample(floor(nChar/30):ceiling(nChar/10),1))
-          if(runif(1)<.5){
+          if(stats::runif(1)<.5){
             #deletion
             seqMat[selector,gapStart:gapEnd]<-'-'
           } else {
