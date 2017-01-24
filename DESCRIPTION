@@ -12,5 +12,5 @@ LazyData: TRUE
 Suggests:
     testthat
 Depends:
-    R (>= 3.1.0)
+    R (>= 3.1.0), graphics, stats
 RoxygenNote: 5.0.1
