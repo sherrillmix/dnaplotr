@@ -22,4 +22,3 @@ Take a vector of indices and returns ranges of contiguous regions.
 \examples{
 indexToRange(c(1:10,11,14,16,17:20))
 }
-

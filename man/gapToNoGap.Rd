@@ -26,4 +26,3 @@ to 1 and the second position of '--G--GG' is converted to 0
 \examples{
 gapToNoGap('AA--AA-A',c(1:8))
 }
-

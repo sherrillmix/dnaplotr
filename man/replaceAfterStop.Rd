@@ -24,4 +24,3 @@ mutations and early terminations
 \examples{
 replaceAfterStop(c('LYSXAAA','LYSRAAA','AXAAA','AAAAX'))
 }
-

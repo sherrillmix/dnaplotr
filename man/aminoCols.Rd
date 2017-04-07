@@ -18,4 +18,3 @@ A vector indexed by single letter amino acid code giving color codes based on co
 \url{http://jmol.sourceforge.net/jscolors/}
 }
 \keyword{datasets}
-

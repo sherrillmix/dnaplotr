@@ -23,4 +23,3 @@ unequal length.
 \examples{
 seqSplit('AAAT','AA','ATT',fill='-')
 }
-

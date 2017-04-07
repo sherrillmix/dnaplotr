@@ -28,4 +28,3 @@ plotDNA(seqs)
 \author{
 Scott Sherrill-Mix, \email{shescott@upenn.edu}
 }
-

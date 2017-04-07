@@ -23,4 +23,3 @@ Remove columns in an alignment that contain more than a give proportion of gaps
 \examples{
 removeGapCols(c('A-A-','A-AA','A-AT','A-AG'))
 }
-

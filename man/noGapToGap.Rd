@@ -24,4 +24,3 @@ positions in the gapped sequence
 \examples{
 noGapToGap('AA--AA-A',c(1:5))
 }
-

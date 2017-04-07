@@ -30,4 +30,3 @@ surrounding a sequence.
 \examples{
 replaceOuterGaps(c('--A-A--','AAA--AAA','--A-A','A-A--'))
 }
-
