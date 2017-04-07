@@ -87,7 +87,6 @@ Amino acids can also be plotted although the larger number of amino acids makes 
 
 <<plotAA, echo=TRUE, eval=FALSE>>=
   fakeAAs<-createFakeAA()
-  par(mar=c(3.5,4.4,.5,7),mgp=c(2.5,1,0))
   plotAA(fakeAAs)
 @
 
