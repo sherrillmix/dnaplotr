@@ -187,10 +187,14 @@ plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red
 }
 
 #' @describeIn plotDNA Plot a bunch of AA sequences
-#' @param mar margin sizes as in \code{\link{par}} (needed to give the amino acid legend more space by default)
+#' @param mar margin sizes as in \code{\link{par}}. If left at default then use the current margin settings increasing margin[1] (bottom) to 6.5 if less than 6.5 (needed to give the amino acid legend more space by default). Set explicitly if this behavior is undesired.
 #' @export
-plotAA<-function(...,mar=c(6.5,4,4,2)+.1,cols=c(dnaplotr::aminoCols,'-'='grey')){
-  graphics::par(mar=mar)
+plotAA<-function(...,mar=NULL,cols=c(dnaplotr::aminoCols,'-'='grey')){
+  if(is.null(mar)){
+    mar<-graphics::par('mar')
+    if(mar[1]<6.5)mar[1]<-6.5
+    graphics::par(mar=mar)
+  }
   plotDNA(...,cols=cols)
 }
 
