@@ -313,6 +313,7 @@ replaceOuterGaps<-function(seqs,leftEnd=TRUE,rightEnd=TRUE,gapChars=c('*','-'),r
 #' @param seqs a character vector of sequences
 #' @param gapChars a vector of single characters that count as gaps
 #' @param maxGapProp remove columns with greater than this proportion of gaps
+#' @param ignoreChars a vector of single characters that are ignored i.e. count neither as gaps or towards the total sequence count
 #'
 #' @return A character vector of sequences with gap columns removed
 #'
@@ -320,10 +321,10 @@ replaceOuterGaps<-function(seqs,leftEnd=TRUE,rightEnd=TRUE,gapChars=c('*','-'),r
 #'
 #' @examples
 #' removeGapCols(c('A-A-','A-AA','A-AT','A-AG'))
-removeGapCols<-function(seqs,gapChars=c('*','-','.'),maxGapProp=.9){
+removeGapCols<-function(seqs,gapChars=c('*','-','.'),maxGapProp=.9,ignoreChars=c()){
   if(any(is.na(seqs)))stop(simpleError('NA sequence found in replaceOuterGaps'))
   mat<-seqSplit(seqs)
-  gapProp<-apply(mat,2,function(x)mean(x %in% gapChars))
+  gapProp<-apply(mat,2,function(x)mean(x[!x %in% ignoreChars] %in% gapChars))
   gapCols<-gapProp>maxGapProp
   out<-apply(mat[,!gapCols],1,paste,collapse='')
   return(out)

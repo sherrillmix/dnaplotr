@@ -4,7 +4,8 @@
 \alias{removeGapCols}
 \title{Convenience function to remove columns composed mostly of gaps}
 \usage{
-removeGapCols(seqs, gapChars = c("*", "-", "."), maxGapProp = 0.9)
+removeGapCols(seqs, gapChars = c("*", "-", "."), maxGapProp = 0.9,
+  ignoreChars = c())
 }
 \arguments{
 \item{seqs}{a character vector of sequences}
@@ -12,6 +13,8 @@ removeGapCols(seqs, gapChars = c("*", "-", "."), maxGapProp = 0.9)
 \item{gapChars}{a vector of single characters that count as gaps}
 
 \item{maxGapProp}{remove columns with greater than this proportion of gaps}
+
+\item{ignoreChars}{a vector of single characters that are ignored i.e. count neither as gaps or towards the total sequence count}
 }
 \value{
 A character vector of sequences with gap columns removed
