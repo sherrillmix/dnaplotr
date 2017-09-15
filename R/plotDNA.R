@@ -64,6 +64,7 @@ indexToRange<-function(index){
 #' @param groups Group sequences by group and show label on right side of plot. Note that any prior ordering of sequences will be disrupted. Use a factor and reorder the levels to set a particular order of groups.
 #' @param groupCexScale A logical whether to scale group label size by the number of sequences. Useful to highlight more abundant groups and help squeeze in labels on smaller groups.
 #' @param refSeq Reference sequence used for numbering the x-axis without counting gaps present in this sequence (note that for further annotations outside this function, e.g. abline(v=3), the axis will be from xStart:xStart+max(nchar(seqs)) without any adjustments to ignore reference gaps
+#' @param res If res greater than 0 then render the colors as a raster graphic with this res x res resolution. Useful for embedding a raster graphic inside a pdf where the file size would otherwise be too large. Note that this parameter is best left at 0 except in special circumstances.
 #' @param ... Additional arguments to plot
 #'
 #' @return NULL
@@ -89,19 +90,39 @@ indexToRange<-function(index){
 #' 'MALWTRLRPLLALLALWPLPPARAFVNQHLCGSHLVEALY',
 #' 'MALWTRLRPLLALLALWPPPPARAFVNX')
 #' plotAA(fakeAA,groups=c('Ref','Sub','Stop'))
+#' #set res>0 if vector file sizes are too large
+#' plotAA(fakeAA,groups=c('Ref','Sub','Stop'),res=500)
 #things to add back:
 # gapTrim
 # orderBy?
 # refSeq matched - into white
 # refseq display
 # distOrder
-plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red','C'='blue','G'='yellow','-'='grey','default'='white'),xlab='Position',ylab='Sequence Read',display=c('groups'=!is.null(groups)),xStart=1,groups=NULL,groupCexScale=FALSE, refSeq=NULL,...){
+plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red','C'='blue','G'='yellow','-'='grey','default'='white'),xlab='Position',ylab='Sequence Read',display=c('groups'=!is.null(groups)),xStart=1,groups=NULL,groupCexScale=FALSE, refSeq=NULL,res=0,...){
+  if(res>0){
+    tmpPng<-tempfile()
+    grDevices::png(tmpPng,width=res,height=res)
+      graphics::par(mar=c(0,0,0,0))
+      plotDNA(seqs,display=c(legend=FALSE,xAxis=FALSE,yAxis=FALSE,box=FALSE),xlab='',ylab='',groups=groups,seqCounts=seqCounts,cols=cols)
+    grDevices::dev.off()
+    tmp<-png::readPNG(tmpPng)
+    fillChars<-strsplit('!"#$%&()*+,-/:;<=>?@[]^_`{|}~.01234567890','')[[1]]
+    selectChar<-!fillChars %in% names(cols)
+    if(!any(selectChar))stop('Can not find temporary fill character')
+    fillChar<-fillChars[min(which(selectChar))]
+    empty<-gsub('.',fillChar,seqs)
+    plotDNA(empty,seqCounts,cols,xlab,ylab,display,xStart,groups,groupCexScale,refSeq,...) 
+    usr<-graphics::par('usr')
+    graphics::rasterImage(tmp,usr[1],usr[3],usr[2],usr[4],interpolate=FALSE)
+    graphics::box()
+    return(invisible(NULL))
+  }
   if(length(seqs)<1|is.null(seqs))stop(simpleError("Seqs missing"))
   if(length(seqs)!=length(seqCounts))stop(simpleError('Lengths of seqs and seqCounts not equal'))
   if(!is.null(groups)&&length(seqs)!=length(groups))stop(simpleError('Lengths of seqs and groups not equal'))
   if(!is.null(groups)&&any(is.na(groups)))stop(simpleError('NAs in sequence groups'))
   seqs<-toupper(seqs)
-  displayOptions<-c('legend','xAxis','yAxis','groups')
+  displayOptions<-c('legend','xAxis','yAxis','groups','box')
   missingOptions<-!displayOptions %in% names(display)
   if(any(missingOptions))display[displayOptions[missingOptions]]<-TRUE
 
@@ -123,7 +144,7 @@ plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red
   #Converting to first base as 0 for ease of use
   xStart<-xStart-1
 
-  graphics::plot(1,1,xlim=xStart+c(0.5,ncol(seqNum)+.5),ylim=c(0.5,sum(seqCounts)+.5),ylab="",xlab=xlab,type='n',xaxs='i',yaxs='i',xaxt='n',yaxt='n',...)
+  graphics::plot(1,1,xlim=xStart+c(0.5,ncol(seqNum)+.5),ylim=c(0.5,sum(seqCounts)+.5),ylab="",xlab=xlab,type='n',xaxs='i',yaxs='i',xaxt='n',yaxt='n',bty='n',...)
   
   #y axis
   prettyY<-pretty(1:min(sum(seqCounts)))
@@ -177,7 +198,7 @@ plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red
       graphics::abline(h=c(thisMin-.5,thisMax+.5))
     }
   }
-  graphics::box()
+  if(display['box'])graphics::box()
   if(display['legend']){
     insetPos<-c(graphics::grconvertX(1,'nfc','user'),graphics::grconvertY(0,'nfc','user')) #-.01 could cause trouble here
     legendCols<-cols[!names(cols) %in% c('default','-')]
@@ -447,3 +468,4 @@ createFakeAA<-function(n=100,nChar=100,...,pGap=.2,pNoise=0,pMutation=.01,bases=
 #' @references \url{http://jmol.sourceforge.net/jscolors/}
 #' @source system.file("data-raw", "makeAminoColors.R", package = "dnaplotr")
 "aminoCols"
+

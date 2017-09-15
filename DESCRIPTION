@@ -1,8 +1,8 @@
 Package: dnaplotr
 Type: Package
 Title: Plot a Collection of DNA Sequences
-Version: 0.1
-Date: 2017-08-24
+Version: 0.1.1
+Date: 2017-09-15
 Author: Scott Sherrill-Mix
 Maintainer: Scott Sherrill-Mix <sherrillmix@upenn.edu>
 Description: A function to take a character vector of DNA sequences and
@@ -12,5 +12,7 @@ LazyData: TRUE
 Suggests:
     testthat
 Depends:
-    R (>= 3.1.0), graphics, stats
+    R (>= 3.1.0)
+Imports:
+    graphics, stats, png, grDevices
 RoxygenNote: 6.0.1

@@ -9,7 +9,7 @@ plotDNA(seqs, seqCounts = rep(1, length(seqs)), cols = c(A = "green", T =
   "red", C = "blue", G = "yellow", `-` = "grey", default = "white"),
   xlab = "Position", ylab = "Sequence Read", display = c(groups =
   !is.null(groups)), xStart = 1, groups = NULL, groupCexScale = FALSE,
-  refSeq = NULL, ...)
+  refSeq = NULL, res = 0, ...)
 
 plotAA(..., mar = NULL, cols = c(dnaplotr::aminoCols, `-` = "grey"))
 }
@@ -33,6 +33,8 @@ plotAA(..., mar = NULL, cols = c(dnaplotr::aminoCols, `-` = "grey"))
 \item{groupCexScale}{A logical whether to scale group label size by the number of sequences. Useful to highlight more abundant groups and help squeeze in labels on smaller groups.}
 
 \item{refSeq}{Reference sequence used for numbering the x-axis without counting gaps present in this sequence (note that for further annotations outside this function, e.g. abline(v=3), the axis will be from xStart:xStart+max(nchar(seqs)) without any adjustments to ignore reference gaps}
+
+\item{res}{If res greater than 0 then render the colors as a raster graphic with this res x res resolution. Useful for embedding a raster graphic inside a pdf where the file size would otherwise be too large. Note that this parameter is best left at 0 except in special circumstances.}
 
 \item{...}{Additional arguments to plot}
 
@@ -67,4 +69,6 @@ fakeAA<-c('MALWTRLRPLLALLALWPPPPARAFVNQHLCGSHLVEALY',
 'MALWTRLRPLLALLALWPLPPARAFVNQHLCGSHLVEALY',
 'MALWTRLRPLLALLALWPPPPARAFVNX')
 plotAA(fakeAA,groups=c('Ref','Sub','Stop'))
+#set res>0 if vector file sizes are too large
+plotAA(fakeAA,groups=c('Ref','Sub','Stop'),res=500)
 }

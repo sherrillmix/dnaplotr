@@ -87,3 +87,25 @@ packageKeywords<-"visualization, alignment, display, genome, DNA, sequence, mult
   plotAA(fakeAAs)
 
 
+###################################################
+### code chunk number 8: plotRaster (eval = FALSE)
+###################################################
+##   fakeSeqs<-createFakeDNA(5000,500)
+##   refSeq<-fakeSeqs[1]
+##   fakeSeqs<-fakeSeqs[-1]
+##   species<-sprintf('Species %s',sub(' [0-9]+$','',names(fakeSeqs)))
+##   par(mar=c(3.5,4.4,.5,7),mgp=c(2.5,1,0))
+##   plotDNA(fakeSeqs,groups=species,res=1000)
+
+
+###################################################
+### code chunk number 9: showPlotRaster
+###################################################
+  fakeSeqs<-createFakeDNA(5000,500)
+  refSeq<-fakeSeqs[1]
+  fakeSeqs<-fakeSeqs[-1]
+  species<-sprintf('Species %s',sub(' [0-9]+$','',names(fakeSeqs)))
+  par(mar=c(3.5,4.4,.5,7),mgp=c(2.5,1,0))
+  plotDNA(fakeSeqs,groups=species,res=1000)
+
+

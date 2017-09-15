@@ -100,6 +100,26 @@ Amino acids can also be plotted although the larger number of amino acids makes 
 \end{center}
 \end{figure}
 
+If file size of a vector format like pdf are too large then use the \code{res} argument to set the resolution at which to render the coloring as a raster image rather than vector.
+<<plotRaster, echo=TRUE, eval=FALSE>>=
+  fakeSeqs<-createFakeDNA(5000,500)
+  refSeq<-fakeSeqs[1]
+  fakeSeqs<-fakeSeqs[-1]
+  species<-sprintf('Species %s',sub(' [0-9]+$','',names(fakeSeqs)))
+  par(mar=c(3.5,4.4,.5,7),mgp=c(2.5,1,0))
+  plotDNA(fakeSeqs,groups=species,res=1000)
+@
+
+\begin{figure}[htbp]
+\begin{center}
+<<showPlotRaster, fig=TRUE, height=4.5, width=8, echo=FALSE>>=
+<<plotRaster>>
+@
+\label{figPlotDNA}
+  \caption{An example of plotting the coloring in raster format for file size reduction}
+\end{center}
+\end{figure}
+
 
 
 \end{document}
