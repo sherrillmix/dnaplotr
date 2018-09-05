@@ -185,6 +185,7 @@ plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red
     #1 rectangle per string of identical bases
     graphics::rect(xStart+ii-.5,colRanges$bottom+.5,xStart+ii+.5,colRanges$top+.5+spacer,col=colRanges$col,border=NA)
   }
+  out<-c()
   if(!is.null(groups)){
     groupOrder<-rep(groups,seqCounts)
     maxGroupCount<-max(table(groupOrder))
@@ -195,6 +196,7 @@ plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red
       if(groupCexScale)cexScale<-((diff(c(thisMin,thisMax))+1)/maxGroupCount)^.5
       else cexScale<-1
       if(display['groups'])graphics::mtext(sub('^[$^]','',ii),4,at=mean(c(thisMin,thisMax)),cex=max(.3,cexScale*graphics::par('cex.axis')),line=.5,las=2)
+      out[[ii]]<-mean(c(thisMin,thisMax))
       graphics::abline(h=c(thisMin-.5,thisMax+.5))
     }
   }
@@ -204,7 +206,7 @@ plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red
     legendCols<-cols[!names(cols) %in% c('default','-')]
     graphics::legend(insetPos[1],insetPos[2], names(legendCols),col=legendCols, pt.bg=legendCols,pch = 22,ncol=max(4,length(legendCols)/2),bty='n',xjust=1,yjust=0,xpd=NA,cex=graphics::par('cex.axis'),x.intersp=0.75)
   }
-  invisible(NULL)
+  invisible(out)
 }
 
 #' @describeIn plotDNA Plot a bunch of AA sequences

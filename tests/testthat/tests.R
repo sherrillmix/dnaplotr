@@ -111,9 +111,10 @@ test_that("plotDNA works",{
   expect_null(plotDNA(c("AAA","CCC","CTC")))
   expect_null(plotDNA(c("ZZXZX","CCC","CTC")))
   expect_null(plotDNA(c("AA-","CC.","CTC")))
-  expect_null(plotDNA(c("AA-","CC.","CTC"),groups=c(1,1,2)))
+  expect_equal(plotDNA(c("AA-","CC.","CTC"),groups=c(1,1,2)),c('1'=1.5,'2'=3))
   expect_error(plotDNA(c("AA-","CC.","CTC"),groups=c(1,1)),'[Ll]ength')
   expect_null(plotDNA(c("AA-","CC.","CTC"),seqCounts=c(1,1,100)))
+  expect_equal(plotDNA(c("AA-","CC.","CTC"),groups=c(1,1,2),seqCounts=c(1,2,3)),c('1'=2,'2'=5))
   expect_error(plotDNA(c()),'missing') #is this desired?
   expect_error(plotDNA(NULL),'missing') #is this desired?
   expect_null(plotDNA(c("AA-","CC.","CTC"),refSeq='A-A'))
