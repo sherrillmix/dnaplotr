@@ -40,7 +40,7 @@ plotAA(fakeAA, groups = c("Ref", "Sub", "Stop"))
 
 ![plot of chunk aaExample](README_files/aaExample-1.png) 
 
-##Helper functions
+## Helper functions
 
 ### replaceOuterGaps
 <code>replaceOuterGaps(seqs)</code> marks gaps at the ends of sequences differently than internal indels.  For example:
