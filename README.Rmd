@@ -33,7 +33,7 @@ fakeAA<-c('MALWTRLRPLLALLALWPPPPARAFVNQHLCGSHLVEALY',
 plotAA(fakeAA,groups=c('Ref','Sub','Stop'))
 ```
 
-##Helper functions
+## Helper functions
 
 ### replaceOuterGaps
 <code>replaceOuterGaps(seqs)</code> marks gaps at the ends of sequences differently than internal indels.  For example:
