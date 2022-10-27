@@ -115,7 +115,7 @@ If file size of a vector format like pdf are too large then use the \code{res} a
 <<showPlotRaster, fig=TRUE, height=4.5, width=8, echo=FALSE>>=
 <<plotRaster>>
 @
-\label{figPlotDNA}
+\label{figPlotRaster}
   \caption{An example of plotting the coloring in raster format for file size reduction}
 \end{center}
 \end{figure}
