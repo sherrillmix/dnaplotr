@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/sherrillmix/dnaplotr.svg?branch=master)](https://travis-ci.org/sherrillmix/dnaplotr)
 [![codecov.io](https://codecov.io/github/sherrillmix/dnaplotr/coverage.svg?branch=master)](https://codecov.io/github/sherrillmix/dnaplotr?branch=master)
 
-##Install
+## Install
 An R library to plot a visual representation of a vector of DNA sequences. To install directly from github, use the [<code>devtools</code>](https://github.com/hadley/devtools) library and run:
 
 
@@ -22,23 +22,24 @@ library(dnaplotr)
 
 
 ```r
-seqs <- c("ACACA", "ACACA", "ACACT", "ACA-A")
+seqs<-c('ACACA','ACACA','ACACT','ACA-A')
 plotDNA(seqs)
 ```
 
-![plot of chunk seqExample](README_files/seqExample-1.png) 
+![plot of chunk seqExample](README_files/seqExample-1.png)
 
 ### plotAA
 <code>plotAA(seqs)</code> takes a character vector of strings representing amino acid sequences and plots them to the current device. By default, amino acids are colored according to a colorscheme modified from [JMol](http://jmol.sourceforge.net/jscolors/) that seeks to assign similar colors to amino acids with similar properties. In addition, - are colored gray, stop codons (annotated as X) are black and all other characters are white. For example:
 
 
 ```r
-fakeAA <- c("MALWTRLRPLLALLALWPPPPARAFVNQHLCGSHLVEALY", "MALWTRLRPLLALLALWPLPPARAFVNQHLCGSHLVEALY", 
-    "MALWTRLRPLLALLALWPPPPARAFVNX")
-plotAA(fakeAA, groups = c("Ref", "Sub", "Stop"))
+fakeAA<-c('MALWTRLRPLLALLALWPPPPARAFVNQHLCGSHLVEALY',
+'MALWTRLRPLLALLALWPLPPARAFVNQHLCGSHLVEALY',
+'MALWTRLRPLLALLALWPPPPARAFVNX')
+plotAA(fakeAA,groups=c('Ref','Sub','Stop'))
 ```
 
-![plot of chunk aaExample](README_files/aaExample-1.png) 
+![plot of chunk aaExample](README_files/aaExample-1.png)
 
 ## Helper functions
 
@@ -71,12 +72,12 @@ replaceAfterStop(seqs)
 A more complex example displaying 1000 sequences is:
 
 ```r
-fakeSeqs <- createFakeDNA(1000)
-refSeq <- fakeSeqs[1]
-fakeSeqs <- fakeSeqs[-1]
-species <- sprintf("Species %s", sub(" [0-9]+$", "", names(fakeSeqs)))
-par(mar = c(3.5, 4.4, 0.5, 7))
-plotDNA(fakeSeqs, groups = species, groupCexScale = TRUE)
+fakeSeqs<-createFakeDNA(1000)
+refSeq<-fakeSeqs[1]
+fakeSeqs<-fakeSeqs[-1]
+species<-sprintf('Species %s',sub(' [0-9]+$','',names(fakeSeqs)))
+par(mar=c(3.5,4.4,.5,7))
+plotDNA(fakeSeqs,groups=species,groupCexScale=TRUE)
 ```
 
 To produce something like:

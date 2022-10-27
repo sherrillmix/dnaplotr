@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/sherrillmix/dnaplotr.svg?branch=master)](https://travis-ci.org/sherrillmix/dnaplotr)
 [![codecov.io](https://codecov.io/github/sherrillmix/dnaplotr/coverage.svg?branch=master)](https://codecov.io/github/sherrillmix/dnaplotr?branch=master)
 
-##Install
+## Install
 An R library to plot a visual representation of a vector of DNA sequences. To install directly from github, use the [<code>devtools</code>](https://github.com/hadley/devtools) library and run:
 
 ```{r, eval=FALSE}
