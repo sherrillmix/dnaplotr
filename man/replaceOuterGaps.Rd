@@ -4,8 +4,13 @@
 \alias{replaceOuterGaps}
 \title{Convenience function to replace gaps at the start and end of a sequence with a different character}
 \usage{
-replaceOuterGaps(seqs, leftEnd = TRUE, rightEnd = TRUE, gapChars = c("*",
-  "-"), replaceChar = ".")
+replaceOuterGaps(
+  seqs,
+  leftEnd = TRUE,
+  rightEnd = TRUE,
+  gapChars = c("*", "-"),
+  replaceChar = "."
+)
 }
 \arguments{
 \item{seqs}{a character vector of sequences}

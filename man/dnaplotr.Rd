@@ -3,7 +3,6 @@
 \docType{package}
 \name{dnaplotr}
 \alias{dnaplotr}
-\alias{dnaplotr-package}
 \title{Functions to plot out a collection of DNA sequences}
 \description{
 Produce a visual representation of a vector of DNA sequences

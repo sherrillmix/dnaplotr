@@ -4,3 +4,5 @@
 ^.+.png$
 ^README.Rmd$
 ^.travis.yml$
+^doc$
+^Meta$

@@ -5,13 +5,23 @@
 \alias{plotAA}
 \title{Plot a bunch of DNA sequences}
 \usage{
-plotDNA(seqs, seqCounts = rep(1, length(seqs)), cols = c(A = "green", T =
-  "red", C = "blue", G = "yellow", `-` = "grey", default = "white"),
-  xlab = "Position", ylab = "Sequence Read", display = c(groups =
-  !is.null(groups)), xStart = 1, groups = NULL, groupCexScale = FALSE,
-  refSeq = NULL, res = 0, ...)
+plotDNA(
+  seqs,
+  seqCounts = rep(1, length(seqs)),
+  cols = c(A = "green", T = "red", C = "blue", G = "yellow", `-` = "grey", default =
+    "white"),
+  xlab = "Position",
+  ylab = "Sequence Read",
+  display = c(groups = !is.null(groups)),
+  xStart = 1,
+  groups = NULL,
+  groupCexScale = FALSE,
+  refSeq = NULL,
+  res = 0,
+  ...
+)
 
-plotAA(..., mar = NULL, cols = c(dnaplotr::aminoCols, `-` = "grey"))
+plotAA(..., mar = NULL, cols = dnaplotr::aminoCols)
 }
 \arguments{
 \item{seqs}{A character vector containing DNA sequences}
@@ -40,6 +50,9 @@ plotAA(..., mar = NULL, cols = c(dnaplotr::aminoCols, `-` = "grey"))
 
 \item{mar}{margin sizes as in \code{\link{par}}. If left at default then use the current margin settings increasing margin[1] (bottom) to 6.5 if less than 6.5 (needed to give the amino acid legend more space by default). Set explicitly if this behavior is undesired.}
 }
+\value{
+an invisible vector of the mean vertical position for groupings (empty if `groups` is null)
+}
 \description{
 Take a vector of strings representing DNA sequences and plot them to the
 current device. A, C, T and G are colored, - are colored gray and all other
@@ -47,9 +60,9 @@ characters are white.
 }
 \section{Functions}{
 \itemize{
-\item \code{plotAA}: Plot a bunch of AA sequences
-}}
+\item \code{plotAA()}: Plot a bunch of AA sequences
 
+}}
 \examples{
 plotDNA(c('ACACA','ACACA','ACACT'))
 refSeq<-'AC---A'

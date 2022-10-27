@@ -4,8 +4,12 @@
 \alias{removeGapCols}
 \title{Convenience function to remove columns composed mostly of gaps}
 \usage{
-removeGapCols(seqs, gapChars = c("*", "-", "."), maxGapProp = 0.9,
-  ignoreChars = c())
+removeGapCols(
+  seqs,
+  gapChars = c("*", "-", "."),
+  maxGapProp = 0.9,
+  ignoreChars = c()
+)
 }
 \arguments{
 \item{seqs}{a character vector of sequences}

@@ -5,12 +5,26 @@
 \alias{createFakeAA}
 \title{Create fake DNA or amino acid sequences}
 \usage{
-createFakeDNA(n = 500, nChar = 400, nSplit = 3, pGap = 0.3,
-  pNoise = 0.01, pMutation = 0.005, bases = c("A", "C", "T", "G", "-"),
-  excludeBases = c("-", "X"))
+createFakeDNA(
+  n = 500,
+  nChar = 400,
+  nSplit = 3,
+  pGap = 0.3,
+  pNoise = 0.01,
+  pMutation = 0.005,
+  bases = c("A", "C", "T", "G", "-"),
+  excludeBases = c("-", "X")
+)
 
-createFakeAA(n = 100, nChar = 100, ..., pGap = 0.2, pNoise = 0,
-  pMutation = 0.01, bases = c(names(dnaplotr::aminoCols), "-"))
+createFakeAA(
+  n = 100,
+  nChar = 100,
+  ...,
+  pGap = 0.2,
+  pNoise = 0,
+  pMutation = 0.01,
+  bases = c(names(dnaplotr::aminoCols), "-")
+)
 }
 \arguments{
 \item{n}{number of fake sequences to generate}
