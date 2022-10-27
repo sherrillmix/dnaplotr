@@ -13,7 +13,7 @@ aminoColors$spreadCol<-ave(aminoColors$col,aminoColors$col,FUN=function(x){
 	spacing<-seq((length(x)-1)*-spacer,(length(x)-1)*spacer,length.out=length(x))
 	lab<-convertColor(t(col2rgb(x[1])),from='sRGB',to='Lab',scale.in=255)[rep(1,length(x)),]
 	lab[,'b']<-lab[,'b']-spacing*angles1
-	lab[,'a.x']<-lab[,'a.x']+spacing*angles2
+	lab[,'a']<-lab[,'a']+spacing*angles2
 	rgbs<-convertColor(lab,from='Lab',to='sRGB')
 	return(rgb(rgbs))
 })
