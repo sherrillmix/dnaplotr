@@ -21,7 +21,7 @@ README.md: README.Rmd
 inst/doc: vignettes/*.Rnw R/*.R
 	make localInstall
 	R -e 'devtools::build_vignettes()'
-	touch inst/doc
+	if [ -d inst/doc ];then touch inst/doc;fi
 
 data: data-raw/makeAminoColors.R
 	Rscript data-raw/makeAminoColors.R
@@ -29,4 +29,4 @@ data: data-raw/makeAminoColors.R
 	
 ../$(PACKAGEFILE): man R/*.R DESCRIPTION inst/doc data tests/testthat/*.R
 	sed -i "s/^Date:.*$$/Date: `date +%Y-%m-%d`/" DESCRIPTION
-	R -e 'devtools::check();devtools::build()'
+	R -e "devtools::check(build_args = c('--compact-vignettes=both'));devtools::build()"
