@@ -67,7 +67,7 @@ indexToRange<-function(index){
 #' @param res If res greater than 0 then render the colors as a raster graphic with this res x res resolution. Useful for embedding a raster graphic inside a pdf where the file size would otherwise be too large. Note that this parameter is best left at 0 except in special circumstances.
 #' @param ... Additional arguments to plot
 #'
-#' @return NULL
+#' @return an invisible vector of the mean vertical position for groupings (empty if `groups` is null)
 #'
 #' @export
 #' 
@@ -92,12 +92,6 @@ indexToRange<-function(index){
 #' plotAA(fakeAA,groups=c('Ref','Sub','Stop'))
 #' #set res>0 if vector file sizes are too large
 #' plotAA(fakeAA,groups=c('Ref','Sub','Stop'),res=500)
-#things to add back:
-# gapTrim
-# orderBy?
-# refSeq matched - into white
-# refseq display
-# distOrder
 plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red','C'='blue','G'='yellow','-'='grey','default'='white'),xlab='Position',ylab='Sequence Read',display=c('groups'=!is.null(groups)),xStart=1,groups=NULL,groupCexScale=FALSE, refSeq=NULL,res=0,...){
   if(res>0){
     tmpPng<-tempfile()
@@ -196,7 +190,7 @@ plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red
       if(groupCexScale)cexScale<-((diff(c(thisMin,thisMax))+1)/maxGroupCount)^.5
       else cexScale<-1
       if(display['groups'])graphics::mtext(sub('^[$^]','',ii),4,at=mean(c(thisMin,thisMax)),cex=max(.3,cexScale*graphics::par('cex.axis')),line=.5,las=2)
-      out[[ii]]<-mean(c(thisMin,thisMax))
+      out[ii]<-mean(c(thisMin,thisMax))
       graphics::abline(h=c(thisMin-.5,thisMax+.5))
     }
   }
@@ -204,7 +198,7 @@ plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red
   if(display['legend']){
     insetPos<-c(graphics::grconvertX(1,'nfc','user'),graphics::grconvertY(0,'nfc','user')) #-.01 could cause trouble here
     legendCols<-cols[!names(cols) %in% c('default','-')]
-    graphics::legend(insetPos[1],insetPos[2], names(legendCols),col=legendCols, pt.bg=legendCols,pch = 22,ncol=max(4,length(legendCols)/2),bty='n',xjust=1,yjust=0,xpd=NA,cex=graphics::par('cex.axis'),x.intersp=0.75)
+    graphics::legend(insetPos[1],insetPos[2], names(legendCols),col=legendCols, pt.bg=legendCols,pch = 22,ncol=max(4,ceiling(length(legendCols)/2)),bty='n',xjust=1,yjust=0,xpd=NA,cex=graphics::par('cex.axis'),x.intersp=0.75)
   }
   invisible(out)
 }
@@ -212,7 +206,7 @@ plotDNA<-function(seqs,seqCounts=rep(1,length(seqs)),cols=c('A'='green','T'='red
 #' @describeIn plotDNA Plot a bunch of AA sequences
 #' @param mar margin sizes as in \code{\link{par}}. If left at default then use the current margin settings increasing margin[1] (bottom) to 6.5 if less than 6.5 (needed to give the amino acid legend more space by default). Set explicitly if this behavior is undesired.
 #' @export
-plotAA<-function(...,mar=NULL,cols=c(dnaplotr::aminoCols,'-'='grey')){
+plotAA<-function(...,mar=NULL,cols=dnaplotr::aminoCols){
   if(is.null(mar)){
     mar<-graphics::par('mar')
     if(mar[1]<6.5)mar[1]<-6.5

@@ -121,6 +121,7 @@ test_that("plotDNA works",{
   expect_error(plotDNA(c("AA-","CC.","CTC"),seqCounts=c(1,1)),'[Ll]ength')
   expect_error(plotDNA(c("AA-","CC.","CTC"),groups=c(1,1,NA)),'NA')
   expect_error(plotDNA(c("AA-","CC.","CTC")),NA)
+  expect_error(plotDNA(c("AA-","CC.","CTC"),cols=dnaplotr::aminoCols),NA)
 })
 
 test_that("plotAA works",{
